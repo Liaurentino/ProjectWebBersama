@@ -5,28 +5,41 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  
-  // Hooks dari react-router-dom untuk berpindah halaman secara programatik
+  const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
-    e.preventDefault(); // Mencegah reload halaman bawaan browser
+  const handleLogin = async (e) => {
+    e.preventDefault();
     setError('');
 
-    // Validasi input kosong
     if (!email || !password) {
       return setError('Email dan Password wajib diisi!');
     }
 
-    // Simulasi pengecekan ke Backend (Hardcoded untuk MVP/Testing)
-    if (email === 'admin@test.com' && password === 'admin123') {
-      // Set token sesi ke localStorage sebagai penanda sudah login
-      localStorage.setItem('token', 'dummy-jwt-token');
-      
-      // Pindah ke halaman dashboard setelah sukses
+    setLoading(true);
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        return setError(data.message || 'Login gagal');
+      }
+
+      // Simpan token dan data user
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+
       navigate('/dashboard');
-    } else {
-      setError('Kredensial salah! Gunakan: admin@test.com / admin123');
+    } catch (err) {
+      setError('Terjadi kesalahan. Coba lagi.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -39,7 +52,6 @@ const Login = () => {
         </div>
 
         <form onSubmit={handleLogin} className="space-y-5">
-          {/* Menampilkan pesan error jika ada */}
           {error && (
             <div className="p-3 text-sm text-red-600 bg-red-50 rounded-lg border border-red-100">
               {error}
@@ -48,9 +60,9 @@ const Login = () => {
 
           <div>
             <label className="block mb-1 text-sm font-semibold text-slate-700">Email</label>
-            <input 
-              type="email" 
-              placeholder="admin@test.com"
+            <input
+              type="email"
+              placeholder="email@contoh.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
@@ -59,25 +71,35 @@ const Login = () => {
 
           <div>
             <label className="block mb-1 text-sm font-semibold text-slate-700">Password</label>
-            <input 
-              type="password" 
-              placeholder="admin123"
+            <input
+              type="password"
+              placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
             />
           </div>
 
-          <button 
-            type="submit" 
-            className="w-full py-2.5 mt-2 font-bold text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-200 transition-all"
+          <div className="text-right">
+            <Link to="/forgot-password" className="text-sm text-blue-600 hover:underline">
+              Lupa password?
+            </Link>
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-2.5 mt-2 font-bold text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-200 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            Login Sekarang
+            {loading ? 'Memproses...' : 'Login Sekarang'}
           </button>
         </form>
 
         <div className="mt-6 text-center text-sm text-slate-500">
-          Belum punya akun? <Link to="/register" className="font-bold text-blue-600 hover:underline">Daftar di sini</Link>
+          Belum punya akun?{' '}
+          <Link to="/register" className="font-bold text-blue-600 hover:underline">
+            Daftar di sini
+          </Link>
         </div>
       </div>
     </div>

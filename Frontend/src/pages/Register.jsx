@@ -2,19 +2,21 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 
 const Register = () => {
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
-  
+  const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
 
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
     setError('');
 
     // Validasi form kosong
-    if (!email || !password || !confirmPassword) {
+    if (!fullName || !email || !password || !confirmPassword) {
       return setError('Semua kolom wajib diisi!');
     }
 
@@ -34,12 +36,27 @@ const Register = () => {
       return setError('Password dan Konfirmasi Password tidak cocok!');
     }
 
-    // Simulasi proses penyimpanan data ke database
-    // Pada implementasi riil, di sinilah Axios/Fetch API dipanggil
-    alert('Registrasi berhasil! Akun Anda telah dibuat. Silakan login.');
-    
-    // Setelah sukses mendaftar, kembalikan user ke halaman Login
-    navigate('/login');
+    setLoading(true);
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fullName, email, password, confirmPassword }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        return setError(data.message || 'Registrasi gagal');
+      }
+
+      // Registrasi berhasil, arahkan ke halaman login
+      navigate('/login', { state: { registered: true } });
+    } catch (err) {
+      setError('Terjadi kesalahan. Coba lagi.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -56,6 +73,17 @@ const Register = () => {
               {error}
             </div>
           )}
+
+          <div>
+            <label className="block mb-1 text-sm font-semibold text-slate-700">Nama Lengkap</label>
+            <input
+              type="text"
+              placeholder="Masukkan nama lengkap"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:bg-white transition-all"
+            />
+          </div>
 
           <div>
             <label className="block mb-1 text-sm font-semibold text-slate-700">Email Valid</label>
@@ -92,9 +120,10 @@ const Register = () => {
 
           <button 
             type="submit" 
-            className="w-full py-2.5 mt-4 font-bold text-white bg-green-600 rounded-lg hover:bg-green-700 focus:ring-4 focus:ring-green-200 transition-all"
+            disabled={loading}
+            className="w-full py-2.5 mt-4 font-bold text-white bg-green-600 rounded-lg hover:bg-green-700 focus:ring-4 focus:ring-green-200 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            Buat Akun
+            {loading ? 'Memproses...' : 'Buat Akun'}
           </button>
         </form>
 
