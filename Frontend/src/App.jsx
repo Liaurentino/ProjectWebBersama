@@ -8,6 +8,8 @@ import Roadmap from './pages/Roadmap';
 import AIChat from './pages/AIChat';
 import CareerAnalysis from './pages/CareerAnalysis';
 import ForgotPassword from './pages/ForgotPassword';
+import OnboardingStep1 from './pages/OnboardingStep1';
+import OnboardingStep2 from './pages/OnboardingStep2';
 
 import ProtectedRoute from './components/ProtectedRoute';
 import MainLayout from './components/MainLayout';
@@ -23,6 +25,8 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} /> 
         <Route path="/forgotpassword" element={<ForgotPassword />} /> 
+        <Route path="/onboarding/step-1" element={<OnboardingStep1 />} />
+        <Route path="/onboarding/step-2" element={<OnboardingStep2 />} />
         
         {/* 3. RUTE TERPROTEKSI (Hanya bisa diakses jika sudah login) */}
         <Route 

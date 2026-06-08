@@ -58,8 +58,10 @@ const Register = () => {
     }
 
     // Simulasi sukses registrasi
-    alert('Registrasi berhasil! Silakan login.');
-    navigate('/login');
+    alert('Registrasi berhasil! Silakan lengkapi profil Anda.');
+    // Set dummy token agar ProtectedRoute mengizinkan akses ke dashboard nanti
+    localStorage.setItem('token', 'dummy-token-onboarding');
+    navigate('/onboarding/step-1');
   };
 
   return (
