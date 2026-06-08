@@ -6,7 +6,7 @@ const imgImage = "https://www.figma.com/api/mcp/asset/652ddd11-ffc5-4842-a14d-57
 const imgContainer = "https://www.figma.com/api/mcp/asset/e7ca7bc4-3a55-4a96-81ab-c6a2c9f85f56";
 const imgIcon = "https://www.figma.com/api/mcp/asset/6743aa87-14a1-4c14-afb7-52e1fae84ab4";
 const imgIcon1 = "https://www.figma.com/api/mcp/asset/63341217-9b81-41ae-bafa-34c8829a7b75";
-const imgContainer1 = "https://www.figma.com/api/mcp/asset/ca19a2d0-6e67-4fae-b534-d95fd8d3132e";
+const imgEyeIcon = "https://www.figma.com/api/mcp/asset/c710f133-22be-48a5-9b49-190e6caf6e1b";
 const imgContainer2 = "https://www.figma.com/api/mcp/asset/67f5a7cc-4c3f-4a2f-a33d-8b72415d454f";
 
 const Login = () => {
@@ -113,7 +113,7 @@ const Login = () => {
             <div className="space-y-1.5">
               <div className="flex justify-between items-center">
                 <label className="text-[#191c1e] text-sm font-semibold">Password</label>
-                <Link to="#" className="text-[#004ac6] text-xs font-semibold hover:underline decoration-2 underline-offset-2">Forgot Password?</Link>
+                <Link to="/forgotpassword" title="Forgot Password?" className="text-[#004ac6] text-xs font-semibold hover:underline decoration-2 underline-offset-2">Forgot Password?</Link>
               </div>
               <div className="relative group">
                 <input 
@@ -129,7 +129,7 @@ const Login = () => {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 p-2 hover:bg-slate-50 rounded-md transition-colors"
                 >
-                  <img src={imgContainer1} alt="Toggle Visibility" className="w-4.5 h-3 opacity-40 hover:opacity-100 transition-opacity" />
+                  <img src={imgEyeIcon} alt="Toggle Visibility" className="w-5 h-4 opacity-40 hover:opacity-100 transition-opacity" />
                 </button>
               </div>
             </div>

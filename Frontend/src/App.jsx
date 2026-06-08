@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard';
 import Roadmap from './pages/Roadmap';
 import AIChat from './pages/AIChat';
 import CareerAnalysis from './pages/CareerAnalysis';
+import ForgotPassword from './pages/ForgotPassword';
 
 import ProtectedRoute from './components/ProtectedRoute';
 import MainLayout from './components/MainLayout';
@@ -21,6 +22,7 @@ function App() {
         {/* 2. RUTE PUBLIK (Bisa diakses tanpa login - taruh di sini) */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} /> 
+        <Route path="/forgotpassword" element={<ForgotPassword />} /> 
         
         {/* 3. RUTE TERPROTEKSI (Hanya bisa diakses jika sudah login) */}
         <Route 

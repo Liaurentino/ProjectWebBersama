@@ -10,6 +10,7 @@ const imgContainer1 = "https://www.figma.com/api/mcp/asset/c710f133-22be-48a5-9b
 const imgContainer2 = "https://www.figma.com/api/mcp/asset/08b8fd94-b1a7-4a38-aa4f-5484b4625981";
 const imgContainer3 = "https://www.figma.com/api/mcp/asset/818bc0b9-d28d-4c03-9e86-8916fa8b0d8d";
 const imgContainer4 = "https://www.figma.com/api/mcp/asset/de8689f7-7dac-4795-b189-96bec7df7a11";
+const imgErrorIcon = "https://www.figma.com/api/mcp/asset/15e7957b-a688-4e3d-97ed-bc8f505fdb3c";
 
 const Register = () => {
   const [fullName, setFullName] = useState('');
@@ -17,10 +18,19 @@ const Register = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [agreed, setAgreed] = useState(false);
   const [error, setError] = useState('');
   
   const navigate = useNavigate();
+
+  const validateEmail = (email) => {
+    return String(email)
+      .toLowerCase()
+      .match(
+        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+      );
+  };
 
   const handleRegister = (e) => {
     e.preventDefault();
@@ -28,6 +38,15 @@ const Register = () => {
 
     if (!fullName || !email || !password || !confirmPassword) {
       return setError('Semua kolom wajib diisi!');
+    }
+
+    if (!validateEmail(email)) {
+      return setError('Format email tidak valid. Gunakan contoh: jane.doe@example.com');
+    }
+
+    // Simulasi email sudah terdaftar
+    if (email === 'admin@test.com') {
+      return setError('Email sudah terdaftar atau format password salah.');
     }
 
     if (password !== confirmPassword) {
@@ -47,9 +66,12 @@ const Register = () => {
     <div className="min-h-screen w-full bg-[#f8f9fb] font-inter flex flex-col relative overflow-x-hidden">
       {/* Navbar Placeholder from Figma */}
       <nav className="h-14 w-full bg-[#f8f9fb] flex items-center justify-between px-4 fixed top-0 left-0 z-50">
-        <div className="p-2 hover:bg-slate-200/50 rounded-full transition-colors cursor-pointer">
-          <img src={imgContainer3} alt="Menu" className="w-4 h-4" />
-        </div>
+        <button 
+          onClick={() => navigate('/login')}
+          className="p-2 hover:bg-slate-200/50 rounded-full transition-colors cursor-pointer flex items-center gap-2"
+        >
+          <img src={imgContainer3} alt="Back" className="w-4 h-4" />
+        </button>
         <div className="flex flex-col items-center">
           <span className="text-[#004ac6] text-2xl font-bold tracking-tight">ProdActivity</span>
         </div>
@@ -59,7 +81,22 @@ const Register = () => {
       </nav>
 
       {/* Content Container */}
-      <div className="flex-1 flex items-center justify-center p-6 mt-14 lg:p-12">
+      <div className="flex-1 flex flex-col items-center justify-center p-6 mt-14 lg:p-12 space-y-6 origin-top scale-[0.7] md:scale-[0.75] lg:scale-[0.8] transition-transform duration-500">
+        {error && (
+          <div 
+            className="w-full max-w-[896px] bg-[#ffdad6] border border-[#ba1a1a] flex gap-4 items-center px-6 py-4 relative rounded-lg shadow-[0px_20px_25px_-5px_rgba(0,0,0,0.1),0px_8px_10px_-6px_rgba(0,0,0,0.1)] animate-in fade-in slide-in-from-top-2 duration-300"
+          >
+            <div className="flex-shrink-0 w-5 h-5">
+              <img src={imgErrorIcon} alt="Error" className="w-full h-full" />
+            </div>
+            <div className="flex-1">
+              <p className="text-[#93000a] text-[14px] font-medium leading-tight">
+                {error}
+              </p>
+            </div>
+          </div>
+        )}
+
         <div className="bg-white max-w-[896px] w-full flex flex-col md:flex-row rounded-xl shadow-[0px_12px_24px_rgba(17,24,39,0.1)] overflow-hidden">
           
           {/* Left Panel: Illustration / Branding */}
@@ -82,12 +119,7 @@ const Register = () => {
             </div>
 
             <form onSubmit={handleRegister} className="space-y-4">
-              {error && (
-                <div className="p-3 text-xs font-medium text-red-600 bg-red-50 rounded-lg border border-red-100 flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 bg-red-600 rounded-full animate-pulse" />
-                  {error}
-                </div>
-              )}
+              {/* Error block removed from here */}
 
               {/* Full Name Field */}
               <div className="space-y-1">
@@ -146,7 +178,7 @@ const Register = () => {
                 <label className="text-[#191c1e] text-xs font-medium tracking-wide">Confirm Password</label>
                 <div className="relative group">
                   <input 
-                    type={showPassword ? "text" : "password"}
+                    type={showConfirmPassword ? "text" : "password"}
                     placeholder="••••••••"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
@@ -155,7 +187,7 @@ const Register = () => {
                   <img src={imgIcon1} alt="" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-5 opacity-40 group-focus-within:opacity-100 transition-opacity" />
                   <button 
                     type="button"
-                    onClick={() => setShowPassword(!showPassword)}
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 hover:bg-slate-50 rounded transition-colors"
                   >
                     <img src={imgContainer1} alt="" className="w-5 h-4 opacity-40 hover:opacity-100 transition-opacity" />
