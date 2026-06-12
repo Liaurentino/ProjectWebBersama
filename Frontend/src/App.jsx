@@ -16,7 +16,7 @@ import Statistics from './pages/Statistics';
 import Notes from './pages/Notes';
 import Profile from './pages/Profile';
 import SearchResults from './pages/SearchResults';
-
+import ResetPassword from './pages/ResetPassword';
 import ProtectedRoute from './components/ProtectedRoute';
 import OnboardingRoute from './components/OnboardingRoute';
 import MainLayout from './components/MainLayout';
