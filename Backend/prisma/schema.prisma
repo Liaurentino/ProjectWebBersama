@@ -40,6 +40,7 @@ model User {
   // Data onboarding
   jurusan         String?
   semester        Int?
+  interests       String[] 
   isOnboarded     Boolean          @default(false)
 
   createdAt       DateTime         @default(now())

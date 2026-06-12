@@ -41,9 +41,21 @@ const register = async (req, res) => {
       },
     })
 
+    const token = jwt.sign(
+      { id: user.id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    )
+
     return res.status(201).json({
       message: 'User registered successfully',
-      userId: user.id,
+      token,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        isOnboarded: user.isOnboarded,
+      },
     })
   } catch (err) {
     console.error('[register]', err)
@@ -77,11 +89,13 @@ const login = async (req, res) => {
     )
 
     return res.status(200).json({
+      message: 'Login successful',
       token,
       user: {
         id: user.id,
         name: user.name,
         email: user.email,
+        isOnboarded: user.isOnboarded,
       },
     })
   } catch (err) {
@@ -131,7 +145,6 @@ const resetPassword = async (req, res) => {
       return res.status(400).json({ message: 'Token and new password are required' })
     }
 
-    // Decode dulu tanpa verify untuk ambil user id
     const decoded = jwt.decode(token)
     if (!decoded || !decoded.id) {
       return res.status(400).json({ message: 'Invalid token' })
@@ -142,7 +155,6 @@ const resetPassword = async (req, res) => {
       return res.status(400).json({ message: 'Invalid token' })
     }
 
-    // Verify dengan password hash sebagai bagian secret
     jwt.verify(token, process.env.JWT_SECRET + user.password)
 
     const hashedPassword = await bcrypt.hash(newPassword, SALT_ROUNDS)
@@ -161,4 +173,39 @@ const resetPassword = async (req, res) => {
   }
 }
 
-module.exports = { register, login, forgotPassword, resetPassword }
+// PUT /api/auth/onboarding
+const completeOnboarding = async (req, res) => {
+  try {
+    const { jurusan, semester, interests } = req.body
+    const userId = req.user.id
+
+    if (!jurusan || !semester || !interests?.length) {
+      return res.status(400).json({ message: 'All onboarding fields are required' })
+    }
+
+    const user = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        jurusan,
+        semester: parseInt(semester),
+        interests,
+        isOnboarded: true,
+      },
+    })
+
+    return res.status(200).json({
+      message: 'Onboarding completed',
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        isOnboarded: user.isOnboarded,
+      },
+    })
+  } catch (err) {
+    console.error('[completeOnboarding]', err)
+    return res.status(500).json({ message: 'Internal server error' })
+  }
+}
+
+module.exports = { register, login, forgotPassword, resetPassword, completeOnboarding }
