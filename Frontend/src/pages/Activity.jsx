@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTheme } from '../context/ThemeContext';
 
 // --- Icons (SVG) ---
 const ChevronDownIcon = () => (
@@ -47,7 +48,7 @@ const FilterDropdown = ({ label, value }) => (
   <div className="flex-1 flex flex-col px-6 py-2">
     <span className="text-[10px] font-bold text-gray-400 tracking-wider uppercase mb-1">{label}</span>
     <div className="flex items-center justify-between cursor-pointer">
-      <span className="text-sm font-medium text-gray-700">{value}</span>
+      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{value}</span>
       <ChevronDownIcon />
     </div>
   </div>
@@ -61,32 +62,32 @@ const ActivityCard = ({ activity }) => {
 
   if (isActive) {
     return (
-      <div className="bg-[#F0F4F8] rounded-xl flex items-stretch border-l-4 border-[#004AC6] overflow-hidden">
+      <div className="bg-[#F0F4F8] dark:bg-[#1A1C1E] rounded-xl flex items-stretch border-l-4 border-[#004AC6] overflow-hidden transition-colors">
         <div className="flex-1 p-5 flex gap-4">
           <div className="w-12 h-12 bg-[#004AC6] rounded-xl flex items-center justify-center text-white flex-shrink-0 mt-1">
             {iconType === 'user' ? <UserIcon /> : <BookIcon />}
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
-              <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${categoryColor.bg} ${categoryColor.text}`}>
+              <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${categoryColor.bg} ${categoryColor.text} dark:bg-opacity-20`}>
                 {category}
               </span>
-              <span className="text-gray-300">|</span>
-              <span className="text-[10px] font-medium text-gray-500">{project}</span>
+              <span className="text-gray-300 dark:text-gray-700">|</span>
+              <span className="text-[10px] font-medium text-gray-500 dark:text-gray-400">{project}</span>
             </div>
-            <h4 className="text-base font-bold text-gray-900 mb-1">{title}</h4>
-            <p className="text-sm text-gray-500 mb-2 leading-relaxed">{description}</p>
-            <div className="flex items-center gap-1.5 text-[#004AC6] font-medium text-xs">
+            <h4 className="text-base font-bold text-gray-900 dark:text-white mb-1">{title}</h4>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-2 leading-relaxed">{description}</p>
+            <div className="flex items-center gap-1.5 text-[#004AC6] dark:text-blue-400 font-medium text-xs">
               <ClockIcon />
               <span>{timeRange} | {duration}</span>
             </div>
           </div>
         </div>
         <div className="p-5 flex flex-col justify-center items-end gap-3">
-          <button className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-gray-600 hover:bg-white transition-colors">
+          <button className="w-8 h-8 rounded-full border border-gray-300 dark:border-gray-700 flex items-center justify-center text-gray-600 dark:text-gray-400 hover:bg-white dark:hover:bg-[#2A2D31] transition-colors">
             <PencilIcon />
           </button>
-          <button className="w-8 h-8 rounded-full border border-red-200 flex items-center justify-center text-red-500 hover:bg-red-50 transition-colors">
+          <button className="w-8 h-8 rounded-full border border-red-200 dark:border-red-900/30 flex items-center justify-center text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors">
             <Trash2Icon />
           </button>
         </div>
@@ -95,27 +96,27 @@ const ActivityCard = ({ activity }) => {
   }
 
   return (
-    <div className="bg-white rounded-xl p-5 flex items-center justify-between shadow-sm hover:shadow-md transition-shadow">
+    <div className="bg-white dark:bg-[#1A1C1E] rounded-xl p-5 flex items-center justify-between shadow-sm hover:shadow-md transition-all border border-transparent dark:border-gray-800">
       <div className="flex items-center gap-4">
-        <div className="w-12 h-12 bg-[#F0F7FF] rounded-xl flex items-center justify-center text-[#004AC6] flex-shrink-0">
+        <div className="w-12 h-12 bg-[#F0F7FF] dark:bg-[#2A2D31] rounded-xl flex items-center justify-center text-[#004AC6] dark:text-blue-400 flex-shrink-0">
           {iconType === 'book' ? <BookIcon /> : <UserIcon />}
         </div>
         <div>
           <div className="flex items-center gap-2 mb-0.5">
-            <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${categoryColor.bg} ${categoryColor.text}`}>
+            <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${categoryColor.bg} ${categoryColor.text} dark:bg-opacity-20`}>
               {category}
             </span>
-            <span className="text-gray-300">|</span>
-            <span className="text-[10px] font-medium text-gray-500">{project}</span>
+            <span className="text-gray-300 dark:text-gray-700">|</span>
+            <span className="text-[10px] font-medium text-gray-500 dark:text-gray-400">{project}</span>
           </div>
-          <h4 className="text-base font-bold text-gray-900">{title}</h4>
-          <div className="flex items-center gap-1.5 text-gray-400 text-xs mt-0.5">
+          <h4 className="text-base font-bold text-gray-900 dark:text-white">{title}</h4>
+          <div className="flex items-center gap-1.5 text-gray-400 dark:text-gray-500 text-xs mt-0.5">
             <ClockIcon />
             <span>{timeRange} | {duration}</span>
           </div>
         </div>
       </div>
-      <div className="flex items-center gap-1 text-sm font-medium text-gray-900 cursor-pointer hover:underline">
+      <div className="flex items-center gap-1 text-sm font-medium text-gray-900 dark:text-gray-300 cursor-pointer hover:underline">
         <span>View Details</span>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
       </div>
@@ -125,12 +126,12 @@ const ActivityCard = ({ activity }) => {
 
 const TimelineDivider = ({ label }) => (
   <div className="flex items-center gap-4 py-4">
-    <div className="flex-1 h-[1px] bg-gray-200"></div>
-    <div className="flex items-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-widest cursor-pointer">
+    <div className="flex-1 h-[1px] bg-gray-200 dark:bg-gray-800"></div>
+    <div className="flex items-center gap-2 text-xs font-bold text-gray-400 dark:text-gray-600 uppercase tracking-widest cursor-pointer">
       <span>{label}</span>
       <ChevronDownIcon />
     </div>
-    <div className="flex-1 h-[1px] bg-gray-200"></div>
+    <div className="flex-1 h-[1px] bg-gray-200 dark:bg-gray-800"></div>
   </div>
 );
 
@@ -138,6 +139,7 @@ const TimelineDivider = ({ label }) => (
 
 const Activity = () => {
   const [activePage, setActivePage] = useState(1);
+  const { isDarkMode } = useTheme();
 
   const activities = [
     {
@@ -166,16 +168,16 @@ const Activity = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] p-8 flex justify-start">
+    <div className="min-h-screen bg-[#F8F9FA] dark:bg-[#121212] p-8 flex justify-start transition-colors duration-300">
       <div className="w-full max-w-5xl space-y-8">
         {/* Section 1: Header */}
         <header>
-          <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Activity List</h1>
-          <p className="text-gray-500 mt-1">Manage and monitor all your productivity schedules.</p>
+          <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">Activity List</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">Manage and monitor all your productivity schedules.</p>
         </header>
 
         {/* Section 2: Filter Card */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 flex items-center divide-x divide-gray-100 overflow-hidden">
+        <div className="bg-white dark:bg-[#1A1C1E] rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 flex items-center divide-x divide-gray-100 dark:divide-gray-800 overflow-hidden transition-colors">
           <FilterDropdown label="CATEGORY" value="All" />
           <FilterDropdown label="PROJECT" value="All" />
         </div>
@@ -187,7 +189,7 @@ const Activity = () => {
             <input 
               type="text" 
               placeholder="Example: Working on My Math Project" 
-              className="flex-1 bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#004AC6]/20 transition-all"
+              className="flex-1 bg-white dark:bg-[#1A1C1E] border border-gray-200 dark:border-gray-800 rounded-xl px-4 py-3 text-sm text-[#191C1E] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#004AC6]/20 transition-all"
             />
             <div className="flex overflow-hidden rounded-xl">
               <button className="bg-[#004AC6] text-white px-6 py-3 font-bold text-sm hover:bg-[#003da3] transition-colors whitespace-nowrap">
@@ -202,19 +204,19 @@ const Activity = () => {
           {/* Row 2 */}
           <div className="flex flex-wrap items-center gap-4">
             {/* Date Picker */}
-            <div className="bg-white border border-gray-200 rounded-xl px-4 py-2 flex items-center gap-3 text-sm text-gray-500 cursor-pointer min-w-[160px]">
+            <div className="bg-white dark:bg-[#1A1C1E] border border-gray-200 dark:border-gray-800 rounded-xl px-4 py-2 flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400 cursor-pointer min-w-[160px] transition-colors">
               <span className="flex-1">mm/dd/yyyy</span>
               <CalendarIcon />
             </div>
 
             {/* Category Dropdown */}
-            <div className="bg-white border border-gray-200 rounded-xl px-4 py-2 flex items-center gap-3 text-sm text-gray-500 cursor-pointer min-w-[140px]">
+            <div className="bg-white dark:bg-[#1A1C1E] border border-gray-200 dark:border-gray-800 rounded-xl px-4 py-2 flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400 cursor-pointer min-w-[140px] transition-colors">
               <span className="flex-1">Category</span>
               <ChevronDownIcon />
             </div>
 
             {/* Project Dropdown */}
-            <div className="bg-white border border-gray-200 rounded-xl px-4 py-2 flex items-center gap-3 text-sm text-gray-500 cursor-pointer min-w-[140px]">
+            <div className="bg-white dark:bg-[#1A1C1E] border border-gray-200 dark:border-gray-800 rounded-xl px-4 py-2 flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400 cursor-pointer min-w-[140px] transition-colors">
               <span className="flex-1">Project</span>
               <ChevronDownIcon />
             </div>
@@ -223,19 +225,19 @@ const Activity = () => {
 
             {/* Control Buttons Group */}
             <div className="flex items-center gap-2">
-              <button className="w-10 h-10 bg-[#EBF5FF] text-[#004AC6] rounded-xl flex items-center justify-center hover:bg-[#D6E9FF] transition-colors">
+              <button className="w-10 h-10 bg-[#EBF5FF] dark:bg-[#2A2D31] text-[#004AC6] dark:text-blue-400 rounded-xl flex items-center justify-center hover:bg-[#D6E9FF] dark:hover:bg-gray-700 transition-colors">
                 <PauseIcon />
               </button>
-              <button className="w-10 h-10 bg-[#004AC6] text-white rounded-xl flex items-center justify-center hover:bg-[#003da3] transition-colors shadow-lg shadow-blue-200">
+              <button className="w-10 h-10 bg-[#004AC6] text-white rounded-xl flex items-center justify-center hover:bg-[#003da3] transition-colors shadow-lg shadow-blue-200 dark:shadow-none">
                 <PlayIcon />
               </button>
-              <button className="w-10 h-10 bg-red-50 text-red-500 rounded-xl flex items-center justify-center hover:bg-red-100 transition-colors">
+              <button className="w-10 h-10 bg-red-50 dark:bg-red-900/10 text-red-500 rounded-xl flex items-center justify-center hover:bg-red-100 dark:hover:bg-red-900/20 transition-colors">
                 <DeleteIcon />
               </button>
             </div>
 
             {/* Timer Display */}
-            <div className="border-2 border-gray-200 rounded-xl px-6 py-2 font-mono font-bold text-gray-700 text-lg">
+            <div className="border-2 border-gray-200 dark:border-gray-800 rounded-xl px-6 py-2 font-mono font-bold text-gray-700 dark:text-gray-300 text-lg transition-colors">
               00 : 00 : 00
             </div>
           </div>
@@ -252,7 +254,7 @@ const Activity = () => {
 
           <TimelineDivider label="Monday, May 24, 2024" />
           <div className="opacity-70 grayscale-[0.2]">
-             <ActivityCard activity={{...activities[0], id: 3, title: 'Advanced Data Structure Study'}} />
+             <ActivityCard activity={{...activities[0], id: 3, title: 'Advanced Data Study'}} />
           </div>
         </div>
 
@@ -264,8 +266,8 @@ const Activity = () => {
               onClick={() => typeof page === 'number' && setActivePage(page)}
               className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold transition-all ${
                 activePage === page 
-                  ? 'bg-[#004AC6] text-white shadow-lg shadow-blue-100' 
-                  : 'text-[#004AC6] hover:bg-blue-50'
+                  ? 'bg-[#004AC6] text-white shadow-lg shadow-blue-100 dark:shadow-none' 
+                  : 'text-[#004AC6] dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-800'
               } ${typeof page !== 'number' ? 'cursor-default pointer-events-none text-gray-400' : ''}`}
             >
               {page}

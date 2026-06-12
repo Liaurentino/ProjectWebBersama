@@ -15,6 +15,8 @@ import AddActivity from './pages/AddActivity';
 import Statistics from './pages/Statistics';
 import Notes from './pages/Notes';
 import Profile from './pages/Profile';
+import EditProfile from './pages/EditProfile';
+import Settings from './pages/Settings';
 import SearchResults from './pages/SearchResults';
 
 import ProtectedRoute from './components/ProtectedRoute';
@@ -51,6 +53,8 @@ function App() {
           <Route path="/statistics" element={<Statistics />} />
           <Route path="/notes" element={<Notes />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/profile/edit-profile" element={<EditProfile />} />
+          <Route path="/settings" element={<Settings />} />
           <Route path="/search" element={<SearchResults />} />
         </Route>
 
