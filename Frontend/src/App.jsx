@@ -10,6 +10,12 @@ import CareerAnalysis from './pages/CareerAnalysis';
 import ForgotPassword from './pages/ForgotPassword';
 import OnboardingStep1 from './pages/OnboardingStep1';
 import OnboardingStep2 from './pages/OnboardingStep2';
+import Activity from './pages/Activity';
+import AddActivity from './pages/AddActivity';
+import Statistics from './pages/Statistics';
+import Notes from './pages/Notes';
+import Profile from './pages/Profile';
+import SearchResults from './pages/SearchResults';
 
 import ProtectedRoute from './components/ProtectedRoute';
 import MainLayout from './components/MainLayout';
@@ -40,6 +46,12 @@ function App() {
           <Route path="/roadmap" element={<Roadmap />} />
           <Route path="/chat" element={<AIChat />} />
           <Route path="/career-analysis" element={<CareerAnalysis />} />
+          <Route path="/activity" element={<Activity />} />
+          <Route path="/activity/add-activity" element={<AddActivity />} />
+          <Route path="/statistics" element={<Statistics />} />
+          <Route path="/notes" element={<Notes />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/search" element={<SearchResults />} />
         </Route>
 
         {/* 4. Fallback jika URL tidak ditemukan */}
