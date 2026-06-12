@@ -2,42 +2,42 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 const StatCard = ({ title, value, subtext, icon, trend }) => (
-  <div className="bg-white border border-[#E7E8EA] p-[21px] rounded-[12px] shadow-[0px_4px_6px_rgba(17,24,39,0.05)] flex flex-col gap-1">
+  <div className="bg-white dark:bg-[#1A1C1E] border border-[#E7E8EA] dark:border-gray-800 p-[21px] rounded-[12px] shadow-[0px_4px_6px_rgba(17,24,39,0.05)] flex flex-col gap-1 transition-colors">
     <div className="flex justify-between items-start">
       <div className="w-[32px] h-[32px] flex items-center justify-center">
-        <img src={icon} alt="" className="w-full h-full object-contain aspect-square" />
+        <img src={icon} alt="" className="w-full h-full object-contain aspect-square dark:brightness-200" />
       </div>
       {trend && (
         <span className="text-[#16A34A] text-[12px] font-bold">{trend}</span>
       )}
       {subtext && !trend && (
-        <span className="text-[#434655] text-[12px] font-bold">{subtext}</span>
+        <span className="text-[#434655] dark:text-gray-400 text-[12px] font-bold">{subtext}</span>
       )}
     </div>
     <div className="pt-3">
-      <p className="text-[#434655] text-sm">{title}</p>
-      <h3 className="text-[#191C1E] text-[30px] font-bold leading-tight mt-1">{value}</h3>
+      <p className="text-[#434655] dark:text-gray-400 text-sm">{title}</p>
+      <h3 className="text-[#191C1E] dark:text-white text-[30px] font-bold leading-tight mt-1">{value}</h3>
     </div>
   </div>
 );
 
 const TimelineItem = ({ time, title, location, status, type }) => {
   const statusStyles = {
-    COMPLETED: 'bg-[#DCFCE7] text-[#15803D]',
+    COMPLETED: 'bg-[#DCFCE7] text-[#15803D] dark:bg-green-900/20 dark:text-green-400',
     UPCOMING: 'bg-[#2563EB] text-[#EEEFFF]',
-    SCHEDULED: 'bg-[#E7E8EA] text-[#434655]'
+    SCHEDULED: 'bg-[#E7E8EA] text-[#434655] dark:bg-gray-800 dark:text-gray-400'
   };
 
   const dotStyles = {
     COMPLETED: 'bg-[#004AC6]',
-    UPCOMING: 'bg-[#E1E2E4] border-2 border-[#004AC6]',
-    SCHEDULED: 'bg-[#E1E2E4] border-2 border-[#E7E8EA]'
+    UPCOMING: 'bg-[#E1E2E4] dark:bg-gray-700 border-2 border-[#004AC6]',
+    SCHEDULED: 'bg-[#E1E2E4] dark:bg-gray-700 border-2 border-[#E7E8EA] dark:border-gray-600'
   };
 
   return (
     <div className="flex gap-8 relative pl-12 pb-8 last:pb-0">
       {/* Vertical line connector */}
-      <div className="absolute left-[19px] top-0 bottom-0 w-[2px] bg-[#E7E8EA] last:hidden" />
+      <div className="absolute left-[19px] top-0 bottom-0 w-[2px] bg-[#E7E8EA] dark:bg-gray-800 last:hidden" />
       
       {/* Status Dot/Icon */}
       <div className={`absolute left-0 w-10 h-10 rounded-full flex items-center justify-center z-10 ${dotStyles[status]}`}>
@@ -51,12 +51,12 @@ const TimelineItem = ({ time, title, location, status, type }) => {
       </div>
 
       {/* Content Card */}
-      <div className={`flex-1 p-4 rounded-xl border border-[#E7E8EA] ${status === 'SCHEDULED' ? 'bg-[#F8F9FB] opacity-60' : 'bg-white'} ${status === 'UPCOMING' ? 'ring-2 ring-[#2563EB] ring-offset-2' : ''}`}>
+      <div className={`flex-1 p-4 rounded-xl border border-[#E7E8EA] dark:border-gray-800 transition-colors ${status === 'SCHEDULED' ? 'bg-[#F8F9FB] dark:bg-[#121212] opacity-60' : 'bg-white dark:bg-[#1A1C1E]'} ${status === 'UPCOMING' ? 'ring-2 ring-[#2563EB] ring-offset-2 dark:ring-offset-[#121212]' : ''}`}>
         <div className="flex justify-between items-start">
           <div>
-            <p className={`text-[12px] font-semibold tracking-wider uppercase ${status === 'UPCOMING' ? 'text-[#004AC6]' : 'text-gray-500'}`}>{time}</p>
-            <h4 className="text-[#191C1E] font-bold text-base mt-1">{title}</h4>
-            <p className="text-[#434655] text-sm mt-1">{location}</p>
+            <p className={`text-[12px] font-semibold tracking-wider uppercase ${status === 'UPCOMING' ? 'text-[#004AC6]' : 'text-gray-500 dark:text-gray-400'}`}>{time}</p>
+            <h4 className="text-[#191C1E] dark:text-white font-bold text-base mt-1">{title}</h4>
+            <p className="text-[#434655] dark:text-gray-400 text-sm mt-1">{location}</p>
           </div>
           <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${statusStyles[status]}`}>
             {status}
@@ -74,8 +74,8 @@ const Dashboard = () => {
         {/* Greeting & Action Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
-            <h1 className="text-[30px] font-bold text-[#191C1E] tracking-tight">Welcome, Alex!</h1>
-            <p className="text-[#434655] mt-1 text-base">Senin, 23 Oktober 2023 • Keep up the momentum!</p>
+            <h1 className="text-[30px] font-bold text-[#191C1E] dark:text-white tracking-tight transition-colors">Welcome, Alex!</h1>
+            <p className="text-[#434655] dark:text-gray-400 mt-1 text-base transition-colors">Senin, 23 Oktober 2023 • Keep up the momentum!</p>
           </div>
           <Link 
             to="/activity/add-activity"
@@ -108,19 +108,19 @@ const Dashboard = () => {
           />
           
           {/* Progress Card */}
-          <div className="bg-white border border-[#E7E8EA] p-[21px] rounded-[12px] shadow-[0px_4px_6px_rgba(17,24,39,0.05)] flex items-center gap-4">
+          <div className="bg-white dark:bg-[#1A1C1E] border border-[#E7E8EA] dark:border-gray-800 p-[21px] rounded-[12px] shadow-[0px_4px_6px_rgba(17,24,39,0.05)] flex items-center gap-4 transition-colors">
             <div className="relative w-16 h-16">
               <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                <circle cx="18" cy="18" r="16" fill="none" stroke="#F3F4F6" strokeWidth="4"></circle>
+                <circle cx="18" cy="18" r="16" fill="none" stroke={document.documentElement.classList.contains('dark') ? '#2A2D31' : '#F3F4F6'} strokeWidth="4"></circle>
                 <circle cx="18" cy="18" r="16" fill="none" stroke="#2563EB" strokeWidth="4" strokeDasharray="75, 100" strokeLinecap="round"></circle>
               </svg>
               <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-[#191C1E] text-xs font-bold">75%</span>
+                <span className="text-[#191C1E] dark:text-white text-xs font-bold transition-colors">75%</span>
               </div>
             </div>
             <div>
-              <p className="text-[#434655] text-sm leading-tight">Target<br />completion</p>
-              <h3 className="text-[#191C1E] text-xl font-bold mt-0.5">On Track</h3>
+              <p className="text-[#434655] dark:text-gray-400 text-sm leading-tight transition-colors">Target<br />completion</p>
+              <h3 className="text-[#191C1E] dark:text-white text-xl font-bold mt-0.5 transition-colors">On Track</h3>
             </div>
           </div>
         </div>
@@ -129,11 +129,11 @@ const Dashboard = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column: Timeline */}
           <div className="lg:col-span-2 space-y-4">
-            <div className="bg-white border border-[#E7E8EA] p-6 rounded-2xl shadow-[0px_4px_6px_rgba(17,24,39,0.05)]">
+            <div className="bg-white dark:bg-[#1A1C1E] border border-[#E7E8EA] dark:border-gray-800 p-6 rounded-2xl shadow-[0px_4px_6px_rgba(17,24,39,0.05)] transition-colors">
               <div className="flex justify-between items-center mb-8">
                 <div className="flex items-center gap-2">
                   <svg className="w-5 h-5 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-                  <h2 className="text-lg font-bold text-[#191C1E]">Journey Timeline</h2>
+                  <h2 className="text-lg font-bold text-[#191C1E] dark:text-white transition-colors">Journey Timeline</h2>
                 </div>
                 <Link to="/activity" className="text-[#004AC6] text-sm font-semibold hover:underline">See all</Link>
               </div>
@@ -164,30 +164,30 @@ const Dashboard = () => {
           {/* Right Column: Stats & Motivation */}
           <div className="space-y-8">
             {/* Mini Statistics Card */}
-            <div className="bg-white border border-[#E7E8EA] p-6 rounded-2xl shadow-[0px_4px_6px_rgba(17,24,39,0.05)]">
+            <div className="bg-white dark:bg-[#1A1C1E] border border-[#E7E8EA] dark:border-gray-800 p-6 rounded-2xl shadow-[0px_4px_6px_rgba(17,24,39,0.05)] transition-colors">
               <div className="flex items-center gap-2 mb-6">
                 <svg className="w-4 h-4 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20v-6M6 20V10M18 20V4"/></svg>
-                <h2 className="text-lg font-bold text-[#191C1E]">Mini Statistics</h2>
+                <h2 className="text-lg font-bold text-[#191C1E] dark:text-white transition-colors">Mini Statistics</h2>
               </div>
               
               <div className="space-y-6">
                 <div>
-                  <p className="text-sm font-semibold text-black mb-4">Today's Progress</p>
+                  <p className="text-sm font-semibold text-black dark:text-white mb-4 transition-colors">Today's Progress</p>
                   {/* Bar Chart Placeholder */}
                   <div className="h-40 flex items-end justify-between gap-2 px-2">
                     {[82, 76, 88, 84, 91].map((val, i) => (
                       <div key={i} className="flex-1 flex flex-col items-center gap-2">
-                        <div className="w-full bg-[#F5F5F5] rounded-t-lg relative group">
+                        <div className="w-full bg-[#F5F5F5] dark:bg-[#2A2D31] rounded-t-lg relative group transition-colors">
                           <div 
-                            className={`w-full rounded-t-lg transition-all duration-500 ${i === 4 ? 'bg-[#2563EB]' : 'bg-[#97B6FB]'}`}
+                            className={`w-full rounded-t-lg transition-all duration-500 ${i === 4 ? 'bg-[#2563EB]' : 'bg-[#97B6FB] dark:bg-[#3B82F6]/40'}`}
                             style={{ height: `${val}%` }}
                           >
-                            <span className="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] text-gray-500 font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                            <span className="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] text-gray-500 dark:text-gray-400 font-medium opacity-0 group-hover:opacity-100 transition-opacity">
                               {val}%
                             </span>
                           </div>
                         </div>
-                        <span className={`text-[8px] whitespace-nowrap ${i === 4 ? 'font-bold text-black' : 'text-gray-400'}`}>
+                        <span className={`text-[8px] whitespace-nowrap transition-colors ${i === 4 ? 'font-bold text-black dark:text-white' : 'text-gray-400'}`}>
                           {i === 4 ? 'Today' : `${9+i} June`}
                         </span>
                       </div>
@@ -195,8 +195,8 @@ const Dashboard = () => {
                   </div>
                 </div>
 
-                <div className="pt-6 border-t border-[#EDEEF0]">
-                  <p className="text-sm font-semibold text-[#434655] mb-4">Category Distribution</p>
+                <div className="pt-6 border-t border-[#EDEEF0] dark:border-gray-800">
+                  <p className="text-sm font-semibold text-[#434655] dark:text-gray-400 mb-4 transition-colors">Category Distribution</p>
                   <div className="flex items-center gap-6">
                     {/* Pie Chart Placeholder */}
                     <div className="w-16 h-16 relative">
@@ -209,15 +209,15 @@ const Dashboard = () => {
                     <div className="space-y-1.5">
                       <div className="flex items-center gap-2">
                         <div className="w-2 h-2 rounded-full bg-[#004AC6]" />
-                        <span className="text-[12px] font-medium text-[#191C1E]">Academic (55%)</span>
+                        <span className="text-[12px] font-medium text-[#191C1E] dark:text-white transition-colors">Academic (55%)</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <div className="w-2 h-2 rounded-full bg-[#943700]" />
-                        <span className="text-[12px] font-medium text-[#191C1E]">Organization (25%)</span>
+                        <span className="text-[12px] font-medium text-[#191C1E] dark:text-white transition-colors">Organization (25%)</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <div className="w-2 h-2 rounded-full bg-[#5D5F5F]" />
-                        <span className="text-[12px] font-medium text-[#191C1E]">Personal (20%)</span>
+                        <span className="text-[12px] font-medium text-[#191C1E] dark:text-white transition-colors">Personal (20%)</span>
                       </div>
                     </div>
                   </div>

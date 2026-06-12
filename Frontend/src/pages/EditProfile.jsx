@@ -1,0 +1,211 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useUser } from '../hooks/useUser';
+import { useTheme } from '../context/ThemeContext';
+
+const EditProfile = () => {
+  const navigate = useNavigate();
+  const { user, loading, error, updateProfile } = useUser();
+  const { isDarkMode } = useTheme();
+  
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    jurusan: '',
+    semester: '',
+    interests: '',
+    bio: ''
+  });
+
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        name: user.name || '',
+        email: user.email || '',
+        jurusan: user.jurusan || '',
+        semester: user.semester || '',
+        interests: user.interests || '',
+        bio: user.bio || ''
+      });
+    }
+  }, [user]);
+
+  const icons = {
+    camera: "https://www.figma.com/api/mcp/asset/0a672744-04db-447f-bb91-2db80c9ba9b2",
+    dropdown: "https://www.figma.com/api/mcp/asset/c67f450f-d872-454d-a1eb-32bb6066ccd3",
+    photo: "https://www.figma.com/api/mcp/asset/b05361a9-2239-4c0c-a6e3-f73cc396b7a3"
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await updateProfile(formData);
+      navigate('/profile');
+    } catch (err) {
+      alert('Failed to save changes: ' + err.message);
+    }
+  };
+
+  if (loading && !user) return <div className="p-8 text-center text-[#434655] dark:text-gray-400">Loading...</div>;
+  if (error) return <div className="p-8 text-center text-red-500">Error: {error}</div>;
+
+  return (
+    <div className="max-w-[896px] mx-auto p-10 space-y-8 transition-colors duration-300">
+      {/* Page Header */}
+      <div className="space-y-1">
+        <h1 className="text-3xl font-bold text-[#191C1E] dark:text-white tracking-tight">Edit Profile</h1>
+        <p className="text-[#434655] dark:text-gray-400">Manage your profile information and account preferences.</p>
+      </div>
+
+      {/* Main Form Card */}
+      <div className="bg-white dark:bg-[#1A1C1E] border border-[#C3C6D7] dark:border-gray-800 rounded-xl shadow-sm overflow-hidden transition-colors">
+        <form onSubmit={handleSubmit}>
+          <div className="p-8 space-y-10">
+            {/* Photo Upload Section */}
+            <div className="flex items-center gap-8 pb-8 border-b border-[#C3C6D7]/30 dark:border-gray-800">
+              <div className="relative">
+                <div className="w-[117px] h-[117px] rounded-3xl overflow-hidden shadow-lg border-4 border-[#F3F4F6] dark:border-gray-800">
+                  <img src={user?.photoUrl || icons.photo} alt="Profile" className="w-full h-full object-cover" />
+                </div>
+                <button type="button" className="absolute -bottom-2 -right-2 bg-[#004AC6] p-2 rounded-xl text-white shadow-md hover:bg-[#003da3] transition flex items-center justify-center">
+                  <img src={icons.camera} alt="Change Photo" className="w-3 h-3" />
+                </button>
+              </div>
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-base font-bold text-[#191C1E] dark:text-white">Profile picture</h3>
+                  <p className="text-sm text-[#434655] dark:text-gray-400">JPG, GIF or PNG format.</p>
+                </div>
+                <button type="button" className="border-2 border-[#004AC6] text-[#004AC6] px-6 py-2 rounded-lg text-sm font-bold hover:bg-blue-50 dark:hover:bg-blue-900/20 transition">
+                  Change Photo
+                </button>
+              </div>
+            </div>
+
+            {/* Input Fields Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-8">
+              {/* Full Name */}
+              <div className="space-y-2">
+                <label className="block text-sm font-bold text-[#434655] dark:text-gray-400 px-1">Full Name</label>
+                <input 
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  className="w-full bg-white dark:bg-[#2A2D31] border border-[#737686] dark:border-gray-700 rounded-lg px-4 py-3 text-[#191C1E] dark:text-white focus:ring-2 focus:ring-[#2563EB] outline-none transition-colors"
+                />
+              </div>
+
+              {/* Email */}
+              <div className="space-y-2">
+                <label className="block text-sm font-bold text-[#434655] dark:text-gray-400 px-1">Email</label>
+                <input 
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="w-full bg-white dark:bg-[#2A2D31] border border-[#737686] dark:border-gray-700 rounded-lg px-4 py-3 text-[#191C1E] dark:text-white focus:ring-2 focus:ring-[#2563EB] outline-none transition-colors"
+                />
+              </div>
+
+              {/* Study Program */}
+              <div className="space-y-2 relative">
+                <label className="block text-sm font-bold text-[#434655] dark:text-gray-400 px-1">Study program</label>
+                <div className="relative">
+                  <input 
+                    type="text"
+                    name="jurusan"
+                    value={formData.jurusan}
+                    onChange={handleChange}
+                    className="w-full bg-white dark:bg-[#2A2D31] border border-[#737686] dark:border-gray-700 rounded-lg px-4 py-3 text-[#191C1E] dark:text-white focus:ring-2 focus:ring-[#2563EB] outline-none transition-colors"
+                  />
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                    <img src={icons.dropdown} alt="" className="w-5 h-4 dark:invert opacity-70" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Semester */}
+              <div className="space-y-2">
+                <label className="block text-sm font-bold text-[#434655] dark:text-gray-400 px-1">Semester</label>
+                <div className="relative">
+                  <select 
+                    name="semester"
+                    value={formData.semester}
+                    onChange={handleChange}
+                    className="w-full bg-white dark:bg-[#2A2D31] border border-[#737686] dark:border-gray-700 rounded-lg px-4 py-3 text-[#191C1E] dark:text-white focus:ring-2 focus:ring-[#2563EB] appearance-none outline-none transition-colors"
+                  >
+                    {[1, 2, 3, 4, 5, 6, 7, 8].map(s => (
+                      <option key={s} value={s}>{s} (Year {Math.ceil(s/2)})</option>
+                    ))}
+                  </select>
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                    <img src={icons.dropdown} alt="" className="w-5 h-4 dark:invert opacity-70" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Primary Interest */}
+              <div className="space-y-2">
+                <label className="block text-sm font-bold text-[#434655] dark:text-gray-400 px-1">Primary Interest</label>
+                <div className="relative">
+                  <select 
+                    name="interests"
+                    value={formData.interests}
+                    onChange={handleChange}
+                    className="w-full bg-white dark:bg-[#2A2D31] border border-[#737686] dark:border-gray-700 rounded-lg px-4 py-3 text-[#191C1E] dark:text-white focus:ring-2 focus:ring-[#2563EB] appearance-none outline-none transition-colors"
+                  >
+                    <option value="Software Development">Software Development</option>
+                    <option value="Data Science">Data Science</option>
+                    <option value="UI/UX Design">UI/UX Design</option>
+                    <option value="Project Management">Project Management</option>
+                  </select>
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                    <img src={icons.dropdown} alt="" className="w-5 h-4 dark:invert opacity-70" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Short Bio */}
+            <div className="space-y-2">
+              <label className="block text-sm font-bold text-[#434655] dark:text-gray-400 px-1">Short Bio</label>
+              <textarea 
+                name="bio"
+                value={formData.bio}
+                onChange={handleChange}
+                placeholder="Write a little about yourself..."
+                className="w-full bg-white dark:bg-[#2A2D31] border border-[#737686] dark:border-gray-700 rounded-lg px-4 py-3 text-[#191C1E] dark:text-white focus:ring-2 focus:ring-[#2563EB] outline-none min-h-[100px] resize-none transition-colors"
+              />
+            </div>
+          </div>
+
+          {/* Footer Actions */}
+          <div className="bg-[#F3F4F6] dark:bg-[#2A2D31] px-8 py-6 flex justify-end gap-3 transition-colors">
+            <button 
+              type="button" 
+              onClick={() => navigate('/profile')}
+              className="px-8 py-3 text-[#434655] dark:text-gray-300 font-bold hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition"
+            >
+              Cancelled
+            </button>
+            <button 
+              type="submit" 
+              disabled={loading}
+              className={`bg-[#2563EB] text-white px-10 py-3 rounded-lg font-bold shadow-md hover:bg-[#1d4ed8] transition ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              {loading ? 'Saving...' : 'Save Changes'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default EditProfile;
