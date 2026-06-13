@@ -40,7 +40,8 @@
     // Data onboarding
     jurusan         String?
     semester        Int?
-    interests       String[] 
+    interests       String[]
+    settings       Json?
     isOnboarded     Boolean          @default(false)
 
     createdAt       DateTime         @default(now())

@@ -9,7 +9,7 @@ build/
 .env
 .env.*
 !.env.example
-GEMINI.md
+
 
 # logs
 *.log
@@ -23,3 +23,8 @@ Thumbs.db
 
 # coverage
 coverage/
+
+# md
+Claude.md
+GEMINI.md
+CODEBASE_DOCUMENTATION.md

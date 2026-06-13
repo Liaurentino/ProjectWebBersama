@@ -9,11 +9,10 @@ const searchRoutes = require('./routes/searchRoutes')
 
 const app = express()
 
+const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || []
+
 app.use(cors({
-  origin: [
-    'http://localhost:3000',
-    'https://prodactivity.vercel.app',
-  ],
+  origin: allowedOrigins,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
