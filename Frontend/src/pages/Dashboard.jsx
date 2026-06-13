@@ -78,7 +78,7 @@ const Dashboard = () => {
             <p className="text-[#434655] mt-1 text-base">Senin, 23 Oktober 2023 • Keep up the momentum!</p>
           </div>
           <Link 
-            to="/activity/add-activity"
+            to="/activity"
             className="bg-[#004AC6] text-white px-5 py-2.5 rounded-lg font-bold flex items-center gap-2 hover:bg-[#003da3] transition shadow-sm self-start md:self-auto"
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -198,25 +198,55 @@ const Dashboard = () => {
                 <div className="pt-6 border-t border-[#EDEEF0]">
                   <p className="text-sm font-semibold text-[#434655] mb-4">Category Distribution</p>
                   <div className="flex items-center gap-6">
-                    {/* Pie Chart Placeholder */}
-                    <div className="w-16 h-16 relative">
-                      <svg viewBox="0 0 32 32" className="w-full h-full transform -rotate-90">
-                        <circle r="16" cx="16" cy="16" fill="#5D5F5F" />
-                        <circle r="16" cx="16" cy="16" fill="transparent" stroke="#943700" strokeWidth="32" strokeDasharray="80 100" />
-                        <circle r="16" cx="16" cy="16" fill="transparent" stroke="#004AC6" strokeWidth="32" strokeDasharray="55 100" />
+                    {/* Donut Chart SVG */}
+                    <div className="w-20 h-20 relative">
+                      <svg viewBox="0 0 100 100" className="w-full h-full transform -rotate-90">
+                        {/* Organization (25%) */}
+                        <circle
+                          cx="50"
+                          cy="50"
+                          r="40"
+                          fill="transparent"
+                          stroke="#7C3AED"
+                          strokeWidth="20"
+                          strokeDasharray="157 251.2"
+                          strokeDashoffset="0"
+                        />
+                        {/* Personal (20%) */}
+                        <circle
+                          cx="50"
+                          cy="50"
+                          r="40"
+                          fill="transparent"
+                          stroke="#943700"
+                          strokeWidth="20"
+                          strokeDasharray="50.24 251.2"
+                          strokeDashoffset="-157"
+                        />
+                        {/* Academic (55%) */}
+                        <circle
+                          cx="50"
+                          cy="50"
+                          r="40"
+                          fill="transparent"
+                          stroke="#004AC6"
+                          strokeWidth="20"
+                          strokeDasharray="138.16 251.2"
+                          strokeDashoffset="-207.24"
+                        />
                       </svg>
                     </div>
                     <div className="space-y-1.5">
                       <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-[#004AC6]" />
-                        <span className="text-[12px] font-medium text-[#191C1E]">Academic (55%)</span>
+                        <div className="w-2.5 h-2.5 rounded-full bg-[#004AC6]" />
+                        <span className="text-[12px] font-medium text-[#191C1E]">Akademik (55%)</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-[#943700]" />
-                        <span className="text-[12px] font-medium text-[#191C1E]">Organization (25%)</span>
+                        <div className="w-2.5 h-2.5 rounded-full bg-[#7C3AED]" />
+                        <span className="text-[12px] font-medium text-[#191C1E]">Organisasi (25%)</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-[#5D5F5F]" />
+                        <div className="w-2.5 h-2.5 rounded-full bg-[#943700]" />
                         <span className="text-[12px] font-medium text-[#191C1E]">Personal (20%)</span>
                       </div>
                     </div>
