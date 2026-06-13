@@ -1,118 +1,133 @@
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
+  datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+  }
 
-generator client {
-  provider = "prisma-client-js"
-  previewFeatures = ["driverAdapters"]
-}
+  generator client {
+    provider = "prisma-client-js"
+    previewFeatures = ["driverAdapters"]
+  }
 
-// ─── Enums ────────────────────────────────────────────
-enum ActivityStatus {
-  TODO
-  IN_PROGRESS
-  DONE
-}
+  // ─── Enums ────────────────────────────────────────────
+  enum ActivityStatus {
+    TODO
+    IN_PROGRESS
+    DONE
+  }
 
-enum ActivityCategory {
-  AKADEMIK
-  ORGANISASI
-  SKILL
-  KEPANITIAAN
-  LAINNYA
-}
+  enum ActivityCategory {
+    AKADEMIK
+    ORGANISASI
+    SKILL
+    KEPANITIAAN
+    LAINNYA
+  }
 
-enum MessageRole {
-  USER
-  ASSISTANT
-}
+  enum MessageRole {
+    USER
+    ASSISTANT
+  }
 
-// ─── Models ───────────────────────────────────────────
-model User {
-  id              String           @id @default(uuid())
-  name            String?
-  username        String
-  email           String           @unique
-  password        String
-  photoUrl        String?
+  // ─── Models ───────────────────────────────────────────
+  model User {
+    id              String           @id @default(uuid())
+    name            String?
+    username        String
+    email           String           @unique
+    password        String
+    photoUrl        String?
 
-  // Data onboarding
-  jurusan         String?
-  semester        Int?
-  interests       String[] 
-  isOnboarded     Boolean          @default(false)
+    // Data onboarding
+    jurusan         String?
+    semester        Int?
+    interests       String[] 
+    isOnboarded     Boolean          @default(false)
 
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
+    createdAt       DateTime         @default(now())
+    updatedAt       DateTime         @updatedAt
 
-  activities      Activity[]
-  sessions        Session[]
-  analysisResults AnalysisResult[]
-  chatSessions    ChatSession[]
-}
+    activities      Activity[]
+    sessions        Session[]
+    analysisResults AnalysisResult[]
+    chatSessions    ChatSession[]
+    notes           Notes[]
+  }
 
-model Session {
-  id        String   @id @default(uuid())
-  userId    String
-  tokenHash String
-  createdAt DateTime @default(now())
-  expiresAt DateTime
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
+  model Session {
+    id        String   @id @default(uuid())
+    userId    String
+    tokenHash String
+    createdAt DateTime @default(now())
+    expiresAt DateTime
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  }
 
-model Activity {
-  id          String           @id @default(uuid())
+  model Activity {
+    id          String           @id @default(uuid())
+    userId      String
+    title       String
+    category    ActivityCategory
+    description String
+    status      ActivityStatus   @default(TODO)
+    startedAt   DateTime
+    endedAt     DateTime?        // nullable — belum tentu selesai
+
+    createdAt   DateTime         @default(now())
+    updatedAt   DateTime         @updatedAt
+
+    user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  }
+
+  model AnalysisResult {
+    id           String   @id @default(uuid())
+    userId       String
+
+    // Snapshot kegiatan saat analisis dilakukan (disimpan sebagai JSON)
+    activitiesSnapshot Json
+
+    promptSent   String   @db.Text
+    groqResponse String   @db.Text
+    modelUsed    String
+    tokensUsed   Int
+
+    createdAt    DateTime @default(now())
+
+    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  }
+
+  model ChatSession {
+    id        String        @id @default(uuid())
+    userId    String
+    title     String?       // opsional, bisa auto-generate dari pesan pertama
+    createdAt DateTime      @default(now())
+    updatedAt DateTime      @updatedAt
+
+    user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+    messages  ChatMessage[]
+  }
+
+  model ChatMessage {
+    id            String      @id @default(uuid())
+    chatSessionId String
+    role          MessageRole
+    content       String      @db.Text
+    tokensUsed    Int?
+
+    createdAt     DateTime    @default(now())
+
+    chatSession   ChatSession @relation(fields: [chatSessionId], references: [id], onDelete: Cascade)
+  }
+
+  model Notes {
+  id          String         @id @default(uuid())
   userId      String
   title       String
-  category    ActivityCategory
-  description String
-  status      ActivityStatus   @default(TODO)
-  startedAt   DateTime
-  endedAt     DateTime?        // nullable — belum tentu selesai
+  category    String?
+  status      ActivityStatus @default(TODO)
+  todoList    Json?
 
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
 
-  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-model AnalysisResult {
-  id           String   @id @default(uuid())
-  userId       String
-
-  // Snapshot kegiatan saat analisis dilakukan (disimpan sebagai JSON)
-  activitiesSnapshot Json
-
-  promptSent   String   @db.Text
-  groqResponse String   @db.Text
-  modelUsed    String
-  tokensUsed   Int
-
-  createdAt    DateTime @default(now())
-
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-model ChatSession {
-  id        String        @id @default(uuid())
-  userId    String
-  title     String?       // opsional, bisa auto-generate dari pesan pertama
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
-
-  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  messages  ChatMessage[]
-}
-
-model ChatMessage {
-  id            String      @id @default(uuid())
-  chatSessionId String
-  role          MessageRole
-  content       String      @db.Text
-  tokensUsed    Int?
-
-  createdAt     DateTime    @default(now())
-
-  chatSession   ChatSession @relation(fields: [chatSessionId], references: [id], onDelete: Cascade)
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

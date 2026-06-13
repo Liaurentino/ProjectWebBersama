@@ -26,4 +26,70 @@ const onboarding = async (req, res) => {
   }
 }
 
-module.exports = { onboarding }
+// GET /api/user/profile
+const getProfile = async (req, res) => {
+  try {
+    const userId = req.user.id
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        name: true,
+        username: true,
+        email: true,
+        photoUrl: true,
+        jurusan: true,
+        semester: true,
+        interests: true,
+        isOnboarded: true,
+        createdAt: true,
+      },
+    })
+
+    if (!user) return res.status(404).json({ message: 'User not found' })
+
+    return res.status(200).json({ data: user })
+  } catch (err) {
+    console.error('[getProfile]', err)
+    return res.status(500).json({ message: 'Internal server error' })
+  }
+}
+
+// PUT /api/user/profile
+const updateProfile = async (req, res) => {
+  try {
+    const userId = req.user.id
+    const { name, username, photoUrl, jurusan, semester, interests } = req.body
+
+    const updated = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        name,
+        username,
+        photoUrl,
+        jurusan,
+        semester,
+        interests,
+      },
+      select: {
+        id: true,
+        name: true,
+        username: true,
+        email: true,
+        photoUrl: true,
+        jurusan: true,
+        semester: true,
+        interests: true,
+        isOnboarded: true,
+      },
+    })
+
+    return res.status(200).json({ message: 'Profile updated', data: updated })
+  } catch (err) {
+    console.error('[updateProfile]', err)
+    return res.status(500).json({ message: 'Internal server error' })
+  }
+}
+
+module.exports = { onboarding, getProfile, updateProfile }
