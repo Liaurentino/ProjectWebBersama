@@ -1,6 +1,6 @@
 // src/services/activityService.js
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+const API_BASE_URL = import.meta.env.VITE_API_URL 
 
 /**
  * Helper: ambil token dari localStorage
@@ -87,4 +87,11 @@ export const deleteActivity = async (id) => {
     headers: getAuthHeaders(),
   })
   return handleResponse(res) // returns { message }
+}
+
+export const getProjects = async () => {
+  const res = await fetch(`${API_BASE_URL}/api/activity/projects`, {
+    headers: getAuthHeaders()
+  })
+  return handleResponse(res)
 }

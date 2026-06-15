@@ -3,6 +3,19 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useUser } from '../hooks/useUser';
 import { useTheme } from '../context/ThemeContext';
 
+const HISTORY_KEY = 'search_history';
+const MAX_HISTORY = 5;
+
+const getHistory = () => {
+  try { return JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; }
+  catch { return []; }
+};
+
+const saveToHistory = (query) => {
+  const prev = getHistory().filter(q => q !== query);
+  localStorage.setItem(HISTORY_KEY, JSON.stringify([query, ...prev].slice(0, MAX_HISTORY)));
+};
+
 const MainLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -11,6 +24,7 @@ const MainLayout = () => {
   const [isSidebarMinimized, setIsSidebarMinimized] = useState(false);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchHistory, setSearchHistory] = useState(getHistory);
   const searchRef = useRef(null);
 
   const handleLogout = () => {
@@ -18,7 +32,6 @@ const MainLayout = () => {
     navigate('/login');
   };
 
-  // Close search results when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (searchRef.current && !searchRef.current.contains(event.target)) {
@@ -31,10 +44,24 @@ const MainLayout = () => {
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
-    if (searchQuery.trim()) {
-      setIsSearchFocused(false);
-      navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
-    }
+    if (!searchQuery.trim()) return;
+    saveToHistory(searchQuery.trim());
+    setSearchHistory(getHistory());
+    setIsSearchFocused(false);
+    navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
+  };
+
+  const handleHistoryClick = (item) => {
+    setSearchQuery(item);
+    saveToHistory(item);
+    setSearchHistory(getHistory());
+    setIsSearchFocused(false);
+    navigate(`/search?q=${encodeURIComponent(item)}`);
+  };
+
+  const handleClearHistory = () => {
+    localStorage.removeItem(HISTORY_KEY);
+    setSearchHistory([]);
   };
 
   const navItems = [
@@ -88,10 +115,10 @@ const MainLayout = () => {
 
   return (
     <div className={`flex min-h-screen font-sans transition-colors duration-300 ${isDarkMode ? 'bg-[#121212] text-white' : 'bg-[#F8F9FB] text-[#191C1E]'}`}>
-      {/* Sidebar Navigasi - Fixed position */}
+      {/* Sidebar */}
       <aside className={`fixed inset-y-0 left-0 z-50 ${isSidebarMinimized ? 'w-20' : 'w-64'} transition-all duration-300 ease-in-out flex flex-col h-screen overflow-visible ${isDarkMode ? 'bg-[#1A1C1E] border-gray-800' : 'bg-white border-[#E7E8EA] border-r'}`}>
         {/* Toggle Button */}
-        <button 
+        <button
           onClick={() => setIsSidebarMinimized(!isSidebarMinimized)}
           className={`absolute -right-3 top-20 border rounded-full p-1 shadow-sm z-[60] transition-colors ${isDarkMode ? 'bg-[#1A1C1E] border-gray-700 hover:bg-gray-800' : 'bg-white border-[#E7E8EA] hover:bg-gray-50'}`}
         >
@@ -100,7 +127,7 @@ const MainLayout = () => {
           </svg>
         </button>
 
-        {/* Header - Fixed at top of sidebar */}
+        {/* Header */}
         <div className="p-6 shrink-0">
           <div className={`px-2 transition-opacity duration-200 ${isSidebarMinimized ? 'opacity-0' : 'opacity-100'}`}>
             <h2 className="text-xl font-bold text-[#004AC6] whitespace-nowrap">ProdActivity</h2>
@@ -112,18 +139,18 @@ const MainLayout = () => {
             </div>
           )}
         </div>
-        
-        {/* Scrollable Nav Items */}
+
+        {/* Nav */}
         <nav className="flex-1 overflow-y-auto px-4 py-2 space-y-1 custom-scrollbar">
           {navItems.map((item) => {
             const isActive = location.pathname === item.path;
             return (
-              <Link 
+              <Link
                 key={item.name}
-                to={item.path} 
+                to={item.path}
                 className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition ${
-                  isActive 
-                    ? 'bg-[#2563EB] text-white shadow-md' 
+                  isActive
+                    ? 'bg-[#2563EB] text-white shadow-md'
                     : (isDarkMode ? 'text-gray-400 hover:bg-gray-800' : 'text-[#434655] hover:bg-gray-100')
                 } ${isSidebarMinimized ? 'justify-center' : ''}`}
                 title={isSidebarMinimized ? item.name : ''}
@@ -135,15 +162,15 @@ const MainLayout = () => {
           })}
         </nav>
 
-        {/* Footer - Fixed at bottom of sidebar */}
+        {/* Footer */}
         <div className={`p-4 border-t space-y-1 shrink-0 transition-colors ${isDarkMode ? 'bg-[#1A1C1E] border-gray-800' : 'bg-white border-[#EDEEF0]'}`}>
-          <Link 
-            to="/settings" 
+          <Link
+            to="/settings"
             className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition ${
-              location.pathname === '/settings' 
-                ? 'bg-[#2563EB] text-white shadow-md' 
+              location.pathname === '/settings'
+                ? 'bg-[#2563EB] text-white shadow-md'
                 : (isDarkMode ? 'text-gray-400 hover:bg-gray-800' : 'text-[#434655] hover:bg-gray-100')
-            } ${isSidebarMinimized ? 'justify-center' : ''}`} 
+            } ${isSidebarMinimized ? 'justify-center' : ''}`}
             title="Settings"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -152,7 +179,7 @@ const MainLayout = () => {
             </svg>
             {!isSidebarMinimized && <span className="whitespace-nowrap">Settings</span>}
           </Link>
-          <button 
+          <button
             onClick={handleLogout}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold text-[#BA1A1A] hover:bg-red-50 transition ${isSidebarMinimized ? 'justify-center' : ''}`}
             title="Logout"
@@ -167,53 +194,60 @@ const MainLayout = () => {
         </div>
       </aside>
 
-      {/* Konten Utama + Top Navbar - Compensate for sidebar width */}
+      {/* Main Content */}
       <div className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ${isSidebarMinimized ? 'ml-20' : 'ml-64'}`}>
         <header className={`h-16 border-b flex items-center justify-between px-6 sticky top-0 z-40 shadow-sm transition-colors ${isDarkMode ? 'bg-[#1A1C1E] border-gray-800' : 'bg-white border-[#C3C6D7]'}`}>
+          {/* Search */}
           <div className="flex items-center flex-1 max-w-md relative" ref={searchRef}>
             <form onSubmit={handleSearchSubmit} className="relative w-full">
               <span className="absolute inset-y-0 left-3 flex items-center text-gray-400">
                 <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
               </span>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onFocus={() => setIsSearchFocused(true)}
-                placeholder="Search Activity or Notes..." 
+                placeholder="Search Activity or Notes..."
                 className={`w-full border-none rounded-full py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-[#2563EB] outline-none transition-colors ${isDarkMode ? 'bg-[#2A2D31] text-white' : 'bg-[#F3F4F6] text-[#191C1E]'}`}
               />
             </form>
 
-            {/* Search Dropdown / Overlay */}
+            {/* Search History Dropdown */}
             {isSearchFocused && (
               <div className={`absolute top-12 left-0 w-full border rounded-xl shadow-2xl z-[100] overflow-hidden ${isDarkMode ? 'bg-[#1A1C1E] border-gray-700' : 'bg-white border-[#C3C6D7]'}`}>
-                <div className={`p-4 border-b ${isDarkMode ? 'border-gray-800 bg-[#2A2D31]/50' : 'border-gray-100 bg-gray-50/50'}`}>
-                   <h3 className={`text-[10px] font-bold tracking-widest uppercase ${isDarkMode ? 'text-gray-400' : 'text-[#434655]'}`}>History</h3>
+                <div className={`p-4 border-b flex items-center justify-between ${isDarkMode ? 'border-gray-800 bg-[#2A2D31]/50' : 'border-gray-100 bg-gray-50/50'}`}>
+                  <h3 className={`text-[10px] font-bold tracking-widest uppercase ${isDarkMode ? 'text-gray-400' : 'text-[#434655]'}`}>History</h3>
+                  {searchHistory.length > 0 && (
+                    <button
+                      onClick={handleClearHistory}
+                      className="text-[10px] text-[#BA1A1A] font-semibold hover:underline"
+                    >
+                      Clear
+                    </button>
+                  )}
                 </div>
                 <div className="max-h-[300px] overflow-y-auto p-2 space-y-1">
-                  {[
-                    { title: 'Running' },
-                    { title: 'Webinar UI' },
-                    { title: 'Completing' },
-                  ].map((item, idx) => (
-                    <button 
-                      key={idx}
-                      className={`w-full flex items-center justify-between px-3 py-2 rounded-lg transition group text-left ${isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'}`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="text-gray-400">
-                          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /><path d="M12 7v5l4 2" /></svg>
-                        </span>
-                        <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-[#191C1E]'}`}>{item.title}</span>
-                      </div>
-                    </button>
-                  ))}
+                  {searchHistory.length === 0 ? (
+                    <p className={`text-sm text-center py-4 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>No recent searches</p>
+                  ) : (
+                    searchHistory.map((item, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => handleHistoryClick(item)}
+                        className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition text-left ${isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'}`}
+                      >
+                        <svg className="w-4 h-4 text-gray-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>
+                        <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-[#191C1E]'}`}>{item}</span>
+                      </button>
+                    ))
+                  )}
                 </div>
               </div>
             )}
           </div>
 
+          {/* Right Side */}
           <div className="flex items-center gap-4">
             <div className={`flex items-center gap-1 pr-4 border-r ${isDarkMode ? 'border-gray-800' : 'border-[#C3C6D7]'}`}>
               <button className={`p-2 rounded-full transition-colors ${isDarkMode ? 'text-gray-400 hover:bg-gray-800' : 'text-gray-500 hover:bg-gray-100'}`} title="Notifications">
@@ -223,7 +257,7 @@ const MainLayout = () => {
                 <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
               </button>
             </div>
-            
+
             <div className="flex items-center gap-3">
               <div className="text-right hidden sm:block">
                 <p className={`text-sm font-bold ${isDarkMode ? 'text-white' : 'text-[#191C1E]'}`}>{user?.name || 'Loading...'}</p>

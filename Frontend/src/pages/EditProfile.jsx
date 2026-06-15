@@ -7,33 +7,33 @@ const EditProfile = () => {
   const navigate = useNavigate();
   const { user, loading, error, updateProfile } = useUser();
   const { isDarkMode } = useTheme();
-  
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     jurusan: '',
     semester: '',
     interests: '',
-    bio: ''
+    bio: '',
   });
 
   useEffect(() => {
     if (user) {
       setFormData({
-        name: user.name || '',
-        email: user.email || '',
-        jurusan: user.jurusan || '',
-        semester: user.semester || '',
-        interests: user.interests || '',
-        bio: user.bio || ''
+        name:      user.name      || '',
+        email:     user.email     || '',
+        jurusan:   user.jurusan   || '',
+        semester:  user.semester  || '',
+        interests: Array.isArray(user.interests) ? user.interests[0] || '' : user.interests || '',
+        bio:       user.bio       || '',
       });
     }
   }, [user]);
 
   const icons = {
-    camera: "https://www.figma.com/api/mcp/asset/0a672744-04db-447f-bb91-2db80c9ba9b2",
+    camera:   "https://www.figma.com/api/mcp/asset/0a672744-04db-447f-bb91-2db80c9ba9b2",
     dropdown: "https://www.figma.com/api/mcp/asset/c67f450f-d872-454d-a1eb-32bb6066ccd3",
-    photo: "https://www.figma.com/api/mcp/asset/b05361a9-2239-4c0c-a6e3-f73cc396b7a3"
+    photo:    "https://www.figma.com/api/mcp/asset/b05361a9-2239-4c0c-a6e3-f73cc396b7a3",
   };
 
   const handleChange = (e) => {
@@ -44,7 +44,12 @@ const EditProfile = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await updateProfile(formData);
+      // interests di DB adalah String[] — kirim sebagai array
+      await updateProfile({
+        ...formData,
+        semester:  formData.semester ? Number(formData.semester) : undefined,
+        interests: formData.interests ? [formData.interests] : [],
+      });
       navigate('/profile');
     } catch (err) {
       alert('Failed to save changes: ' + err.message);
@@ -92,7 +97,7 @@ const EditProfile = () => {
               {/* Full Name */}
               <div className="space-y-2">
                 <label className="block text-sm font-bold text-[#434655] dark:text-gray-400 px-1">Full Name</label>
-                <input 
+                <input
                   type="text"
                   name="name"
                   value={formData.name}
@@ -104,7 +109,7 @@ const EditProfile = () => {
               {/* Email */}
               <div className="space-y-2">
                 <label className="block text-sm font-bold text-[#434655] dark:text-gray-400 px-1">Email</label>
-                <input 
+                <input
                   type="email"
                   name="email"
                   value={formData.email}
@@ -117,7 +122,7 @@ const EditProfile = () => {
               <div className="space-y-2 relative">
                 <label className="block text-sm font-bold text-[#434655] dark:text-gray-400 px-1">Study program</label>
                 <div className="relative">
-                  <input 
+                  <input
                     type="text"
                     name="jurusan"
                     value={formData.jurusan}
@@ -134,14 +139,14 @@ const EditProfile = () => {
               <div className="space-y-2">
                 <label className="block text-sm font-bold text-[#434655] dark:text-gray-400 px-1">Semester</label>
                 <div className="relative">
-                  <select 
+                  <select
                     name="semester"
                     value={formData.semester}
                     onChange={handleChange}
                     className="w-full bg-white dark:bg-[#2A2D31] border border-[#737686] dark:border-gray-700 rounded-lg px-4 py-3 text-[#191C1E] dark:text-white focus:ring-2 focus:ring-[#2563EB] appearance-none outline-none transition-colors"
                   >
                     {[1, 2, 3, 4, 5, 6, 7, 8].map(s => (
-                      <option key={s} value={s}>{s} (Year {Math.ceil(s/2)})</option>
+                      <option key={s} value={s}>{s} (Year {Math.ceil(s / 2)})</option>
                     ))}
                   </select>
                   <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
@@ -154,7 +159,7 @@ const EditProfile = () => {
               <div className="space-y-2">
                 <label className="block text-sm font-bold text-[#434655] dark:text-gray-400 px-1">Primary Interest</label>
                 <div className="relative">
-                  <select 
+                  <select
                     name="interests"
                     value={formData.interests}
                     onChange={handleChange}
@@ -175,7 +180,7 @@ const EditProfile = () => {
             {/* Short Bio */}
             <div className="space-y-2">
               <label className="block text-sm font-bold text-[#434655] dark:text-gray-400 px-1">Short Bio</label>
-              <textarea 
+              <textarea
                 name="bio"
                 value={formData.bio}
                 onChange={handleChange}
@@ -187,15 +192,15 @@ const EditProfile = () => {
 
           {/* Footer Actions */}
           <div className="bg-[#F3F4F6] dark:bg-[#2A2D31] px-8 py-6 flex justify-end gap-3 transition-colors">
-            <button 
-              type="button" 
+            <button
+              type="button"
               onClick={() => navigate('/profile')}
               className="px-8 py-3 text-[#434655] dark:text-gray-300 font-bold hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition"
             >
               Cancelled
             </button>
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               disabled={loading}
               className={`bg-[#2563EB] text-white px-10 py-3 rounded-lg font-bold shadow-md hover:bg-[#1d4ed8] transition ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
