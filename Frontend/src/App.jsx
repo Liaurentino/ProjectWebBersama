@@ -68,12 +68,12 @@ function App() {
           <Route path="/career-analysis" element={<CareerAnalysis />} />
           <Route path="/activity" element={<Activity />} />
           <Route path="/activity/add-activity" element={<AddActivity />} />
-          <Route path="/statistics" element={<Statistics />} />
           <Route path="/notes" element={<Notes />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/profile/edit-profile" element={<EditProfile />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/search" element={<SearchResults />} />
+          <Route path="/statistics" element={<Statistics />} />
         </Route>
 
         {/* 5. Fallback */}
