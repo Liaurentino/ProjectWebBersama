@@ -35,7 +35,6 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/forgotpassword" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/statistics" element={<Statistics />} />
 
         {/* 3. RUTE ONBOARDING (Harus login, tapi belum onboarding) */}
         <Route
@@ -74,6 +73,7 @@ function App() {
           <Route path="/profile/edit-profile" element={<EditProfile />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/search" element={<SearchResults />} />
+          <Route path="/statistics" element={<Statistics />} />
         </Route>
 
         {/* 5. Fallback */}
