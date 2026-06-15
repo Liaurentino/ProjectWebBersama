@@ -19,7 +19,7 @@ const getAllNotes = async (req, res) => {
 const createNote = async (req, res) => {
   try {
     const userId = req.user.id
-    const { title, category, status, todoList } = req.body
+    const { title, category, status, todoList, dueDate, description } = req.body
 
     if (!title) return res.status(400).json({ message: "Field 'title' is required" })
 
@@ -27,9 +27,11 @@ const createNote = async (req, res) => {
       data: {
         userId,
         title,
-        category,
+        category: category || null,
         status: status || 'TODO',
         todoList: todoList || [],
+        dueDate: dueDate ? new Date(dueDate) : null,
+        description: description || null,
       },
     })
     return res.status(201).json({ message: 'Note created', data: note })
@@ -44,16 +46,22 @@ const updateNote = async (req, res) => {
   try {
     const userId = req.user.id
     const { id } = req.params
-    const { title, category, status, todoList } = req.body
+    const { title, category, status, todoList, dueDate, description } = req.body
 
     const note = await prisma.notes.findUnique({ where: { id } })
-
     if (!note) return res.status(404).json({ message: 'Note not found' })
     if (note.userId !== userId) return res.status(403).json({ message: 'Forbidden' })
 
     const updated = await prisma.notes.update({
       where: { id },
-      data: { title, category, status, todoList },
+      data: {
+        ...(title !== undefined && { title }),
+        ...(category !== undefined && { category }),
+        ...(status !== undefined && { status }),
+        ...(todoList !== undefined && { todoList }),
+        ...(dueDate !== undefined && { dueDate: dueDate ? new Date(dueDate) : null }),
+        ...(description !== undefined && { description }),
+      },
     })
     return res.status(200).json({ message: 'Note updated', data: updated })
   } catch (err) {
@@ -69,7 +77,6 @@ const deleteNote = async (req, res) => {
     const { id } = req.params
 
     const note = await prisma.notes.findUnique({ where: { id } })
-
     if (!note) return res.status(404).json({ message: 'Note not found' })
     if (note.userId !== userId) return res.status(403).json({ message: 'Forbidden' })
 

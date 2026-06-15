@@ -41,8 +41,10 @@
     jurusan         String?
     semester        Int?
     interests       String[]
-    settings       Json?
+    settings          Json?
+    bio             String?   @db.Text  
     isOnboarded     Boolean          @default(false)
+
 
     createdAt       DateTime         @default(now())
     updatedAt       DateTime         @updatedAt
@@ -69,6 +71,7 @@
     title       String
     category    ActivityCategory
     description String
+    project     String?
     status      ActivityStatus   @default(TODO)
     startedAt   DateTime
     endedAt     DateTime?        // nullable — belum tentu selesai
@@ -126,6 +129,8 @@
   category    String?
   status      ActivityStatus @default(TODO)
   todoList    Json?
+  dueDate     DateTime?     
+  description String?        @db.Text 
 
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt

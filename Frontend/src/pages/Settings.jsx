@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect} from 'react';
 import { useTheme } from '../context/ThemeContext';
 import { userService } from '../services/userService';
+import { useNavigate } from 'react-router-dom';
 
 const Settings = () => {
   const { isDarkMode, toggleDarkMode } = useTheme();
+  const navigate = useNavigate();
 
   const [settings, setSettings] = useState({
     emailNotification: true,
@@ -25,6 +27,12 @@ const Settings = () => {
     password: "https://www.figma.com/api/mcp/asset/38f26a27-1c95-49c8-9fbc-d2df83a965d1",
     chevronRight: "https://www.figma.com/api/mcp/asset/613c6b9d-717a-4415-8dbb-05f441b1fe71",
     google: "https://www.figma.com/api/mcp/asset/0c77fa25-673c-403f-9103-4a45e0fd996c",
+  };
+  
+  const handleLogout = () => {
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+  navigate('/login', { replace: true });
   };
 
   useEffect(() => {
@@ -214,7 +222,9 @@ const Settings = () => {
             <h2 className="text-base font-semibold">Dangerous</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <button className="border-2 border-[#BA1A1A] text-[#BA1A1A] py-3 rounded-lg font-bold hover:bg-[#BA1A1A]/10 transition-colors">
+            <button 
+             onClick={handleLogout}
+             className="border-2 border-[#BA1A1A] text-[#BA1A1A] py-3 rounded-lg font-bold hover:bg-[#BA1A1A]/10 transition-colors">
               Log Out of This Session
             </button>
             <button className="bg-[#BA1A1A] text-white py-3 rounded-lg font-bold hover:bg-red-700 transition-colors">

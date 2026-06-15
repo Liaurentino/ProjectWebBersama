@@ -50,7 +50,7 @@ const EditProfile = () => {
         semester:  formData.semester ? Number(formData.semester) : undefined,
         interests: formData.interests ? [formData.interests] : [],
       });
-      navigate('/profile');
+      window.location.href = '/profile';
     } catch (err) {
       alert('Failed to save changes: ' + err.message);
     }

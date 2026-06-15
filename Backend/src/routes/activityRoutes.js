@@ -7,9 +7,11 @@ const {
   createActivity,
   updateActivity,
   deleteActivity,
+  getProjects,
 } = require('../controllers/activityController')
 
 router.get('/', authenticate, getAllActivities)
+router.get('/projects', authenticate, getProjects)
 router.get('/:id', authenticate, getActivityById)
 router.post('/', authenticate, createActivity)
 router.put('/:id', authenticate, updateActivity)

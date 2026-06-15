@@ -49,7 +49,7 @@ const getActivityById = async (req, res) => {
 const createActivity = async (req, res) => {
   try {
     const userId = req.user.id
-    const { title, category, description, status, startedAt, endedAt } = req.body
+    const { title, category, description, status, project, startedAt, endedAt } = req.body
 
     if (!title) return res.status(400).json({ message: "Field 'title' is required" })
     if (!category) return res.status(400).json({ message: "Field 'category' is required" })
@@ -62,6 +62,7 @@ const createActivity = async (req, res) => {
         title,
         category,
         description,
+        project,
         status: status || 'TODO',
         startedAt: new Date(startedAt),
         endedAt: endedAt ? new Date(endedAt) : null,
@@ -135,6 +136,16 @@ const deleteActivity = async (req, res) => {
     return res.status(500).json({ message: 'Internal server error' })
   }
 }
+const getProjects = async (req, res) => {
+  const userId = req.user.id
+  const results = await prisma.activity.findMany({
+    where: { userId, project: { not: null } },
+    select: { project: true },
+    distinct: ['project'],
+  })
+  const projects = results.map(r => r.project).filter(Boolean)
+  return res.status(200).json({ data: projects })
+}
 
 module.exports = {
   getAllActivities,
@@ -142,4 +153,5 @@ module.exports = {
   createActivity,
   updateActivity,
   deleteActivity,
+  getProjects,
 }

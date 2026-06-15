@@ -42,7 +42,7 @@ const Login = () => {
 
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
-      navigate('/dashboard');
+      navigate('/dashboard', { replace: true });
     } catch (err) {
       setError('Tidak dapat terhubung ke server. Coba lagi.');
     } finally {
