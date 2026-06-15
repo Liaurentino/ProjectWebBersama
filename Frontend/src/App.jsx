@@ -35,6 +35,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/forgotpassword" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/statistics" element={<Statistics />} />
 
         {/* 3. RUTE ONBOARDING (Harus login, tapi belum onboarding) */}
         <Route
@@ -68,7 +69,6 @@ function App() {
           <Route path="/career-analysis" element={<CareerAnalysis />} />
           <Route path="/activity" element={<Activity />} />
           <Route path="/activity/add-activity" element={<AddActivity />} />
-          <Route path="/statistics" element={<Statistics />} />
           <Route path="/notes" element={<Notes />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/profile/edit-profile" element={<EditProfile />} />
