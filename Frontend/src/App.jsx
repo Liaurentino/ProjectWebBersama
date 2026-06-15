@@ -35,6 +35,8 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/forgotpassword" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/chat" element={<AIChat />} />
+
 
         {/* 3. RUTE ONBOARDING (Harus login, tapi belum onboarding) */}
         <Route
@@ -64,7 +66,6 @@ function App() {
         >
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/roadmap" element={<Roadmap />} />
-          <Route path="/chat" element={<AIChat />} />
           <Route path="/career-analysis" element={<CareerAnalysis />} />
           <Route path="/activity" element={<Activity />} />
           <Route path="/activity/add-activity" element={<AddActivity />} />
