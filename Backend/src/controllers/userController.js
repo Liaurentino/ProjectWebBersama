@@ -1,5 +1,49 @@
 const prisma = require('../config/prisma')
+const cloudinary = require('../config/cloudinary')
 
+const uploadPhoto = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: 'No file uploaded' })
+    }
+ 
+    const userId = req.user.id
+ 
+    // Upload ke Cloudinary dari buffer (memory storage)
+    const result = await new Promise((resolve, reject) => {
+      const stream = cloudinary.uploader.upload_stream(
+        {
+          folder: 'prodactivity/avatars',
+          public_id: `user_${userId}`,
+          overwrite: true,
+          transformation: [
+            { width: 400, height: 400, crop: 'fill', gravity: 'face' },
+            { quality: 'auto', fetch_format: 'auto' },
+          ],
+        },
+        (error, result) => {
+          if (error) reject(error)
+          else resolve(result)
+        }
+      )
+      stream.end(req.file.buffer)
+    })
+ 
+    // Simpan URL ke database
+    await prisma.user.update({
+      where: { id: userId },
+      data: { photoUrl: result.secure_url },
+    })
+ 
+    return res.status(200).json({
+      message: 'Photo uploaded successfully',
+      photoUrl: result.secure_url,
+    })
+  } catch (err) {
+    console.error('[uploadPhoto]', err)
+    return res.status(500).json({ message: 'Failed to upload photo' })
+  }
+}
 // POST /api/user/onboarding
 const onboarding = async (req, res) => {
   try {
@@ -161,4 +205,4 @@ const updateSettings = async (req, res) => {
   }
 }
 
-module.exports = { onboarding, getProfile, updateProfile, getSettings, updateSettings }
+module.exports = { onboarding, getProfile, updateProfile, getSettings, updateSettings, uploadPhoto }

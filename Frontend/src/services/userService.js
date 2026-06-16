@@ -15,7 +15,6 @@ const handleResponse = async (res) => {
 };
 
 export const userService = {
-  // ── Profile ───────────────────────────────────────────
   async getProfile() {
     const res = await fetch(`${API_BASE_URL}/user/profile`, { headers: authHeaders() });
     return handleResponse(res);
@@ -30,7 +29,17 @@ export const userService = {
     return handleResponse(res);
   },
 
-  // ── Settings ──────────────────────────────────────────
+  async uploadPhoto(file) {
+    const formData = new FormData();
+    formData.append('photo', file);
+    const res = await fetch(`${API_BASE_URL}/user/profile/photo`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+      body: formData,
+    });
+    return handleResponse(res);
+  },
+
   async getSettings() {
     const res = await fetch(`${API_BASE_URL}/user/settings`, { headers: authHeaders() });
     return handleResponse(res);
@@ -45,13 +54,11 @@ export const userService = {
     return handleResponse(res);
   },
 
-  // ── Dashboard ─────────────────────────────────────────
   async getDashboard() {
     const res = await fetch(`${API_BASE_URL}/dashboard`, { headers: authHeaders() });
     return handleResponse(res);
   },
 
-  // ── Statistics ────────────────────────────────────────
   async getStatistics() {
     const res = await fetch(`${API_BASE_URL}/statistics`, { headers: authHeaders() });
     return handleResponse(res);
