@@ -5,6 +5,7 @@ const {
   login,
   forgotPassword,
   resetPassword,
+  onboardingStep1,
   completeOnboarding,
 } = require('../controllers/authController')
 
@@ -14,6 +15,7 @@ router.post('/register', register)
 router.post('/login', login)
 router.post('/forgot-password', forgotPassword)
 router.post('/reset-password', resetPassword)
-router.put('/onboarding', authenticate, completeOnboarding)
+router.put('/onboarding/step-1', authenticate, onboardingStep1)
+router.put('/onboarding/step-2', authenticate, completeOnboarding)
 
 module.exports = router

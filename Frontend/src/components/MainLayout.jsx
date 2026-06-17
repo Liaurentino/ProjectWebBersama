@@ -19,7 +19,7 @@ const saveToHistory = (query) => {
 const MainLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user } = useUser();
+  const { user, clearUser } = useUser();
   const { isDarkMode } = useTheme();
   const [isSidebarMinimized, setIsSidebarMinimized] = useState(false);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
@@ -29,6 +29,7 @@ const MainLayout = () => {
 
   const handleLogout = () => {
     localStorage.removeItem('token');
+    clearUser();
     navigate('/login');
   };
 

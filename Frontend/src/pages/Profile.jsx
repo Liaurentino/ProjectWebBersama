@@ -4,12 +4,48 @@ import { useUser } from '../hooks/useUser';
 import { useTheme } from '../context/ThemeContext';
 import { userService } from '../services/userService';
 
+const DeleteAccountModal = ({ isOpen, closeModal, onConfirm, isDeleting }) => {
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" onClick={!isDeleting ? closeModal : undefined} />
+      <div className="relative w-full max-w-[400px] bg-white dark:bg-[#1A1C1E] border border-[#edeef0] dark:border-gray-800 rounded-[12px] shadow-2xl p-[25px] flex flex-col gap-[24px] animate-in fade-in zoom-in-95 duration-200">
+        <div className="flex flex-col gap-[8px]">
+          <h3 className="text-[18px] font-bold text-[#191c1e] dark:text-white leading-[24px]">Delete your account?</h3>
+          <p className="text-[14px] text-[#434655] dark:text-gray-400 leading-[20px]">
+            All your activities, notes, and analysis history will be permanently deleted. This action cannot be undone.
+          </p>
+        </div>
+        <div className="flex flex-col gap-[8px]">
+          <button
+            onClick={onConfirm}
+            disabled={isDeleting}
+            className="w-full bg-[#ba1a1a] hover:bg-[#9d1717] disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold py-[10px] rounded-[8px] transition-colors"
+          >
+            {isDeleting ? 'Deleting...' : 'Yes, Delete My Account'}
+          </button>
+          <button
+            onClick={closeModal}
+            disabled={isDeleting}
+            className="w-full bg-white dark:bg-[#1A1C1E] border border-[#c3c6d7] dark:border-gray-800 text-[#191C1E] dark:text-white font-bold py-[10px] rounded-[8px] transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-60"
+          >
+            Cancelled
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const Profile = () => {
   const navigate = useNavigate();
-  const { user, loading, error } = useUser();
+  const { user, loading, error, clearUser } = useUser();
   const { isDarkMode } = useTheme();
 
   const [stats, setStats] = useState({ streak: 0, tasksCompleted: 0, focusHours: 0 });
+  const [resetStatus, setResetStatus] = useState('idle'); // 'idle' | 'sending' | 'sent'
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     userService.getDashboard()
@@ -22,11 +58,43 @@ const Profile = () => {
   }, []);
 
   const handleLogout = () => {
-  localStorage.removeItem('token');
-  localStorage.removeItem('user');
-  navigate('/login', { replace: true });
-};
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    navigate('/login', { replace: true });
+  };
 
+  const handleChangePassword = async () => {
+    if (resetStatus === 'sending' || resetStatus === 'sent' || !user?.email) return;
+
+    setResetStatus('sending');
+    try {
+      await fetch(`${import.meta.env.VITE_API_URL}/api/auth/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: user.email }),
+      });
+      setResetStatus('sent');
+      setTimeout(() => setResetStatus('idle'), 30000);
+    } catch (err) {
+      setResetStatus('idle');
+      alert('Gagal mengirim email reset password. Silakan coba lagi.');
+    }
+  };
+
+  const handleConfirmDeleteAccount = async () => {
+    setIsDeleting(true);
+    try {
+      await userService.deleteAccount();
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      clearUser();
+      navigate('/login', { replace: true });
+    } catch (err) {
+      setIsDeleting(false);
+      setIsDeleteModalOpen(false);
+      alert(err.message || 'Gagal menghapus akun. Silakan coba lagi.');
+    }
+  };
 
   const icons = {
     streak:        "https://www.figma.com/api/mcp/asset/dd62831e-2200-4340-aafa-e6309d26cef6",
@@ -158,16 +226,27 @@ const Profile = () => {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <button
-            onClick={() => navigate('/reset-password')}
-            className="flex items-center justify-between p-4 border border-[#C3C6D7] dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group"
+            onClick={handleChangePassword}
+            disabled={resetStatus !== 'idle'}
+            className={`flex items-center justify-between p-4 border rounded-lg transition-colors group ${
+              resetStatus === 'sent'
+                ? 'border-green-300 bg-green-50 dark:bg-green-900/10 cursor-not-allowed'
+                : resetStatus === 'sending'
+                ? 'border-[#C3C6D7] dark:border-gray-700 opacity-60 cursor-wait'
+                : 'border-[#C3C6D7] dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800'
+            }`}
           >
             <div className="flex items-center gap-3">
               <div className="w-4 h-5 relative">
                 <img src={icons.password} alt="" className="w-full h-full object-contain dark:invert" />
               </div>
-              <span className="font-semibold text-[#191C1E] dark:text-white">Change Password</span>
+              <span className="font-semibold text-[#191C1E] dark:text-white">
+                {resetStatus === 'sent' ? 'Email Terkirim' : resetStatus === 'sending' ? 'Mengirim...' : 'Change Password'}
+              </span>
             </div>
-            <img src={icons.chevronRight} alt="" className="w-2 h-3 dark:invert opacity-50 group-hover:opacity-100" />
+            {resetStatus === 'idle' && (
+              <img src={icons.chevronRight} alt="" className="w-2 h-3 dark:invert opacity-50 group-hover:opacity-100" />
+            )}
           </button>
           <button className="flex items-center justify-between p-4 border border-[#C3C6D7] dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group">
             <div className="flex items-center gap-3">
@@ -195,7 +274,10 @@ const Profile = () => {
             className="border-2 border-[#BA1A1A] text-[#BA1A1A] py-3 rounded-lg font-bold hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
             Log Out of This Session
           </button>
-          <button className="bg-[#BA1A1A] text-white py-3 rounded-lg font-bold hover:bg-red-700 transition-colors">
+          <button
+            onClick={() => setIsDeleteModalOpen(true)}
+            className="bg-[#BA1A1A] text-white py-3 rounded-lg font-bold hover:bg-red-700 transition-colors"
+          >
             Permanently Delete Account
           </button>
         </div>
@@ -203,6 +285,13 @@ const Profile = () => {
           The act of deleting an account cannot be undone.
         </p>
       </div>
+
+      <DeleteAccountModal
+        isOpen={isDeleteModalOpen}
+        closeModal={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleConfirmDeleteAccount}
+        isDeleting={isDeleting}
+      />
     </div>
   );
 };

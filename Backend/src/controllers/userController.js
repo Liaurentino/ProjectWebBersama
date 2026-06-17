@@ -205,4 +205,20 @@ const updateSettings = async (req, res) => {
   }
 }
 
-module.exports = { onboarding, getProfile, updateProfile, getSettings, updateSettings, uploadPhoto }
+// DELETE /api/user/account
+const deleteAccount = async (req, res) => {
+  try {
+    const userId = req.user.id
+
+    await prisma.user.delete({
+      where: { id: userId },
+    })
+
+    return res.status(200).json({ message: 'Account deleted successfully' })
+  } catch (err) {
+    console.error('[deleteAccount]', err)
+    return res.status(500).json({ message: 'Internal server error' })
+  }
+}
+
+module.exports = { onboarding, getProfile, updateProfile, getSettings, updateSettings, uploadPhoto, deleteAccount }

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useUser } from '../hooks/useUser';
 
 // Asset dari Figma
 const imgImage = "https://www.figma.com/api/mcp/asset/652ddd11-ffc5-4842-a14d-57f13f730a3f";
@@ -17,6 +18,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   
   const navigate = useNavigate();
+  const { fetchUser } = useUser();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -41,8 +43,15 @@ const Login = () => {
       }
 
       localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
-      navigate('/dashboard', { replace: true });
+
+      // Sinkronkan state user global dengan data terbaru dari server
+      await fetchUser();
+
+      if (data.user.isOnboarded) {
+        navigate('/dashboard', { replace: true });
+      } else {
+        navigate('/onboarding/step-1', { replace: true });
+      }
     } catch (err) {
       setError('Tidak dapat terhubung ke server. Coba lagi.');
     } finally {

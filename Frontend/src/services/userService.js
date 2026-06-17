@@ -63,4 +63,12 @@ export const userService = {
     const res = await fetch(`${API_BASE_URL}/statistics`, { headers: authHeaders() });
     return handleResponse(res);
   },
+
+   async deleteAccount() {
+    const res = await fetch(`${API_BASE_URL}/user/account`, {
+      method: 'DELETE',
+      headers: authHeaders(),
+    });
+    return handleResponse(res);
+  },
 };
