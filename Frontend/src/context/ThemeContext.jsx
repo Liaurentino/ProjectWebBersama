@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
 const ThemeContext = createContext();
 
@@ -9,7 +9,6 @@ export const ThemeProvider = ({ children }) => {
   });
 
   useEffect(() => {
-    localStorage.setItem('darkMode', isDarkMode);
     if (isDarkMode) {
       document.documentElement.classList.add('dark');
     } else {
@@ -17,10 +16,25 @@ export const ThemeProvider = ({ children }) => {
     }
   }, [isDarkMode]);
 
-  const toggleDarkMode = () => setIsDarkMode(prev => !prev);
+  const toggleDarkMode = useCallback(() => setIsDarkMode(prev => !prev), []);
+
+  const saveTheme = useCallback((value) => {
+    localStorage.setItem('darkMode', value);
+  }, []);
+
+  const revertTheme = useCallback(() => {
+    const saved = localStorage.getItem('darkMode') === 'true';
+    setIsDarkMode(saved);
+  }, []);
 
   return (
-    <ThemeContext.Provider value={{ isDarkMode, toggleDarkMode }}>
+    <ThemeContext.Provider value={{ 
+      isDarkMode, 
+      setIsDarkMode, 
+      toggleDarkMode, 
+      saveTheme, 
+      revertTheme 
+    }}>
       {children}
     </ThemeContext.Provider>
   );

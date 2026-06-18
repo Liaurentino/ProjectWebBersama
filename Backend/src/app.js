@@ -6,6 +6,8 @@ const activityRoutes = require('./routes/activityRoutes')
 const userRoutes = require('./routes/userRoutes')
 const notesRoutes = require('./routes/notesRoutes')
 const searchRoutes = require('./routes/searchRoutes')
+const statisticsRoutes = require('./routes/statisticsRoutes')
+const dashboardRoutes = require('./routes/dashboardRoutes')
 
 const app = express()
 
@@ -31,5 +33,7 @@ app.use('/api/user', userRoutes)
 app.use('/api/activity', activityRoutes)
 app.use('/api/notes', notesRoutes)
 app.use('/api/search', searchRoutes)
+app.use('/api/statistics', statisticsRoutes)
+app.use('/api/dashboard', dashboardRoutes)
 
 module.exports = app  

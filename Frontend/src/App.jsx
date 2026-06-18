@@ -22,6 +22,7 @@ import ResetPassword from './pages/ResetPassword';
 import ProtectedRoute from './components/ProtectedRoute';
 import OnboardingRoute from './components/OnboardingRoute';
 import MainLayout from './components/MainLayout';
+import AIchat from './pages/AIChat';
 
 function App() {
   return (
@@ -64,11 +65,11 @@ function App() {
         >
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/roadmap" element={<Roadmap />} />
-          <Route path="/chat" element={<AIChat />} />
           <Route path="/career-analysis" element={<CareerAnalysis />} />
           <Route path="/activity" element={<Activity />} />
           <Route path="/activity/add-activity" element={<AddActivity />} />
           <Route path="/notes" element={<Notes />} />
+          <Route path="/AIchat" element={<AIChat />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/profile/edit-profile" element={<EditProfile />} />
           <Route path="/settings" element={<Settings />} />

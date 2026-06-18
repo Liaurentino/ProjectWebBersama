@@ -1,22 +1,58 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useUser } from '../hooks/useUser';
 
 const imgIconArrow = "https://www.figma.com/api/mcp/asset/1834b2fc-52c7-4076-b8a4-8a3a8d02abcc";
 const imgContainerContinue = "https://www.figma.com/api/mcp/asset/04af9491-623c-4eab-b0f2-ff172bcdb173";
 const imgIconBack = "https://www.figma.com/api/mcp/asset/018f9d84-6bda-428c-bfad-35bd5be4a09a";
 const imgIconUser = "https://www.figma.com/api/mcp/asset/4977bd31-0995-4109-8ba8-49e6016e915b";
 
+// Konversi angka semester dari database (1-8) ke label tampilan ('1'-'7', '8+')
+const semesterNumberToLabel = (num) => {
+  if (!num) return null;
+  return num >= 8 ? '8+' : String(num);
+};
+
 const OnboardingStep1 = () => {
-  const [department, setDepartment] = useState('');
-  const [semester, setSemester] = useState(null);
   const navigate = useNavigate();
+  const { user, fetchUser } = useUser();
+
+  // Prefill dari data user di context, kalau sudah pernah isi step-1 sebelumnya
+  const [department, setDepartment] = useState(user?.jurusan || '');
+  const [semester, setSemester] = useState(semesterNumberToLabel(user?.semester));
+  const [loading, setLoading] = useState(false);
 
   const semesters = ['1', '2', '3', '4', '5', '6', '7', '8+'];
 
-  const handleContinue = () => {
-    localStorage.setItem('onboarding_jurusan', department);
-    localStorage.setItem('onboarding_semester', semester);
-    navigate('/onboarding/step-2');
+  const handleContinue = async () => {
+    if (!department || !semester) return;
+    
+    setLoading(true);
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/onboarding/step-1`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify({ 
+          jurusan: department, 
+          semester 
+        }),
+      });
+
+      if (!res.ok) throw new Error('Failed to save step 1');
+
+      // Refresh data user di context agar jurusan terisi
+      await fetchUser();
+      
+      navigate('/onboarding/step-2');
+    } catch (error) {
+      console.error(error);
+      alert('Gagal menyimpan data. Silakan coba lagi.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -25,7 +61,7 @@ const OnboardingStep1 = () => {
       <nav className="h-14 w-full bg-white flex items-center justify-between px-4 fixed top-0 left-0 z-50 border-b border-gray-100">
         <div className="flex items-center gap-3">
           <button 
-            onClick={() => navigate('/register')}
+            onClick={() => navigate('/login')}
             className="p-2 hover:bg-slate-100 rounded-full transition-colors"
           >
             <img src={imgIconBack} alt="Back" className="w-4 h-4" />
@@ -36,7 +72,7 @@ const OnboardingStep1 = () => {
           <img src={imgIconUser} alt="User" className="w-5 h-5" />
         </button>
       </nav>
-
+ 
       {/* Main Content */}
       <div className="flex-1 flex flex-col items-center pt-24 pb-32 px-6">
         <div className="w-full max-w-[672px] space-y-12">
@@ -113,15 +149,15 @@ const OnboardingStep1 = () => {
           </button>
           <button 
             onClick={handleContinue}
-            disabled={!department || !semester}
+            disabled={!department || !semester || loading}
             className={`px-8 py-4 flex items-center gap-2 font-semibold rounded-lg transition-all shadow-sm ${
-              department && semester
+              department && semester && !loading
                 ? 'bg-[#2563eb] text-white hover:bg-[#1d4ed8] active:scale-[0.98]'
                 : 'bg-gray-300 text-gray-500 cursor-not-allowed'
             }`}
           >
-            Continue
-            <img src={imgContainerContinue} alt="" className="w-3.5 h-3.5 brightness-0 invert" />
+            {loading ? 'Saving...' : 'Continue'}
+            {!loading && <img src={imgContainerContinue} alt="" className="w-3.5 h-3.5 brightness-0 invert" />}
           </button>
         </div>
       </footer>

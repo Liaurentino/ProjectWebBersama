@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useUser } from '../hooks/useUser';
+import LegalModal from '../components/modals/LegalModal';
 
 // Asset dari Figma
 const imgImage = "https://www.figma.com/api/mcp/asset/652ddd11-ffc5-4842-a14d-57f13f730a3f";
@@ -15,15 +17,29 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [modalType, setModalType] = useState(null); // 'privacy' or 'terms' or null
   
   const navigate = useNavigate();
+  const { fetchUser } = useUser();
+
+  const validateEmail = (email) => {
+    return String(email)
+      .toLowerCase()
+      .match(
+        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+      );
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
 
     if (!email || !password) {
-      return setError('Email dan Password wajib diisi!');
+      return setError('Email and Password are required!');
+    }
+
+    if (!validateEmail(email)) {
+      return setError('Invalid email format!');
     }
 
     setLoading(true);
@@ -37,22 +53,71 @@ const Login = () => {
       const data = await res.json();
 
       if (!res.ok) {
-        return setError(data.message || 'Login gagal, coba lagi.');
+        return setError(data.message || 'Login failed, please try again.');
       }
 
       localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
-      navigate('/dashboard');
+
+      // Sinkronkan state user global dengan data terbaru dari server
+      await fetchUser();
+
+      if (data.user.isOnboarded) {
+        navigate('/dashboard', { replace: true });
+      } else {
+        navigate('/onboarding/step-1', { replace: true });
+      }
     } catch (err) {
-      setError('Tidak dapat terhubung ke server. Coba lagi.');
+      setError('Unable to connect to the server. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
+  const privacyContent = (
+    <>
+      <section className="space-y-3">
+        <h4 className="font-bold text-[#191c1e]">1. Data Collection</h4>
+        <p>We collect information you provide directly to us, such as when you create an account, update your profile, or use our career tracking features. This includes your name, email, educational background, and professional interests.</p>
+      </section>
+      <section className="space-y-3">
+        <h4 className="font-bold text-[#191c1e]">2. Use of Information</h4>
+        <p>Your data is used to personalize your experience, provide career guidance, and improve our services. We do not sell your personal information to third parties.</p>
+      </section>
+      <section className="space-y-3">
+        <h4 className="font-bold text-[#191c1e]">3. Data Security</h4>
+        <p>We implement industry-standard security measures to protect your data from unauthorized access, alteration, or destruction. However, no method of transmission over the internet is 100% secure.</p>
+      </section>
+      <section className="space-y-3">
+        <h4 className="font-bold text-[#191c1e]">4. Your Rights</h4>
+        <p>You have the right to access, correct, or delete your personal information at any time through your account settings.</p>
+      </section>
+    </>
+  );
+
+  const termsContent = (
+    <>
+      <section className="space-y-3">
+        <h4 className="font-bold text-[#191c1e]">1. Acceptance of Terms</h4>
+        <p>By accessing or using ProdActivity, you agree to be bound by these Terms of Service. If you do not agree to all terms, you may not use our platform.</p>
+      </section>
+      <section className="space-y-3">
+        <h4 className="font-bold text-[#191c1e]">2. User Accounts</h4>
+        <p>You are responsible for maintaining the confidentiality of your account credentials and for all activities that occur under your account.</p>
+      </section>
+      <section className="space-y-3">
+        <h4 className="font-bold text-[#191c1e]">3. Prohibited Conduct</h4>
+        <p>You agree not to use the service for any unlawful purposes or in any way that could damage, disable, or impair our servers or networks.</p>
+      </section>
+      <section className="space-y-3">
+        <h4 className="font-bold text-[#191c1e]">4. Termination</h4>
+        <p>We reserve the right to terminate or suspend your account at our sole discretion, without notice, for conduct that we believe violates these Terms.</p>
+      </section>
+    </>
+  );
+
   return (
     <div className="flex h-screen w-full bg-[#f8f9fb] font-inter overflow-hidden">
-      {/* Left Side: Visual Anchor (Hidden on mobile) */}
+      {/* Left Side ... (remains same) */}
       <div className="hidden lg:flex flex-[1.2] bg-[#00174b] relative overflow-hidden items-start justify-center">
         <div className="absolute inset-0 mix-blend-overlay opacity-50">
           <img alt="" className="absolute h-full left-[-30%] max-w-none top-0 w-[160%] object-cover" src={imgImage} />
@@ -166,11 +231,34 @@ const Login = () => {
           </div>
         </div>
 
-        <div className="absolute bottom-6 flex gap-8 text-[#737686] text-[11px] font-bold tracking-widest uppercase opacity-60">
-          <Link to="#" className="hover:text-[#2563eb] transition-colors">Privacy Policy</Link>
-          <Link to="#" className="hover:text-[#2563eb] transition-colors">Terms of Service</Link>
+        <div className="absolute bottom-6 flex gap-8 text-[#737686] text-[11px] font-bold tracking-widest uppercase opacity-80">
+          <button 
+            onClick={() => setModalType('privacy')}
+            className="hover:text-[#2563eb] transition-colors"
+          >
+            Privacy Policy
+          </button>
+          <button 
+            onClick={() => setModalType('terms')}
+            className="hover:text-[#2563eb] transition-colors"
+          >
+            Terms of Service
+          </button>
         </div>
       </div>
+
+      <LegalModal 
+        isOpen={modalType === 'privacy'}
+        onClose={() => setModalType(null)}
+        title="Privacy Policy"
+        content={privacyContent}
+      />
+      <LegalModal 
+        isOpen={modalType === 'terms'}
+        onClose={() => setModalType(null)}
+        title="Terms of Service"
+        content={termsContent}
+      />
     </div>
   );
 };

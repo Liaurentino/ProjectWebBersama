@@ -1,5 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useUser } from '../hooks/useUser';
+import { userService } from '../services/userService';
+
+// --- Sub Components ---
 
 const StatCard = ({ title, value, subtext, icon, trend }) => (
   <div className="bg-white dark:bg-[#1A1C1E] border border-[#E7E8EA] dark:border-gray-800 p-[21px] rounded-[12px] shadow-[0px_4px_6px_rgba(17,24,39,0.05)] flex flex-col gap-1 transition-colors">
@@ -7,12 +11,8 @@ const StatCard = ({ title, value, subtext, icon, trend }) => (
       <div className="w-[32px] h-[32px] flex items-center justify-center">
         <img src={icon} alt="" className="w-full h-full object-contain aspect-square dark:brightness-200" />
       </div>
-      {trend && (
-        <span className="text-[#16A34A] text-[12px] font-bold">{trend}</span>
-      )}
-      {subtext && !trend && (
-        <span className="text-[#434655] dark:text-gray-400 text-[12px] font-bold">{subtext}</span>
-      )}
+      {trend && <span className="text-[#16A34A] text-[12px] font-bold">{trend}</span>}
+      {subtext && !trend && <span className="text-[#434655] dark:text-gray-400 text-[12px] font-bold">{subtext}</span>}
     </div>
     <div className="pt-3">
       <p className="text-[#434655] dark:text-gray-400 text-sm">{title}</p>
@@ -21,25 +21,21 @@ const StatCard = ({ title, value, subtext, icon, trend }) => (
   </div>
 );
 
-const TimelineItem = ({ time, title, location, status, type }) => {
+const TimelineItem = ({ time, title, location, status }) => {
   const statusStyles = {
     COMPLETED: 'bg-[#DCFCE7] text-[#15803D] dark:bg-green-900/20 dark:text-green-400',
-    UPCOMING: 'bg-[#2563EB] text-[#EEEFFF]',
-    SCHEDULED: 'bg-[#E7E8EA] text-[#434655] dark:bg-gray-800 dark:text-gray-400'
+    UPCOMING:  'bg-[#2563EB] text-[#EEEFFF]',
+    SCHEDULED: 'bg-[#E7E8EA] text-[#434655] dark:bg-gray-800 dark:text-gray-400',
   };
-
   const dotStyles = {
     COMPLETED: 'bg-[#004AC6]',
-    UPCOMING: 'bg-[#E1E2E4] dark:bg-gray-700 border-2 border-[#004AC6]',
-    SCHEDULED: 'bg-[#E1E2E4] dark:bg-gray-700 border-2 border-[#E7E8EA] dark:border-gray-600'
+    UPCOMING:  'bg-[#E1E2E4] dark:bg-gray-700 border-2 border-[#004AC6]',
+    SCHEDULED: 'bg-[#E1E2E4] dark:bg-gray-700 border-2 border-[#E7E8EA] dark:border-gray-600',
   };
 
   return (
     <div className="flex gap-8 relative pl-12 pb-8 last:pb-0">
-      {/* Vertical line connector */}
-      <div className="absolute left-[19px] top-0 bottom-0 w-[2px] bg-[#E7E8EA] dark:bg-gray-800 last:hidden" />
-      
-      {/* Status Dot/Icon */}
+      <div className="absolute left-[19px] top-0 bottom-0 w-[2px] bg-[#E7E8EA] dark:bg-gray-800" />
       <div className={`absolute left-0 w-10 h-10 rounded-full flex items-center justify-center z-10 ${dotStyles[status]}`}>
         {status === 'COMPLETED' ? (
           <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
@@ -49,9 +45,9 @@ const TimelineItem = ({ time, title, location, status, type }) => {
           <div className="w-2 h-3 bg-gray-400 rounded-sm" />
         )}
       </div>
-
-      {/* Content Card */}
-      <div className={`flex-1 p-4 rounded-xl border border-[#E7E8EA] dark:border-gray-800 transition-colors ${status === 'SCHEDULED' ? 'bg-[#F8F9FB] dark:bg-[#121212] opacity-60' : 'bg-white dark:bg-[#1A1C1E]'} ${status === 'UPCOMING' ? 'ring-2 ring-[#2563EB] ring-offset-2 dark:ring-offset-[#121212]' : ''}`}>
+      <div className={`flex-1 p-4 rounded-xl border border-[#E7E8EA] dark:border-gray-800 transition-colors ${
+        status === 'SCHEDULED' ? 'bg-[#F8F9FB] dark:bg-[#121212] opacity-60' : 'bg-white dark:bg-[#1A1C1E]'
+      } ${status === 'UPCOMING' ? 'ring-2 ring-[#2563EB] ring-offset-2 dark:ring-offset-[#121212]' : ''}`}>
         <div className="flex justify-between items-start">
           <div>
             <p className={`text-[12px] font-semibold tracking-wider uppercase ${status === 'UPCOMING' ? 'text-[#004AC6]' : 'text-gray-500 dark:text-gray-400'}`}>{time}</p>
@@ -67,17 +63,82 @@ const TimelineItem = ({ time, title, location, status, type }) => {
   );
 };
 
+// --- Main Dashboard ---
+
 const Dashboard = () => {
+  const { user } = useUser();
+
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchDashboard = async () => {
+      try {
+        const data = await userService.getDashboard();
+        setData(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDashboard();
+  }, []);
+
+  const today = new Date().toLocaleDateString('id-ID', {
+    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+  });
+
+  const icons = {
+    activity: 'https://www.figma.com/api/mcp/asset/11b16d83-839f-452b-b464-ed7dd364b1e0',
+    time:     'https://www.figma.com/api/mcp/asset/61aa2e40-9072-450b-b03f-fa9edb2154b5',
+    streak:   'https://www.figma.com/api/mcp/asset/dec936b9-2d2a-438c-b544-497070c27137',
+  };
+
+  if (loading) {
+    return (
+      <div className="p-8 flex items-center justify-center min-h-screen">
+        <p className="text-[#434655] dark:text-gray-400">Loading dashboard...</p>
+      </div>
+    );
+  }
+
+  if (error || !data) {
+    return (
+      <div className="p-8 flex items-center justify-center min-h-screen">
+        <p className="text-red-500">{error || 'Something went wrong.'}</p>
+      </div>
+    );
+  }
+
+  const { summary, timeline, weeklyData, categoryData } = data;
+
+  // Hitung strokeDasharray untuk donut SVG dari categoryData
+  const circumference = 251.2;
+  let offset = 0;
+  const donutSegments = categoryData.map(cat => {
+    const dash = (cat.value / 100) * circumference;
+    const segment = { ...cat, dash, offset };
+    offset += dash;
+    return segment;
+  });
+
   return (
     <div className="p-8 flex justify-start">
       <div className="w-full max-w-7xl space-y-8">
-        {/* Greeting & Action Header */}
+
+        {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
-            <h1 className="text-[30px] font-bold text-[#191C1E] dark:text-white tracking-tight transition-colors">Welcome, Alex!</h1>
-            <p className="text-[#434655] dark:text-gray-400 mt-1 text-base transition-colors">Senin, 23 Oktober 2023 • Keep up the momentum!</p>
+            <h1 className="text-[30px] font-bold text-[#191C1E] dark:text-white tracking-tight transition-colors">
+              Welcome, {user?.name?.split(' ')[0] || 'there'}!
+            </h1>
+            <p className="text-[#434655] dark:text-gray-400 mt-1 text-base transition-colors">
+              {today} • Keep up the momentum!
+            </p>
           </div>
-          <Link 
+          <Link
             to="/activity"
             className="bg-[#004AC6] text-white px-5 py-2.5 rounded-lg font-bold flex items-center gap-2 hover:bg-[#003da3] transition shadow-sm self-start md:self-auto"
           >
@@ -86,182 +147,146 @@ const Dashboard = () => {
           </Link>
         </div>
 
-        {/* Summary Cards Grid */}
+        {/* Summary Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <StatCard 
-            title="Total activities for today" 
-            value="5" 
-            trend="+2 today" 
-            icon="https://www.figma.com/api/mcp/asset/11b16d83-839f-452b-b464-ed7dd364b1e0" 
+          <StatCard
+            title="Total activities for today"
+            value={String(summary.totalToday)}
+            icon={icons.activity}
           />
-          <StatCard 
-            title="Productive time" 
-            value="4.5h" 
-            subtext="August: 4.2h" 
-            icon="https://www.figma.com/api/mcp/asset/61aa2e40-9072-450b-b03f-fa9edb2154b5" 
+          <StatCard
+            title="Productive time"
+            value={summary.productiveTime}
+            icon={icons.time}
           />
-          <StatCard 
-            title="Streak productive days" 
-            value="12 days" 
-            subtext="Personal Best!" 
-            icon="https://www.figma.com/api/mcp/asset/dec936b9-2d2a-438c-b544-497070c27137" 
+          <StatCard
+            title="Streak productive days"
+            value={`${summary.streak} days`}
+            subtext={summary.streak > 0 ? 'Keep it up!' : 'Start today!'}
+            icon={icons.streak}
           />
-          
-          {/* Progress Card */}
+          {/* Target Completion */}
           <div className="bg-white dark:bg-[#1A1C1E] border border-[#E7E8EA] dark:border-gray-800 p-[21px] rounded-[12px] shadow-[0px_4px_6px_rgba(17,24,39,0.05)] flex items-center gap-4 transition-colors">
             <div className="relative w-16 h-16">
               <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                <circle cx="18" cy="18" r="16" fill="none" stroke={document.documentElement.classList.contains('dark') ? '#2A2D31' : '#F3F4F6'} strokeWidth="4"></circle>
-                <circle cx="18" cy="18" r="16" fill="none" stroke="#2563EB" strokeWidth="4" strokeDasharray="75, 100" strokeLinecap="round"></circle>
+                <circle cx="18" cy="18" r="16" fill="none" stroke="#F3F4F6" strokeWidth="4" />
+                <circle cx="18" cy="18" r="16" fill="none" stroke="#2563EB" strokeWidth="4"
+                  strokeDasharray={`${summary.targetCompletion}, 100`} strokeLinecap="round" />
               </svg>
               <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-[#191C1E] dark:text-white text-xs font-bold transition-colors">75%</span>
+                <span className="text-[#191C1E] dark:text-white text-xs font-bold">{summary.targetCompletion}%</span>
               </div>
             </div>
             <div>
-              <p className="text-[#434655] dark:text-gray-400 text-sm leading-tight transition-colors">Target<br />completion</p>
-              <h3 className="text-[#191C1E] dark:text-white text-xl font-bold mt-0.5 transition-colors">On Track</h3>
+              <p className="text-[#434655] dark:text-gray-400 text-sm leading-tight">Target<br />completion</p>
+              <h3 className="text-[#191C1E] dark:text-white text-xl font-bold mt-0.5">
+                {summary.targetCompletion >= 100 ? 'Done!' : summary.targetCompletion >= 50 ? 'On Track' : 'Keep Going'}
+              </h3>
             </div>
           </div>
         </div>
 
-        {/* Main Content Grid */}
+        {/* Main Content */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column: Timeline */}
+          {/* Timeline */}
           <div className="lg:col-span-2 space-y-4">
             <div className="bg-white dark:bg-[#1A1C1E] border border-[#E7E8EA] dark:border-gray-800 p-6 rounded-2xl shadow-[0px_4px_6px_rgba(17,24,39,0.05)] transition-colors">
               <div className="flex justify-between items-center mb-8">
                 <div className="flex items-center gap-2">
                   <svg className="w-5 h-5 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-                  <h2 className="text-lg font-bold text-[#191C1E] dark:text-white transition-colors">Journey Timeline</h2>
+                  <h2 className="text-lg font-bold text-[#191C1E] dark:text-white">Journey Timeline</h2>
                 </div>
                 <Link to="/activity" className="text-[#004AC6] text-sm font-semibold hover:underline">See all</Link>
               </div>
-              
-              <div className="space-y-0">
-                <TimelineItem 
-                  time="09:00 - 11:30" 
-                  title="Data Structure Lectures" 
-                  location="New Building, Room 402 • Lecturer: Dr." 
-                  status="COMPLETED" 
-                />
-                <TimelineItem 
-                  time="14:00 - 15:30" 
-                  title="Organizational Meeting" 
-                  location="1st Floor, Co-working Space • Agenda: Anniversary Event" 
-                  status="UPCOMING" 
-                />
-                <TimelineItem 
-                  time="16:00 - 18:00" 
-                  title="Independent Study Session" 
-                  location="Focus Mode: 2 Pomodoros • Topic: Algorithm Analysis" 
-                  status="SCHEDULED" 
-                />
-              </div>
+
+              {timeline.length === 0 ? (
+                <p className="text-center text-[#434655] dark:text-gray-400 py-8">No activities today. Start by adding one!</p>
+              ) : (
+                <div className="space-y-0">
+                  {timeline.map(item => (
+                    <TimelineItem key={item.id} {...item} />
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Right Column: Stats & Motivation */}
+          {/* Right Column */}
           <div className="space-y-8">
-            {/* Mini Statistics Card */}
+            {/* Mini Statistics */}
             <div className="bg-white dark:bg-[#1A1C1E] border border-[#E7E8EA] dark:border-gray-800 p-6 rounded-2xl shadow-[0px_4px_6px_rgba(17,24,39,0.05)] transition-colors">
               <div className="flex items-center gap-2 mb-6">
                 <svg className="w-4 h-4 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20v-6M6 20V10M18 20V4"/></svg>
-                <h2 className="text-lg font-bold text-[#191C1E] dark:text-white transition-colors">Mini Statistics</h2>
+                <h2 className="text-lg font-bold text-[#191C1E] dark:text-white">Mini Statistics</h2>
               </div>
-              
+
               <div className="space-y-6">
+                {/* Weekly Bar */}
                 <div>
-                  <p className="text-sm font-semibold text-black dark:text-white mb-4 transition-colors">Today's Progress</p>
-                  {/* Bar Chart Placeholder */}
+                  <p className="text-sm font-semibold text-black dark:text-white mb-4">Today's Progress</p>
                   <div className="h-40 flex items-end justify-between gap-2 px-2">
-                    {[82, 76, 88, 84, 91].map((val, i) => (
+                    {weeklyData.map((d, i) => (
                       <div key={i} className="flex-1 flex flex-col items-center gap-2">
-                        <div className="w-full bg-[#F5F5F5] dark:bg-[#2A2D31] rounded-t-lg relative group transition-colors">
-                          <div 
-                            className={`w-full rounded-t-lg transition-all duration-500 ${i === 4 ? 'bg-[#2563EB]' : 'bg-[#97B6FB] dark:bg-[#3B82F6]/40'}`}
-                            style={{ height: `${val}%` }}
+                        <div className="w-full bg-[#F5F5F5] dark:bg-[#2A2D31] rounded-t-lg relative group transition-colors" style={{ height: '100%' }}>
+                          <div
+                            className="w-full rounded-t-lg transition-all duration-500"
+                            style={{ height: `${d.value}%`, backgroundColor: d.color }}
                           >
                             <span className="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] text-gray-500 dark:text-gray-400 font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-                              {val}%
+                              {d.value}%
                             </span>
                           </div>
                         </div>
-                        <span className={`text-[8px] whitespace-nowrap transition-colors ${i === 4 ? 'font-bold text-black dark:text-white' : 'text-gray-400'}`}>
-                          {i === 4 ? 'Today' : `${9+i} June`}
+                        <span className={`text-[8px] whitespace-nowrap ${d.isToday ? 'font-bold text-black dark:text-white' : 'text-gray-400'}`}>
+                          {d.label}
                         </span>
                       </div>
                     ))}
                   </div>
                 </div>
 
+                {/* Category Donut */}
                 <div className="pt-6 border-t border-[#EDEEF0] dark:border-gray-800">
-                  <p className="text-sm font-semibold text-[#434655] dark:text-gray-400 mb-4 transition-colors">Category Distribution</p>
-                  <div className="flex items-center gap-6">
-                    {/* Donut Chart SVG */}
-                    <div className="w-20 h-20 relative">
-                      <svg viewBox="0 0 100 100" className="w-full h-full transform -rotate-90">
-                        {/* Organization (25%) */}
-                        <circle
-                          cx="50"
-                          cy="50"
-                          r="40"
-                          fill="transparent"
-                          stroke="#7C3AED"
-                          strokeWidth="20"
-                          strokeDasharray="157 251.2"
-                          strokeDashoffset="0"
-                        />
-                        {/* Personal (20%) */}
-                        <circle
-                          cx="50"
-                          cy="50"
-                          r="40"
-                          fill="transparent"
-                          stroke="#943700"
-                          strokeWidth="20"
-                          strokeDasharray="50.24 251.2"
-                          strokeDashoffset="-157"
-                        />
-                        {/* Academic (55%) */}
-                        <circle
-                          cx="50"
-                          cy="50"
-                          r="40"
-                          fill="transparent"
-                          stroke="#004AC6"
-                          strokeWidth="20"
-                          strokeDasharray="138.16 251.2"
-                          strokeDashoffset="-207.24"
-                        />
-                      </svg>
-                    </div>
-                    <div className="space-y-1.5">
-                      <div className="flex items-center gap-2">
-                        <div className="w-2.5 h-2.5 rounded-full bg-[#004AC6]" />
-                        <span className="text-[12px] font-medium text-[#191C1E]">Akademik (55%)</span>
+                  <p className="text-sm font-semibold text-[#434655] dark:text-gray-400 mb-4">Category Distribution</p>
+                  {categoryData.length === 0 ? (
+                    <p className="text-xs text-gray-400 text-center py-4">No data yet</p>
+                  ) : (
+                    <div className="flex items-center gap-6">
+                      <div className="w-20 h-20 relative shrink-0">
+                        <svg viewBox="0 0 100 100" className="w-full h-full transform -rotate-90">
+                          {donutSegments.map((seg, i) => (
+                            <circle key={i}
+                              cx="50" cy="50" r="40"
+                              fill="transparent"
+                              stroke={seg.color}
+                              strokeWidth="20"
+                              strokeDasharray={`${seg.dash} ${circumference}`}
+                              strokeDashoffset={-seg.offset}
+                            />
+                          ))}
+                        </svg>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-2.5 h-2.5 rounded-full bg-[#7C3AED]" />
-                        <span className="text-[12px] font-medium text-[#191C1E]">Organisasi (25%)</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-2.5 h-2.5 rounded-full bg-[#943700]" />
-                        <span className="text-[12px] font-medium text-[#191C1E]">Personal (20%)</span>
+                      <div className="space-y-1.5">
+                        {categoryData.map((cat, i) => (
+                          <div key={i} className="flex items-center gap-2">
+                            <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: cat.color }} />
+                            <span className="text-[12px] font-medium text-[#191C1E] dark:text-white">
+                              {cat.name} ({cat.value}%)
+                            </span>
+                          </div>
+                        ))}
                       </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               </div>
             </div>
 
             {/* Motivation Card */}
             <div className="bg-[#004AC6] p-8 rounded-2xl relative overflow-hidden shadow-lg group">
-              {/* Background Pattern/Image Overlay */}
               <div className="absolute inset-0 opacity-20 pointer-events-none mix-blend-overlay">
-                 <img src="https://www.figma.com/api/mcp/asset/f2df82b5-712d-45ba-be8a-681f8710fc66" alt="" className="w-full h-full object-cover scale-150 group-hover:scale-125 transition-transform duration-1000" />
+                <img src="https://www.figma.com/api/mcp/asset/f2df82b5-712d-45ba-be8a-681f8710fc66" alt="" className="w-full h-full object-cover scale-150 group-hover:scale-125 transition-transform duration-1000" />
               </div>
-              
               <div className="relative z-10 space-y-4">
                 <svg className="w-6 h-6 text-white opacity-80" fill="currentColor" viewBox="0 0 24 24"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.154c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>
                 <blockquote className="text-white text-xl font-bold italic leading-relaxed">

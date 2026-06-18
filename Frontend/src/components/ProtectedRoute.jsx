@@ -1,11 +1,17 @@
 import { Navigate } from 'react-router-dom';
+import { useUser } from '../hooks/useUser';
 
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem('token');
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const { user, loading } = useUser();
 
   if (!token) return <Navigate to="/login" replace />;
-  if (!user.isOnboarded) return <Navigate to="/onboarding/step-1" replace />;
+
+  // Tunggu data user dari context selesai load
+  if (loading) return null;
+
+  // Belum onboarding → balik ke step-1
+  if (!user?.isOnboarded) return <Navigate to="/onboarding/step-1" replace />;
 
   return children;
 };

@@ -1,18 +1,23 @@
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = `${import.meta.env.VITE_API_URL}/api`;
 
 const authHeaders = () => ({
   'Content-Type': 'application/json',
   'Authorization': `Bearer ${localStorage.getItem('token')}`,
 });
 
+const handleResponse = async (res) => {
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || `Request failed: ${res.status}`);
+  }
+  const json = await res.json();
+  return json.data;
+};
+
 export const userService = {
   async getProfile() {
-    const res = await fetch(`${API_BASE_URL}/user/profile`, {
-      headers: authHeaders(),
-    });
-    if (!res.ok) throw new Error('Failed to fetch profile');
-    const json = await res.json();
-    return json.data;
+    const res = await fetch(`${API_BASE_URL}/user/profile`, { headers: authHeaders() });
+    return handleResponse(res);
   },
 
   async updateProfile(profileData) {
@@ -21,18 +26,23 @@ export const userService = {
       headers: authHeaders(),
       body: JSON.stringify(profileData),
     });
-    if (!res.ok) throw new Error('Failed to update profile');
-    const json = await res.json();
-    return json.data;
+    return handleResponse(res);
+  },
+
+  async uploadPhoto(file) {
+    const formData = new FormData();
+    formData.append('photo', file);
+    const res = await fetch(`${API_BASE_URL}/user/profile/photo`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+      body: formData,
+    });
+    return handleResponse(res);
   },
 
   async getSettings() {
-    const res = await fetch(`${API_BASE_URL}/user/settings`, {
-      headers: authHeaders(),
-    });
-    if (!res.ok) throw new Error('Failed to fetch settings');
-    const json = await res.json();
-    return json.data;
+    const res = await fetch(`${API_BASE_URL}/user/settings`, { headers: authHeaders() });
+    return handleResponse(res);
   },
 
   async updateSettings(settingsData) {
@@ -41,8 +51,24 @@ export const userService = {
       headers: authHeaders(),
       body: JSON.stringify(settingsData),
     });
-    if (!res.ok) throw new Error('Failed to update settings');
-    const json = await res.json();
-    return json.data;
+    return handleResponse(res);
+  },
+
+  async getDashboard() {
+    const res = await fetch(`${API_BASE_URL}/dashboard`, { headers: authHeaders() });
+    return handleResponse(res);
+  },
+
+  async getStatistics() {
+    const res = await fetch(`${API_BASE_URL}/statistics`, { headers: authHeaders() });
+    return handleResponse(res);
+  },
+
+   async deleteAccount() {
+    const res = await fetch(`${API_BASE_URL}/user/account`, {
+      method: 'DELETE',
+      headers: authHeaders(),
+    });
+    return handleResponse(res);
   },
 };

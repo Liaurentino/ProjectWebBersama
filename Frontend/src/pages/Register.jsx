@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import LegalModal from '../components/modals/LegalModal';
 
-// Asset dari Figma
+// Asset dari Figma ... (rest of assets)
 const imgImage = "https://www.figma.com/api/mcp/asset/2c54dee7-aa88-4954-b462-b7b9d4a7e4af";
 const imgIcon = "https://www.figma.com/api/mcp/asset/8b843771-e3f6-4d6b-a01c-2b06d5541b40";
 const imgContainer = "https://www.figma.com/api/mcp/asset/4d5fdd60-907d-4eb9-ab74-dd8da9ca6b23";
@@ -22,6 +23,7 @@ const Register = () => {
   const [agreed, setAgreed] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [modalType, setModalType] = useState(null); // 'privacy' or 'terms' or null
   
   const navigate = useNavigate();
 
@@ -39,23 +41,23 @@ const Register = () => {
 
     // Validasi sisi client terlebih dahulu
     if (!fullName || !email || !password || !confirmPassword) {
-      return setError('Semua kolom wajib diisi!');
+      return setError('All fields are required!');
     }
 
     if (!validateEmail(email)) {
-      return setError('Format email tidak valid. Gunakan contoh: jane.doe@example.com');
+      return setError('Invalid email format. Use example: jane.doe@example.com');
     }
 
     if (password !== confirmPassword) {
-      return setError('Password dan Konfirmasi Password tidak cocok!');
+      return setError('Passwords do not match!');
     }
 
     if (password.length < 8) {
-  return setError('Password minimal 8 karakter!');
-}
+      return setError('Password must be at least 8 characters!');
+    }
 
     if (!agreed) {
-      return setError('Anda harus menyetujui Syarat dan Ketentuan!');
+      return setError('You must agree to the Terms and Conditions!');
     }
 
     setLoading(true);
@@ -69,7 +71,7 @@ const Register = () => {
       const data = await res.json();
 
       if (!res.ok) {
-        return setError(data.message || 'Registrasi gagal, coba lagi.');
+        return setError(data.message || 'Registration failed, please try again.');
       }
 
       // Simpan userId sementara untuk keperluan onboarding
@@ -77,15 +79,57 @@ const Register = () => {
       localStorage.setItem('user', JSON.stringify(data.user));
       navigate('/onboarding/step-1');
     } catch (err) {
-      setError('Tidak dapat terhubung ke server. Coba lagi.');
+      setError('Unable to connect to the server. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
+  const privacyContent = (
+    <>
+      <section className="space-y-3">
+        <h4 className="font-bold text-[#191c1e]">1. Data Collection</h4>
+        <p>We collect information you provide directly to us, such as when you create an account, update your profile, or use our career tracking features. This includes your name, email, educational background, and professional interests.</p>
+      </section>
+      <section className="space-y-3">
+        <h4 className="font-bold text-[#191c1e]">2. Use of Information</h4>
+        <p>Your data is used to personalize your experience, provide career guidance, and improve our services. We do not sell your personal information to third parties.</p>
+      </section>
+      <section className="space-y-3">
+        <h4 className="font-bold text-[#191c1e]">3. Data Security</h4>
+        <p>We implement industry-standard security measures to protect your data from unauthorized access, alteration, or destruction. However, no method of transmission over the internet is 100% secure.</p>
+      </section>
+      <section className="space-y-3">
+        <h4 className="font-bold text-[#191c1e]">4. Your Rights</h4>
+        <p>You have the right to access, correct, or delete your personal information at any time through your account settings.</p>
+      </section>
+    </>
+  );
+
+  const termsContent = (
+    <>
+      <section className="space-y-3">
+        <h4 className="font-bold text-[#191c1e]">1. Acceptance of Terms</h4>
+        <p>By accessing or using ProdActivity, you agree to be bound by these Terms of Service. If you do not agree to all terms, you may not use our platform.</p>
+      </section>
+      <section className="space-y-3">
+        <h4 className="font-bold text-[#191c1e]">2. User Accounts</h4>
+        <p>You are responsible for maintaining the confidentiality of your account credentials and for all activities that occur under your account.</p>
+      </section>
+      <section className="space-y-3">
+        <h4 className="font-bold text-[#191c1e]">3. Prohibited Conduct</h4>
+        <p>You agree not to use the service for any unlawful purposes or in any way that could damage, disable, or impair our servers or networks.</p>
+      </section>
+      <section className="space-y-3">
+        <h4 className="font-bold text-[#191c1e]">4. Termination</h4>
+        <p>We reserve the right to terminate or suspend your account at our sole discretion, without notice, for conduct that we believe violates these Terms.</p>
+      </section>
+    </>
+  );
+
   return (
     <div className="min-h-screen w-full bg-[#f8f9fb] font-inter flex flex-col relative overflow-x-hidden">
-      {/* Navbar */}
+      {/* Navbar ... (remains same) */}
       <nav className="h-14 w-full bg-[#f8f9fb] flex items-center justify-between px-4 fixed top-0 left-0 z-50">
         <button 
           onClick={() => navigate('/login')}
@@ -96,9 +140,12 @@ const Register = () => {
         <div className="flex flex-col items-center">
           <span className="text-[#004ac6] text-2xl font-bold tracking-tight">ProdActivity</span>
         </div>
-        <div className="p-2 hover:bg-slate-200/50 rounded-full transition-colors cursor-pointer">
+        <button 
+          onClick={() => navigate('/profile')}
+          className="p-2 hover:bg-slate-200/50 rounded-full transition-colors cursor-pointer"
+        >
           <img src={imgContainer4} alt="User" className="w-5 h-5" />
-        </div>
+        </button>
       </nav>
 
       {/* Content Container */}
@@ -177,15 +224,15 @@ const Register = () => {
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full pl-9 pr-10 py-3.5 bg-white border border-[#c3c6d7] rounded-md focus:outline-none focus:ring-2 focus:ring-[#2563eb]/10 focus:border-[#2563eb] transition-all text-sm placeholder:text-[#6b7280]/60"
+                    className="w-full pl-9 pr-12 py-3.5 bg-white border border-[#c3c6d7] rounded-md focus:outline-none focus:ring-2 focus:ring-[#2563eb]/10 focus:border-[#2563eb] transition-all text-sm placeholder:text-[#6b7280]/60"
                   />
                   <img src={imgIcon1} alt="" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-5 opacity-40 group-focus-within:opacity-100 transition-opacity" />
                   <button 
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 hover:bg-slate-50 rounded transition-colors"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-2 hover:bg-slate-50 rounded-md transition-colors"
                   >
-                    <img src={imgContainer1} alt="" className="w-5 h-4 opacity-40 hover:opacity-100 transition-opacity" />
+                    <img src={imgContainer1} alt="Toggle Visibility" className="w-5 h-4 opacity-40 hover:opacity-100 transition-opacity" />
                   </button>
                 </div>
               </div>
@@ -199,15 +246,15 @@ const Register = () => {
                     placeholder="••••••••"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full pl-9 pr-10 py-3.5 bg-white border border-[#c3c6d7] rounded-md focus:outline-none focus:ring-2 focus:ring-[#2563eb]/10 focus:border-[#2563eb] transition-all text-sm placeholder:text-[#6b7280]/60"
+                    className="w-full pl-9 pr-12 py-3.5 bg-white border border-[#c3c6d7] rounded-md focus:outline-none focus:ring-2 focus:ring-[#2563eb]/10 focus:border-[#2563eb] transition-all text-sm placeholder:text-[#6b7280]/60"
                   />
                   <img src={imgIcon1} alt="" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-5 opacity-40 group-focus-within:opacity-100 transition-opacity" />
                   <button 
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 hover:bg-slate-50 rounded transition-colors"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-2 hover:bg-slate-50 rounded-md transition-colors"
                   >
-                    <img src={imgContainer1} alt="" className="w-5 h-4 opacity-40 hover:opacity-100 transition-opacity" />
+                    <img src={imgContainer1} alt="Toggle Visibility" className="w-5 h-4 opacity-40 hover:opacity-100 transition-opacity" />
                   </button>
                 </div>
               </div>
@@ -224,7 +271,7 @@ const Register = () => {
                   />
                 </div>
                 <label htmlFor="terms" className="text-[#434655] text-sm leading-tight">
-                  I have agreed to the <Link to="#" className="text-[#2563eb] font-bold hover:underline">Terms and Conditions</Link> and <Link to="#" className="text-[#2563eb] font-bold hover:underline">Privacy Policy</Link>.
+                  I have agreed to the <button type="button" onClick={() => setModalType('terms')} className="text-[#2563eb] font-bold hover:underline">Terms and Conditions</button> and <button type="button" onClick={() => setModalType('privacy')} className="text-[#2563eb] font-bold hover:underline">Privacy Policy</button>.
                 </label>
               </div>
 
@@ -247,6 +294,19 @@ const Register = () => {
           </div>
         </div>
       </div>
+
+      <LegalModal 
+        isOpen={modalType === 'privacy'}
+        onClose={() => setModalType(null)}
+        title="Privacy Policy"
+        content={privacyContent}
+      />
+      <LegalModal 
+        isOpen={modalType === 'terms'}
+        onClose={() => setModalType(null)}
+        title="Terms of Service"
+        content={termsContent}
+      />
     </div>
   );
 };
