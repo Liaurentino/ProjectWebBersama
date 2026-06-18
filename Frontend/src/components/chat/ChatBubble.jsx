@@ -13,7 +13,7 @@ const ChatBubble = ({ message, sender, time, status }) => {
               {message}
             </p>
           </div>
-          <div className="flex items-center gap-1 text-[11px] text-[#434655] px-1 font-medium">
+          <div className="flex items-center gap-1 text-[11px] text-[#434655] dark:text-gray-400 px-1 font-medium">
             <span>{time}</span>
             <span>•</span>
             <span>{status || 'Sent'}</span>
@@ -26,20 +26,20 @@ const ChatBubble = ({ message, sender, time, status }) => {
   return (
     <div className="flex flex-col gap-4 w-full max-w-3xl mb-8 animate-in slide-in-from-left-4 fade-in duration-300">
       <div className="flex flex-col gap-3">
-        <div className="text-[#191C1E] text-sm sm:text-base leading-relaxed text-justify space-y-4">
+        <div className="text-[#191C1E] dark:text-gray-200 text-sm sm:text-base leading-relaxed text-justify space-y-4">
           <p>{message}</p>
         </div>
       </div>
       
       {/* AI Actions */}
       <div className="flex items-center gap-2">
-        <button className="p-1.5 text-[#434655] hover:bg-gray-100 rounded-md transition-colors" title="Copy">
+        <button className="p-1.5 text-[#434655] dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#2A2D31] rounded-md transition-colors" title="Copy">
           <Copy className="w-4 h-4" />
         </button>
-        <button className="p-1.5 text-[#434655] hover:bg-gray-100 rounded-md transition-colors" title="Regenerate">
+        <button className="p-1.5 text-[#434655] dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#2A2D31] rounded-md transition-colors" title="Regenerate">
           <RotateCcw className="w-4 h-4" />
         </button>
-        <button className="p-1.5 text-[#434655] hover:bg-gray-100 rounded-md transition-colors" title="More">
+        <button className="p-1.5 text-[#434655] dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#2A2D31] rounded-md transition-colors" title="More">
           <MoreHorizontal className="w-4 h-4" />
         </button>
       </div>

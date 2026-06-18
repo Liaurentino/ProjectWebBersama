@@ -38,7 +38,7 @@ const ChatInput = ({ value, onChange, onSend, onIncludeClick, selectedItems = []
   }, []);
 
   return (
-    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-[#F8F9FB] via-[#F8F9FB] to-transparent pt-8 pb-6 px-6 flex flex-col items-center">
+    <div className="w-full shrink-0 bg-gradient-to-t from-[#F8F9FB] dark:from-[#121212] via-[#F8F9FB] dark:via-[#121212] to-transparent pt-4 pb-6 px-6 flex flex-col items-center z-[100] relative">
       <div className="w-full max-w-2xl flex flex-col gap-3">
         {/* Chips Area */}
         {selectedItems.length > 0 && (
@@ -72,26 +72,26 @@ const ChatInput = ({ value, onChange, onSend, onIncludeClick, selectedItems = []
         )}
 
         <div className="w-full relative">
-          <div className="bg-white border-2 border-[#004AC6]/30 rounded-xl shadow-[0px_10px_15px_-3px_rgba(0,0,0,0.05)] flex items-center p-0.5 relative">
+          <div className="bg-white dark:bg-[#1A1C1E] border-2 border-[#004AC6]/30 dark:border-blue-900/50 rounded-xl shadow-[0px_10px_15px_-3px_rgba(0,0,0,0.05)] dark:shadow-none flex items-center p-0.5 relative">
             <textarea
               value={value}
               onChange={onChange}
               onKeyDown={handleKeyDown}
               placeholder="Ask me anything..."
-              className="flex-1 bg-transparent border-none focus:ring-0 outline-none py-3 px-4 text-[#434655] text-sm resize-none h-12 max-h-28 min-h-[48px] scrollbar-thin [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-[#C3C6D7] [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-[#A0A3B1]"
+              className="flex-1 bg-transparent border-none focus:ring-0 outline-none py-3 px-4 text-[#434655] dark:text-gray-300 text-sm resize-none h-12 max-h-28 min-h-[48px] scrollbar-thin [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-[#C3C6D7] [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-[#A0A3B1]"
             />
             <div className="flex items-center gap-1 pr-2 relative" ref={dropdownRef}>
               {showOptions && (
-                <div className="absolute bottom-full right-0 mb-2 w-64 bg-white border border-gray-200 rounded-xl shadow-xl overflow-hidden z-50 animate-in fade-in slide-in-from-bottom-2 duration-200">
+                <div className="absolute bottom-full right-0 mb-2 w-64 bg-white dark:bg-[#1A1C1E] border border-gray-200 dark:border-gray-800 rounded-xl shadow-xl overflow-hidden z-50 animate-in fade-in slide-in-from-bottom-2 duration-200">
                   <div className="p-1">
                     <button 
                       onClick={() => {
                         setShowOptions(false);
                         // Add file upload logic here
                       }}
-                      className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-[#434655] hover:bg-gray-50 rounded-lg transition-colors group"
+                      className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-[#434655] dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#2A2D31] rounded-lg transition-colors group"
                     >
-                      <Files className="w-5 h-5 text-[#434655] group-hover:text-[#004AC6] transition-colors" />
+                      <Files className="w-5 h-5 text-[#434655] dark:text-gray-400 group-hover:text-[#004AC6] transition-colors" />
                       <span className="font-medium">Upload Files or Photos</span>
                     </button>
                     <button 
@@ -99,9 +99,9 @@ const ChatInput = ({ value, onChange, onSend, onIncludeClick, selectedItems = []
                         setShowOptions(false);
                         onIncludeClick();
                       }}
-                      className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-[#434655] hover:bg-gray-50 rounded-lg transition-colors group"
+                      className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-[#434655] dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#2A2D31] rounded-lg transition-colors group"
                     >
-                      <ClipboardPenLine className="w-5 h-5 text-[#434655] group-hover:text-[#004AC6] transition-colors" />
+                      <ClipboardPenLine className="w-5 h-5 text-[#434655] dark:text-gray-400 group-hover:text-[#004AC6] transition-colors" />
                       <span className="font-medium">Include Tasks or Notes</span>
                     </button>
                   </div>
@@ -109,7 +109,7 @@ const ChatInput = ({ value, onChange, onSend, onIncludeClick, selectedItems = []
               )}
               <button 
                 onClick={() => setShowOptions(!showOptions)}
-                className={`p-1.5 rounded-lg transition-all ${showOptions ? 'bg-blue-50 text-[#004AC6]' : 'text-[#434655] hover:bg-gray-100'}`}
+                className={`p-1.5 rounded-lg transition-all ${showOptions ? 'bg-blue-50 dark:bg-blue-900/30 text-[#004AC6]' : 'text-[#434655] dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#2A2D31]'}`}
               >
                 <Paperclip className="w-5 h-5" />
               </button>
@@ -122,7 +122,7 @@ const ChatInput = ({ value, onChange, onSend, onIncludeClick, selectedItems = []
             </div>
           </div>
         </div>
-        <p className="text-[10px] text-[#434655] font-medium tracking-wide text-center">AI Mentor can make mistakes.</p>
+        <p className="text-[10px] text-[#434655] dark:text-gray-500 font-medium tracking-wide text-center">AI Mentor can make mistakes.</p>
       </div>
     </div>
   );

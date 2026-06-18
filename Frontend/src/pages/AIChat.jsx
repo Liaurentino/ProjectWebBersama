@@ -103,18 +103,18 @@ const AIChat = () => {
   };
 
   return (
-    <div className="relative flex h-screen overflow-hidden bg-[#F8F9FB]">
+    <div className="relative flex h-screen overflow-hidden bg-[#F8F9FB] dark:bg-[#121212] transition-colors duration-300">
       {/* Backdrop for Mobile Sidebar */}
       {isHistoryOpen && (
         <div 
-          className="fixed inset-0 bg-black/20 z-[45] md:hidden transition-opacity duration-500"
+          className="fixed inset-0 bg-black/20 dark:bg-black/40 z-[45] md:hidden transition-opacity duration-500"
           onClick={() => setIsHistoryOpen(false)}
         />
       )}
 
       {/* Main Chat Area */}
       <div className={`flex-1 flex flex-col relative transition-all duration-500 ease-in-out ${isHistoryOpen ? 'md:mr-64 mr-0' : 'md:mr-[64px] mr-0'}`}>
-        <div className="flex-1 overflow-y-auto pt-6 pb-32 px-4 sm:px-6 flex flex-col items-center [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+        <div className="flex-1 overflow-y-auto pt-6 pb-6 px-4 sm:px-6 flex flex-col items-center [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
           <div className="w-full max-w-4xl">
             {messages.length === 0 && !isTyping ? (
               <div className="animate-in fade-in zoom-in duration-500">
@@ -157,7 +157,7 @@ const AIChat = () => {
         {!isHistoryOpen && (
           <button 
             onClick={() => setIsHistoryOpen(true)}
-            className="md:hidden fixed right-4 top-4 p-2.5 bg-white border border-[#C3C6D7] rounded-xl shadow-lg text-[#2563EB] z-[40] active:scale-95 transition-transform"
+            className="md:hidden fixed right-4 top-4 p-2.5 bg-white dark:bg-[#1A1C1E] border border-[#C3C6D7] dark:border-gray-800 rounded-xl shadow-lg text-[#2563EB] dark:text-blue-400 z-[40] active:scale-95 transition-transform"
             title="Open History"
           >
             <MessageSquarePlus className="w-6 h-6" />

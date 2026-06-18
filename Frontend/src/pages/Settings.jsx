@@ -1,12 +1,13 @@
-import React, { useState, useEffect} from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTheme } from '../context/ThemeContext';
 import { userService } from '../services/userService';
 import { useNavigate } from 'react-router-dom';
 
 const Settings = () => {
-  const { isDarkMode, toggleDarkMode } = useTheme();
+  const { isDarkMode, toggleDarkMode, saveTheme, revertTheme } = useTheme();
   const navigate = useNavigate();
 
+  const hasSavedRef = useRef(false);
   const [settings, setSettings] = useState({
     emailNotification: true,
     activityReminders: true,
@@ -16,6 +17,15 @@ const Settings = () => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
   const [saveSuccess, setSaveSuccess] = useState(false);
+
+  useEffect(() => {
+    return () => {
+      // Revert if leaving without saving
+      if (!hasSavedRef.current) {
+        revertTheme();
+      }
+    };
+  }, [revertTheme]);
 
   const icons = {
     appearance: "https://www.figma.com/api/mcp/asset/40b1c435-cec3-484c-9aad-2a3395022024",
@@ -59,6 +69,9 @@ const Settings = () => {
     setSaveSuccess(false);
     try {
       await userService.updateSettings(settings);
+      // Persist the current isDarkMode to localStorage
+      saveTheme(isDarkMode);
+      hasSavedRef.current = true;
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 3000);
     } catch (err) {

@@ -30,7 +30,7 @@ const register = async (req, res) => {
 
     const existingUser = await prisma.user.findUnique({ where: { email } })
     if (existingUser) {
-      return res.status(400).json({ message: 'Email already in use' })
+      return res.status(400).json({ message: 'Email is already registered' })
     }
 
     const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS)
@@ -52,7 +52,7 @@ const register = async (req, res) => {
     )
 
     return res.status(201).json({
-      message: 'User registered successfully',
+      message: 'Registration successful',
       token,
       user: {
         id: user.id,
@@ -76,14 +76,18 @@ const login = async (req, res) => {
       return res.status(400).json({ message: 'Email and password are required' })
     }
 
+    if (!isValidEmail(email)) {
+      return res.status(400).json({ message: 'Invalid email format' })
+    }
+
     const user = await prisma.user.findUnique({ where: { email } })
     if (!user) {
-      return res.status(401).json({ message: 'Invalid credentials' })
+      return res.status(401).json({ message: 'Email is not registered' })
     }
 
     const isMatch = await bcrypt.compare(password, user.password)
     if (!isMatch) {
-      return res.status(401).json({ message: 'Invalid credentials' })
+      return res.status(401).json({ message: 'Incorrect password' })
     }
 
     const token = jwt.sign(

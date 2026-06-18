@@ -25,9 +25,18 @@ const MainLayout = () => {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchHistory, setSearchHistory] = useState(getHistory);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const searchRef = useRef(null);
+  const notificationRef = useRef(null);
+  const helpRef = useRef(null);
 
   const handleLogout = () => {
+    setIsLogoutModalOpen(true);
+  };
+
+  const confirmLogout = () => {
     localStorage.removeItem('token');
     clearUser();
     navigate('/login');
@@ -37,6 +46,12 @@ const MainLayout = () => {
     const handleClickOutside = (event) => {
       if (searchRef.current && !searchRef.current.contains(event.target)) {
         setIsSearchFocused(false);
+      }
+      if (notificationRef.current && !notificationRef.current.contains(event.target)) {
+        setShowNotifications(false);
+      }
+      if (helpRef.current && !helpRef.current.contains(event.target)) {
+        setShowHelp(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -129,16 +144,21 @@ const MainLayout = () => {
         </button>
 
         {/* Header */}
-        <div className="p-6 shrink-0">
-          <div className={`px-2 transition-opacity duration-200 ${isSidebarMinimized ? 'opacity-0' : 'opacity-100'}`}>
-            <h2 className="text-xl font-bold text-[#004AC6] whitespace-nowrap">ProdActivity</h2>
-            <p className={`text-[10px] opacity-70 uppercase tracking-wider font-semibold whitespace-nowrap ${isDarkMode ? 'text-gray-400' : 'text-[#434655]'}`}>Career Readiness</p>
-          </div>
-          {isSidebarMinimized && (
-            <div className="flex justify-center">
-              <div className="w-8 h-8 bg-[#004AC6] rounded-lg flex items-center justify-center text-white font-bold">P</div>
+        <div className="h-20 flex items-center px-5 shrink-0 overflow-hidden">
+          <div className="flex items-center gap-3">
+            {/* Consistent Logo Icon */}
+            <div className="w-10 h-10 bg-[#004AC6] rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-sm shrink-0">
+              P
             </div>
-          )}
+            
+            {/* Text that toggles visibility */}
+            {!isSidebarMinimized && (
+              <div className="transition-opacity duration-200 opacity-100">
+                <h2 className="text-xl font-bold text-[#004AC6] whitespace-nowrap">ProdActivity</h2>
+                <p className={`text-[10px] opacity-70 uppercase tracking-wider font-semibold whitespace-nowrap ${isDarkMode ? 'text-gray-400' : 'text-[#434655]'}`}>Career Readiness</p>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Nav */}
@@ -149,14 +169,16 @@ const MainLayout = () => {
               <Link
                 key={item.name}
                 to={item.path}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition ${
+                className={`flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-semibold transition ${
                   isActive
                     ? 'bg-[#2563EB] text-white shadow-md'
                     : (isDarkMode ? 'text-gray-400 hover:bg-gray-800' : 'text-[#434655] hover:bg-gray-100')
                 } ${isSidebarMinimized ? 'justify-center' : ''}`}
                 title={isSidebarMinimized ? item.name : ''}
               >
-                {item.icon(isActive)}
+                <div className="w-6 h-6 flex items-center justify-center shrink-0">
+                  {item.icon(isActive)}
+                </div>
                 {!isSidebarMinimized && <span className="whitespace-nowrap">{item.name}</span>}
               </Link>
             );
@@ -167,29 +189,33 @@ const MainLayout = () => {
         <div className={`p-4 border-t space-y-1 shrink-0 transition-colors ${isDarkMode ? 'bg-[#1A1C1E] border-gray-800' : 'bg-white border-[#EDEEF0]'}`}>
           <Link
             to="/settings"
-            className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition ${
+            className={`flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-semibold transition ${
               location.pathname === '/settings'
                 ? 'bg-[#2563EB] text-white shadow-md'
                 : (isDarkMode ? 'text-gray-400 hover:bg-gray-800' : 'text-[#434655] hover:bg-gray-100')
             } ${isSidebarMinimized ? 'justify-center' : ''}`}
             title="Settings"
           >
-            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.1a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
-              <circle cx="12" cy="12" r="3" />
-            </svg>
+            <div className="w-6 h-6 flex items-center justify-center shrink-0">
+              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.1a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            </div>
             {!isSidebarMinimized && <span className="whitespace-nowrap">Settings</span>}
           </Link>
           <button
             onClick={handleLogout}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold text-[#BA1A1A] hover:bg-red-50 transition ${isSidebarMinimized ? 'justify-center' : ''}`}
+            className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-semibold text-[#BA1A1A] hover:bg-red-50 transition ${isSidebarMinimized ? 'justify-center' : ''}`}
             title="Logout"
           >
-            <svg className="w-5 h-5 text-[#BA1A1A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-              <polyline points="16 17 21 12 16 7" />
-              <line x1="21" y1="12" x2="9" y2="12" />
-            </svg>
+            <div className="w-6 h-6 flex items-center justify-center shrink-0">
+              <svg className="w-5 h-5 text-[#BA1A1A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <polyline points="16 17 21 12 16 7" />
+                <line x1="21" y1="12" x2="9" y2="12" />
+              </svg>
+            </div>
             {!isSidebarMinimized && <span className="whitespace-nowrap">Logout</span>}
           </button>
         </div>
@@ -251,15 +277,67 @@ const MainLayout = () => {
           {/* Right Side */}
           <div className="flex items-center gap-4">
             <div className={`flex items-center gap-1 pr-4 border-r ${isDarkMode ? 'border-gray-800' : 'border-[#C3C6D7]'}`}>
-              <button className={`p-2 rounded-full transition-colors ${isDarkMode ? 'text-gray-400 hover:bg-gray-800' : 'text-gray-500 hover:bg-gray-100'}`} title="Notifications">
-                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
-              </button>
-              <button className={`p-2 rounded-full transition-colors ${isDarkMode ? 'text-gray-400 hover:bg-gray-800' : 'text-gray-500 hover:bg-gray-100'}`} title="Help">
-                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-              </button>
+              <div className="relative" ref={notificationRef}>
+                <button 
+                  onClick={() => setShowNotifications(!showNotifications)}
+                  className={`p-2 rounded-full transition-colors ${isDarkMode ? 'text-gray-400 hover:bg-gray-800' : 'text-gray-500 hover:bg-gray-100'} ${showNotifications ? (isDarkMode ? 'bg-gray-800' : 'bg-gray-100') : ''}`} 
+                  title="Notifications"
+                >
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+                </button>
+
+                {showNotifications && (
+                  <div className={`absolute top-12 right-0 w-80 border rounded-xl shadow-2xl z-[100] overflow-hidden ${isDarkMode ? 'bg-[#1A1C1E] border-gray-700' : 'bg-white border-[#C3C6D7]'}`}>
+                    <div className={`p-4 border-b flex items-center justify-between ${isDarkMode ? 'border-gray-800 bg-[#2A2D31]/50' : 'border-gray-100 bg-gray-50/50'}`}>
+                      <h3 className={`text-[10px] font-bold tracking-widest uppercase ${isDarkMode ? 'text-gray-400' : 'text-[#434655]'}`}>Notifications</h3>
+                      <span className="text-[10px] text-blue-500 font-bold uppercase tracking-widest">Recent</span>
+                    </div>
+                    <div className="p-8 text-center">
+                      <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3 ${isDarkMode ? 'bg-gray-800' : 'bg-gray-100'}`}>
+                        <svg className="w-6 h-6 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+                      </div>
+                      <p className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-[#191C1E]'}`}>All caught up!</p>
+                      <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>No new notifications to show.</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="relative" ref={helpRef}>
+                <button 
+                  onClick={() => setShowHelp(!showHelp)}
+                  className={`p-2 rounded-full transition-colors ${isDarkMode ? 'text-gray-400 hover:bg-gray-800' : 'text-gray-500 hover:bg-gray-100'} ${showHelp ? (isDarkMode ? 'bg-gray-800' : 'bg-gray-100') : ''}`} 
+                  title="Help"
+                >
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                </button>
+
+                {showHelp && (
+                  <div className={`absolute top-12 right-0 w-64 border rounded-xl shadow-2xl z-[100] overflow-hidden ${isDarkMode ? 'bg-[#1A1C1E] border-gray-700' : 'bg-white border-[#C3C6D7]'}`}>
+                    <div className={`p-4 border-b ${isDarkMode ? 'border-gray-800 bg-[#2A2D31]/50' : 'border-gray-100 bg-gray-50/50'}`}>
+                      <h3 className={`text-[10px] font-bold tracking-widest uppercase ${isDarkMode ? 'text-gray-400' : 'text-[#434655]'}`}>Help & Support</h3>
+                    </div>
+                    <div className="p-2 space-y-1">
+                      {[
+                        { label: 'Documentation', icon: <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg> },
+                        { label: 'Contact Support', icon: <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg> },
+                        { label: 'Submit Feedback', icon: <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> },
+                      ].map((item, idx) => (
+                        <button
+                          key={idx}
+                          className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition text-left ${isDarkMode ? 'hover:bg-gray-800 text-white' : 'hover:bg-gray-100 text-[#191C1E]'}`}
+                        >
+                          <span className="text-gray-400">{item.icon}</span>
+                          <span className="text-sm font-medium">{item.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
-            <div className="flex items-center gap-3">
+            <Link to="/profile" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
               <div className="text-right hidden sm:block">
                 <p className={`text-sm font-bold ${isDarkMode ? 'text-white' : 'text-[#191C1E]'}`}>{user?.name || 'Loading...'}</p>
                 <p className={`text-[10px] ${isDarkMode ? 'text-gray-400' : 'text-[#434655]'}`}>{user?.semester ? `${user.semester}th Semester` : ''}</p>
@@ -267,7 +345,7 @@ const MainLayout = () => {
               <div className="w-10 h-10 rounded-full border-2 border-[#2563EB] overflow-hidden shrink-0">
                 <img src={user?.photoUrl || "https://www.figma.com/api/mcp/asset/1f26d65b-90c0-4d50-b219-80350290b7e9"} alt="User Avatar" className="w-full h-full object-cover" />
               </div>
-            </div>
+            </Link>
           </div>
         </header>
 
@@ -275,6 +353,39 @@ const MainLayout = () => {
           <Outlet />
         </main>
       </div>
+
+      {/* Logout Confirmation Modal */}
+      {isLogoutModalOpen && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className={`w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden transform transition-all animate-in zoom-in duration-200 ${isDarkMode ? 'bg-[#1A1C1E] border border-gray-800' : 'bg-white'}`}>
+            <div className="p-6 text-center">
+              <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-[#BA1A1A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                  <polyline points="16 17 21 12 16 7" />
+                  <line x1="21" y1="12" x2="9" y2="12" />
+                </svg>
+              </div>
+              <h3 className={`text-xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-[#191C1E]'}`}>Confirm Logout</h3>
+              <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-[#434655]'}`}>Are you sure you want to log out from your account?</p>
+            </div>
+            <div className={`flex p-4 gap-3 ${isDarkMode ? 'bg-[#121212]' : 'bg-gray-50'}`}>
+              <button
+                onClick={() => setIsLogoutModalOpen(false)}
+                className={`flex-1 px-4 py-2.5 rounded-xl font-bold text-sm transition ${isDarkMode ? 'bg-[#2A2D31] text-gray-300 hover:bg-gray-800' : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-100'}`}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmLogout}
+                className="flex-1 px-4 py-2.5 rounded-xl bg-[#BA1A1A] text-white font-bold text-sm hover:bg-red-700 transition shadow-lg shadow-red-100"
+              >
+                Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

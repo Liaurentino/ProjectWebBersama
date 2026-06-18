@@ -135,11 +135,11 @@ const EditActivityModal = ({ isOpen, onClose, onSave, activity, categories, proj
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm overflow-y-auto">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full animate-in fade-in zoom-in duration-200 my-8">
+      <div className="bg-white dark:bg-[#1A1C1E] rounded-2xl shadow-2xl max-w-2xl w-full animate-in fade-in zoom-in duration-200 my-8">
         <div className="p-6 border-b border-gray-100 flex items-start justify-between">
           <div>
-            <h3 className="text-xl font-bold text-[#191C1E]">Edit Activity</h3>
-            <p className="text-[#434655] text-sm mt-1">Make your current activity to be more specific.</p>
+            <h3 className="text-xl font-bold text-[#191C1E] dark:text-white">Edit Activity</h3>
+            <p className="text-[#434655] dark:text-gray-400 text-sm mt-1">Make your current activity to be more specific.</p>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-400">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
@@ -147,19 +147,19 @@ const EditActivityModal = ({ isOpen, onClose, onSave, activity, categories, proj
         </div>
         <div className="p-6 space-y-6">
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-[#434655]">Activity title</label>
+            <label className="text-sm font-medium text-[#434655] dark:text-gray-400">Activity title</label>
             <input type="text" value={editedActivity.title}
               onChange={(e) => setEditedActivity({...editedActivity, title: e.target.value})}
-              className="w-full bg-white border border-[#C3C6D7] rounded-lg px-4 py-3 text-base font-semibold text-[#191C1E] focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-[#2563EB] transition-all"
+              className="w-full bg-white dark:bg-[#1A1C1E] border border-[#C3C6D7] dark:border-gray-700 rounded-lg px-4 py-3 text-base font-semibold text-[#191C1E] dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-[#2563EB] transition-all"
             />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="text-sm font-medium text-[#434655]">Category</label>
+              <label className="text-sm font-medium text-[#434655] dark:text-gray-400">Category</label>
               <div className="relative">
                 <select value={editedActivity.category}
                   onChange={(e) => setEditedActivity({...editedActivity, category: e.target.value})}
-                  className="w-full bg-white border border-[#C3C6D7] rounded-lg px-4 py-3 text-base text-[#191C1E] focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-[#2563EB] transition-all appearance-none"
+                  className="w-full bg-white dark:bg-[#1A1C1E] border border-[#C3C6D7] dark:border-gray-700 rounded-lg px-4 py-3 text-base text-[#191C1E] dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-[#2563EB] transition-all appearance-none"
                 >
                   {categories.map((cat, i) => (
                     <option key={i} value={cat.value || cat.label.toUpperCase()}>{cat.label}</option>
@@ -169,11 +169,11 @@ const EditActivityModal = ({ isOpen, onClose, onSave, activity, categories, proj
               </div>
             </div>
             <div className="space-y-1.5">
-              <label className="text-sm font-medium text-[#434655]">On Project</label>
+              <label className="text-sm font-medium text-[#434655] dark:text-gray-400">On Project</label>
               <div className="relative">
                 <select value={editedActivity.project || ''}
                   onChange={(e) => setEditedActivity({...editedActivity, project: e.target.value})}
-                  className="w-full bg-white border border-[#C3C6D7] rounded-lg px-4 py-3 text-base text-[#191C1E] focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-[#2563EB] transition-all appearance-none"
+                  className="w-full bg-white dark:bg-[#1A1C1E] border border-[#C3C6D7] dark:border-gray-700 rounded-lg px-4 py-3 text-base text-[#191C1E] dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-[#2563EB] transition-all appearance-none"
                 >
                   <option value="">None</option>
                   {projects.map((proj, i) => (
@@ -185,18 +185,18 @@ const EditActivityModal = ({ isOpen, onClose, onSave, activity, categories, proj
             </div>
           </div>
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-[#434655]">Description</label>
+            <label className="text-sm font-medium text-[#434655] dark:text-gray-400">Description</label>
             <textarea value={editedActivity.description || ''}
               onChange={(e) => setEditedActivity({...editedActivity, description: e.target.value})}
               placeholder="Briefly describe what you did..." rows={4}
-              className="w-full bg-white border border-[#C3C6D7] rounded-lg px-4 py-3 text-base text-[#191C1E] focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-[#2563EB] transition-all resize-none"
+              className="w-full bg-white dark:bg-[#1A1C1E] border border-[#C3C6D7] dark:border-gray-700 rounded-lg px-4 py-3 text-base text-[#191C1E] dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-[#2563EB] transition-all resize-none"
             />
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pb-4">
             <div className="space-y-1.5 col-span-1">
-              <label className="text-sm font-medium text-[#434655]">Date</label>
+              <label className="text-sm font-medium text-[#434655] dark:text-gray-400">Date</label>
               <div onClick={() => editDateRef.current?.showPicker()}
-                className="relative bg-white border border-[#D9D9D9] rounded-lg px-4 py-2 flex items-center justify-between text-[#434655] text-sm cursor-pointer hover:border-[#2563EB] transition-all"
+                className="relative bg-white dark:bg-[#1A1C1E] border border-[#D9D9D9] dark:border-gray-700 rounded-lg px-4 py-2 flex items-center justify-between text-[#434655] dark:text-gray-400 text-sm cursor-pointer hover:border-[#2563EB] transition-all"
               >
                 <span>{new Date(editedActivity.manualDate).toLocaleDateString('en-GB')}</span>
                 <CalendarIcon />
@@ -209,7 +209,7 @@ const EditActivityModal = ({ isOpen, onClose, onSave, activity, categories, proj
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-[#1E1E1E]">Start Time</label>
               <div onClick={() => editStartRef.current?.showPicker()}
-                className="relative bg-white border border-[#D9D9D9] rounded-lg px-3 py-2 flex items-center justify-between text-[#434655] text-sm cursor-pointer hover:border-[#2563EB] transition-all"
+                className="relative bg-white dark:bg-[#1A1C1E] border border-[#D9D9D9] dark:border-gray-700 rounded-lg px-3 py-2 flex items-center justify-between text-[#434655] dark:text-gray-400 text-sm cursor-pointer hover:border-[#2563EB] transition-all"
               >
                 <span>{editedActivity.manualStartTime}</span>
                 <ClockIcon />
@@ -222,7 +222,7 @@ const EditActivityModal = ({ isOpen, onClose, onSave, activity, categories, proj
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-[#1E1E1E]">End Time</label>
               <div onClick={() => editEndRef.current?.showPicker()}
-                className="relative bg-white border border-[#D9D9D9] rounded-lg px-3 py-2 flex items-center justify-between text-[#434655] text-sm cursor-pointer hover:border-[#2563EB] transition-all"
+                className="relative bg-white dark:bg-[#1A1C1E] border border-[#D9D9D9] dark:border-gray-700 rounded-lg px-3 py-2 flex items-center justify-between text-[#434655] dark:text-gray-400 text-sm cursor-pointer hover:border-[#2563EB] transition-all"
               >
                 <span>{editedActivity.manualEndTime}</span>
                 <ClockIcon />
@@ -234,7 +234,7 @@ const EditActivityModal = ({ isOpen, onClose, onSave, activity, categories, proj
             </div>
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-[#1E1E1E]">Total Time</label>
-              <div className="bg-gray-50 border border-[#D9D9D9] rounded-lg px-3 py-2 text-center text-[#434655] text-sm font-bold">
+              <div className="bg-gray-50 border border-[#D9D9D9] dark:border-gray-700 rounded-lg px-3 py-2 text-center text-[#434655] dark:text-gray-400 text-sm font-bold">
                 {currentDuration}
               </div>
             </div>
@@ -242,7 +242,7 @@ const EditActivityModal = ({ isOpen, onClose, onSave, activity, categories, proj
           {error && <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-sm text-red-600">{error}</div>}
         </div>
         <div className="p-6 border-t border-gray-100 flex items-center justify-end gap-4">
-          <button onClick={onClose} className="px-6 py-2.5 border border-[#737686] text-[#434655] rounded-lg font-semibold text-sm hover:bg-gray-50 transition-colors">
+          <button onClick={onClose} className="px-6 py-2.5 border border-[#737686] dark:border-gray-600 text-[#434655] dark:text-gray-400 rounded-lg font-semibold text-sm hover:bg-gray-50 transition-colors">
             Cancel
           </button>
           <button onClick={handleSave} disabled={saving}
@@ -260,11 +260,11 @@ const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message }) => {
   if (!isOpen) return null;
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl animate-in fade-in zoom-in duration-200">
+      <div className="bg-white dark:bg-[#1A1C1E] rounded-2xl p-6 max-w-sm w-full shadow-2xl animate-in fade-in zoom-in duration-200">
         <h3 className="text-lg font-bold text-gray-900 mb-2">{title}</h3>
         <p className="text-gray-500 text-sm mb-6">{message}</p>
         <div className="flex gap-3">
-          <button onClick={onClose} className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors">Cancel</button>
+          <button onClick={onClose} className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors">Cancel</button>
           <button onClick={() => { onConfirm(); onClose(); }} className="flex-1 px-4 py-2.5 rounded-xl bg-red-600 text-white text-sm font-semibold hover:bg-red-700 transition-colors shadow-lg shadow-red-100">Delete</button>
         </div>
       </div>
@@ -278,18 +278,18 @@ const ActivityCard = ({ activity, onEdit, onDelete }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const categoryColors = {
-    'AKADEMIK':    { bg: 'bg-[#EBF5FF]', text: 'text-[#004AC6]' },
-    'ORGANISASI':  { bg: 'bg-[#F5F3FF]', text: 'text-[#7C3AED]' },
-    'SKILL':       { bg: 'bg-[#EDFDF0]', text: 'text-[#1A7F3C]' },
-    'KEPANITIAAN': { bg: 'bg-[#FFF4EB]', text: 'text-[#943700]' },
-    'LAINNYA':     { bg: 'bg-[#F9FAFB]', text: 'text-[#4B5563]' },
+    'AKADEMIK':    { bg: 'bg-[#EBF5FF] dark:bg-blue-900/20', text: 'text-[#004AC6] dark:text-blue-400' },
+    'ORGANISASI':  { bg: 'bg-[#F5F3FF] dark:bg-purple-900/20', text: 'text-[#7C3AED] dark:text-purple-400' },
+    'SKILL':       { bg: 'bg-[#EDFDF0] dark:bg-green-900/20', text: 'text-[#1A7F3C] dark:text-green-400' },
+    'KEPANITIAAN': { bg: 'bg-[#FFF4EB] dark:bg-orange-900/20', text: 'text-[#943700] dark:text-orange-400' },
+    'LAINNYA':     { bg: 'bg-[#F9FAFB] dark:bg-gray-800/50', text: 'text-[#4B5563] dark:text-gray-400' },
   };
   const color = categoryColors[category] || categoryColors['LAINNYA'];
 
   return (
-    <div className={`rounded-xl flex items-stretch transition-all duration-300 w-full border border-transparent hover:border-blue-50 ${isExpanded ? 'bg-[rgba(0,74,198,0.05)] border-l-4 border-[#004AC6] shadow-sm' : 'bg-white shadow-sm'}`}>
+    <div className={`rounded-xl flex items-stretch transition-all duration-300 w-full border border-transparent hover:border-blue-50 ${isExpanded ? 'bg-[rgba(0,74,198,0.05)] border-l-4 border-[#004AC6] shadow-sm' : 'bg-white dark:bg-[#1A1C1E] shadow-sm'}`}>
       <div className={`flex-1 ${isExpanded ? 'pl-7 py-6' : 'p-5'} flex gap-4`}>
-        <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 mt-1 transition-colors ${isExpanded ? 'bg-[#2563EB] text-white shadow-md shadow-blue-100' : 'bg-[#F0F7FF] text-[#004AC6]'}`}>
+        <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 mt-1 transition-colors ${isExpanded ? 'bg-[#2563EB] text-white shadow-md shadow-blue-100 dark:shadow-none' : 'bg-[#F0F7FF] dark:bg-[#2563EB]/20 text-[#004AC6] dark:text-blue-400'}`}>
           {iconType === 'book' ? <BookIcon /> : <UserIcon />}
         </div>
         <div className="flex-1 min-w-0">
@@ -317,7 +317,7 @@ const ActivityCard = ({ activity, onEdit, onDelete }) => {
           <div className="flex flex-col items-end gap-2 animate-in fade-in zoom-in duration-200">
             <div className="flex gap-2 items-center">
               <button onClick={() => onEdit(activity)}
-                className="border border-[#737686] p-2.5 rounded-lg text-[#434655] hover:bg-gray-50 transition-all shadow-sm flex items-center justify-center"
+                className="border border-[#737686] dark:border-gray-600 p-2.5 rounded-lg text-[#434655] dark:text-gray-400 hover:bg-gray-50 transition-all shadow-sm flex items-center justify-center"
               >
                 <PencilIcon />
               </button>
@@ -354,7 +354,7 @@ const TimelineDivider = ({ label, isCollapsed, onToggle }) => (
 );
 
 const ActivitySkeleton = () => (
-  <div className="bg-white rounded-xl p-5 flex items-center gap-4 animate-pulse shadow-sm">
+  <div className="bg-white dark:bg-[#1A1C1E] rounded-xl p-5 flex items-center gap-4 animate-pulse shadow-sm">
     <div className="w-12 h-12 bg-gray-200 rounded-xl flex-shrink-0" />
     <div className="flex-1 space-y-2">
       <div className="h-3 bg-gray-200 rounded w-1/4" />
@@ -363,6 +363,26 @@ const ActivitySkeleton = () => (
     </div>
   </div>
 );
+
+const ValidationModal = ({ isOpen, onClose, message }) => {
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="bg-white dark:bg-[#1A1C1E] rounded-2xl p-6 max-w-sm w-full shadow-2xl animate-in zoom-in duration-200 text-center">
+        <div className="w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg className="w-8 h-8 text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="m12 9 4 4-4 4"/><path d="M12 12H8"/><circle cx="12" cy="12" r="10"/>
+          </svg>
+        </div>
+        <h3 className="text-lg font-bold text-gray-900 mb-2">Wait a minute!</h3>
+        <p className="text-gray-500 text-sm mb-6">{message}</p>
+        <button onClick={onClose} className="w-full px-4 py-2.5 rounded-xl bg-[#004AC6] text-white text-sm font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-100">
+          Got it
+        </button>
+      </div>
+    </div>
+  );
+};
 
 // --- Main Page Component ---
 const Activity = () => {
@@ -374,6 +394,9 @@ const Activity = () => {
   const [selectedActivity, setSelectedActivity] = useState(null);
   const [isSuccessPopupOpen, setIsSuccessPopupOpen] = useState(false);
   const [successData, setSuccessData] = useState(null);
+  const [isValidationModalOpen, setIsValidationModalOpen] = useState(false);
+  const [validationMessage, setValidationMessage] = useState('');
+  const [isResetConfirmModalOpen, setIsResetConfirmModalOpen] = useState(false);
 
   const [viewCategory, setViewCategory] = useState('All Categories');
   const [isViewCategoryDropdownOpen, setIsViewCategoryDropdownOpen] = useState(false);
@@ -468,16 +491,33 @@ const Activity = () => {
     }
   };
 
-  const handleResetTimer = () => {
+  const handleResetTimer = (force = false) => {
+    if (force !== true && timerStatus !== 'idle') {
+      setIsResetConfirmModalOpen(true);
+      return;
+    }
     setTimerStatus('idle');
     setElapsedSeconds(0);
     setTimerStartTime(null);
     setTimerStartDate(null);
+    setIsResetConfirmModalOpen(false);
   };
 
   const handleEndTimer = async () => {
     const titleInput = document.getElementById('activity-name-input');
-    const title = titleInput?.value?.trim() || 'New Timed Activity';
+    const title = titleInput?.value?.trim();
+    
+    if (!title) {
+      setValidationMessage('Please enter an activity title before saving.');
+      setIsValidationModalOpen(true);
+      return;
+    }
+    if (!selectedCategory) {
+      setValidationMessage('Please select a category for your activity.');
+      setIsValidationModalOpen(true);
+      return;
+    }
+
     // FIX: Pakai toHHMM() bukan toLocaleTimeString()
     const now = new Date();
     const endTime = toHHMM(now);
@@ -485,7 +525,7 @@ const Activity = () => {
     try {
       await createActivity({
         title,
-        category:    selectedCategory?.value || 'LAINNYA',
+        category:    selectedCategory.value,
         description: `Timed activity${selectedProject ? ` on project ${selectedProject}` : ''}`,
         status:      'DONE',
         project:     selectedProject || null,
@@ -498,7 +538,7 @@ const Activity = () => {
         duration: formatTime(elapsedSeconds),
       });
       setIsSuccessPopupOpen(true);
-      handleResetTimer();
+      handleResetTimer(true);
       if (titleInput) titleInput.value = '';
       setSelectedCategory(null);
       setSelectedProject(null);
@@ -515,11 +555,23 @@ const Activity = () => {
       return;
     }
     const titleInput = document.getElementById('activity-name-input');
-    const title = titleInput?.value?.trim() || 'Manually Added Activity';
+    const title = titleInput?.value?.trim();
+
+    if (!title) {
+      setValidationMessage('Please enter an activity title before adding.');
+      setIsValidationModalOpen(true);
+      return;
+    }
+    if (!selectedCategory) {
+      setValidationMessage('Please select a category for your activity.');
+      setIsValidationModalOpen(true);
+      return;
+    }
+
     try {
       await createActivity({
         title,
-        category:    selectedCategory?.value || 'LAINNYA',
+        category:    selectedCategory.value,
         description: `Manual entry for ${manualDate}`,
         status:      'DONE',
         project:     selectedProject || null,
@@ -614,7 +666,7 @@ const Activity = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] flex flex-col p-4 sm:p-8" onClick={() => {
+    <div className="min-h-screen bg-[#F8F9FA] dark:bg-[#121212] flex flex-col p-4 sm:p-8" onClick={() => {
       setIsControlDropdownOpen(false);
       setIsCategoryDropdownOpen(false);
       setIsViewCategoryDropdownOpen(false);
@@ -630,7 +682,7 @@ const Activity = () => {
           </div>
         </header>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 flex items-center divide-x divide-gray-100 overflow-visible max-w-xl">
+        <div className="bg-white dark:bg-[#1A1C1E] rounded-xl shadow-sm border border-gray-100 flex items-center divide-x divide-gray-100 overflow-visible max-w-xl">
           <div className="flex-1 relative">
             <div onClick={(e) => { e.stopPropagation(); setIsViewCategoryDropdownOpen(!isViewCategoryDropdownOpen); setIsViewProjectDropdownOpen(false); }}
               className="flex flex-col px-6 py-2 hover:bg-gray-50 transition-colors cursor-pointer group"
@@ -642,7 +694,7 @@ const Activity = () => {
               </div>
             </div>
             {isViewCategoryDropdownOpen && (
-              <div className="absolute top-full left-0 mt-1 w-48 bg-white rounded-xl shadow-xl border border-gray-100 z-[60] py-2 animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="absolute top-full left-0 mt-1 w-48 bg-white dark:bg-[#1A1C1E] rounded-xl shadow-xl border border-gray-100 z-[60] py-2 animate-in fade-in slide-in-from-top-2 duration-200">
                 <button onClick={() => { setViewCategory('All Categories'); setIsViewCategoryDropdownOpen(false); setActivePage(1); }}
                   className="w-full px-4 py-2.5 text-left text-sm hover:bg-gray-50 transition-colors text-gray-700 font-medium"
                 >All Categories</button>
@@ -666,7 +718,7 @@ const Activity = () => {
               </div>
             </div>
             {isViewProjectDropdownOpen && (
-              <div className="absolute top-full left-0 mt-1 w-56 bg-white rounded-xl shadow-xl border border-gray-100 z-[60] py-2 animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="absolute top-full left-0 mt-1 w-56 bg-white dark:bg-[#1A1C1E] rounded-xl shadow-xl border border-gray-100 z-[60] py-2 animate-in fade-in slide-in-from-top-2 duration-200">
                 <button onClick={() => { setViewProject('All Projects'); setIsViewProjectDropdownOpen(false); setActivePage(1); }}
                   className="w-full px-4 py-2.5 text-left text-sm hover:bg-gray-50 transition-colors text-gray-700 font-medium"
                 >All Projects</button>
@@ -686,13 +738,13 @@ const Activity = () => {
 
         <div className="space-y-4" onClick={(e) => e.stopPropagation()}>
           <div className="flex gap-4 items-center w-full">
-            <div className="flex-1 bg-white border border-[#C3C6D7] rounded-xl px-6 py-3 shadow-sm focus-within:ring-2 focus-within:ring-[#2563EB]/20 transition-all">
+            <div className="flex-1 bg-white dark:bg-[#1A1C1E] border border-[#C3C6D7] dark:border-gray-700 rounded-xl px-6 py-3 shadow-sm focus-within:ring-2 focus-within:ring-[#2563EB]/20 dark:focus-within:ring-blue-500/20 transition-all">
               <input id="activity-name-input" type="text" placeholder="Example: Working on My Math Project"
                 className="w-full bg-transparent border-none outline-none text-[#1E293B] placeholder-[#6B7280] text-base font-normal"
               />
             </div>
             <div className="relative w-[176px]">
-              <div className="flex flex-col bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+              <div className="flex flex-col bg-white dark:bg-[#1A1C1E] rounded-xl shadow-lg border border-gray-100 overflow-hidden">
                 <div className="bg-[#2563EB] flex items-center h-[48px] rounded-xl overflow-hidden group/btn">
                   <button
                     onClick={() => {
@@ -710,7 +762,7 @@ const Activity = () => {
                   </button>
                   {timerStatus === 'idle' && (
                     <>
-                      <div className="w-px h-full bg-white/20" />
+                      <div className="w-px h-full bg-white dark:bg-[#1A1C1E]/20" />
                       <button onClick={(e) => { e.stopPropagation(); setIsControlDropdownOpen(!isControlDropdownOpen); }}
                         className="px-3 h-full text-white hover:bg-[#1D4ED8] transition-colors outline-none"
                       ><ChevronDownIcon /></button>
@@ -718,7 +770,7 @@ const Activity = () => {
                   )}
                 </div>
                 {isControlDropdownOpen && timerStatus === 'idle' && (
-                  <div className="absolute top-full right-0 mt-2 w-full bg-white rounded-xl shadow-xl border border-gray-100 z-50 py-1 animate-in fade-in slide-in-from-top-2 duration-200">
+                  <div className="absolute top-full right-0 mt-2 w-full bg-white dark:bg-[#1A1C1E] rounded-xl shadow-xl border border-gray-100 z-50 py-1 animate-in fade-in slide-in-from-top-2 duration-200">
                     <button onClick={() => { setControlMode('timer'); setIsControlDropdownOpen(false); }}
                       className={`w-full px-4 py-3 text-left text-base font-normal flex items-center justify-between hover:bg-gray-50 transition-colors ${controlMode === 'timer' ? 'text-[#2563EB]' : 'text-[#1E293B]'}`}
                     >Start Timer <TimerIcon /></button>
@@ -735,7 +787,7 @@ const Activity = () => {
             {controlMode === 'add' && (
               <div className="flex-1 min-w-0 relative">
                 <div onClick={() => dateInputRef.current?.showPicker()}
-                  className="bg-white border border-[#D9D9D9] rounded-lg px-4 py-3 text-[#434655] text-base font-normal shadow-sm hover:border-[#2563EB] transition-all cursor-pointer flex items-center justify-between group"
+                  className="bg-white dark:bg-[#1A1C1E] border border-[#D9D9D9] dark:border-gray-700 rounded-lg px-4 py-3 text-[#434655] dark:text-gray-400 text-base font-normal shadow-sm hover:border-[#2563EB] transition-all cursor-pointer flex items-center justify-between group"
                 >
                   <span className="truncate">{new Date(manualDate).toLocaleDateString('en-GB')}</span>
                   <div className="text-gray-400 group-hover:text-[#2563EB] transition-colors"><CalendarIcon /></div>
@@ -747,13 +799,13 @@ const Activity = () => {
             )}
             <div className="flex-1 min-w-0 relative">
               <div onClick={(e) => { e.stopPropagation(); setIsCategoryDropdownOpen(!isCategoryDropdownOpen); }}
-                className="bg-white border border-[#C3C6D7] rounded-lg px-4 py-3 flex items-center justify-between text-[#191C1E] text-base font-normal shadow-sm hover:border-[#2563EB] transition-all cursor-pointer"
+                className="bg-white dark:bg-[#1A1C1E] border border-[#C3C6D7] dark:border-gray-700 rounded-lg px-4 py-3 flex items-center justify-between text-[#191C1E] dark:text-white text-base font-normal shadow-sm hover:border-[#2563EB] transition-all cursor-pointer"
               >
                 <span className="truncate">{selectedCategory ? selectedCategory.label : 'Category'}</span>
                 <ChevronDownIcon />
               </div>
               {isCategoryDropdownOpen && (
-                <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 z-50 py-2 animate-in fade-in slide-in-from-top-2 duration-200 overflow-hidden">
+                <div className="absolute top-full left-0 mt-2 w-48 bg-white dark:bg-[#1A1C1E] rounded-xl shadow-xl border border-gray-100 z-50 py-2 animate-in fade-in slide-in-from-top-2 duration-200 overflow-hidden">
                   {categories.map((cat, i) => (
                     <button key={i} onClick={() => { setSelectedCategory(cat); setIsCategoryDropdownOpen(false); }}
                       className="w-full px-4 py-2.5 text-left text-sm hover:bg-gray-50 transition-colors text-gray-700 font-medium"
@@ -764,13 +816,13 @@ const Activity = () => {
             </div>
             <div className="flex-1 min-w-0 relative">
               <div onClick={(e) => { e.stopPropagation(); setIsProjectDropdownOpen(!isProjectDropdownOpen); setIsAddingProject(false); }}
-                className="bg-white border border-[#C3C6D7] rounded-lg px-4 py-3 flex items-center justify-between text-[#191C1E] text-base font-normal shadow-sm hover:border-[#2563EB] transition-all cursor-pointer"
+                className="bg-white dark:bg-[#1A1C1E] border border-[#C3C6D7] dark:border-gray-700 rounded-lg px-4 py-3 flex items-center justify-between text-[#191C1E] dark:text-white text-base font-normal shadow-sm hover:border-[#2563EB] transition-all cursor-pointer"
               >
                 <span className="truncate">{selectedProject || 'Project'}</span>
                 <ChevronDownIcon />
               </div>
               {isProjectDropdownOpen && (
-                <div className="absolute top-full left-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 z-50 py-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                <div className="absolute top-full left-0 mt-2 w-56 bg-white dark:bg-[#1A1C1E] rounded-xl shadow-xl border border-gray-100 z-50 py-2 animate-in fade-in slide-in-from-top-2 duration-200">
                   <div className="max-h-60 overflow-y-auto">
                     <button onClick={() => { setSelectedProject(null); setIsProjectDropdownOpen(false); }}
                       className="w-full px-4 py-2.5 text-left text-sm hover:bg-gray-50 transition-colors text-gray-400 font-medium"
@@ -835,37 +887,37 @@ const Activity = () => {
                     <button onClick={() => setTimerStatus('running')} disabled={timerStatus === 'running' || timerStatus === 'idle'}
                       className={`bg-[#2563EB] text-white p-3 rounded-lg hover:bg-[#1D4ED8] transition-colors shadow-sm ${timerStatus === 'running' || timerStatus === 'idle' ? 'opacity-30 cursor-not-allowed' : 'opacity-100'}`}
                     ><PlayIcon /></button>
-                    <button onClick={handleResetTimer} disabled={timerStatus === 'idle'}
+                    <button onClick={() => handleResetTimer()} disabled={timerStatus === 'idle'}
                       className={`bg-[#EF4444] text-white p-3 rounded-lg hover:bg-[#DC2626] transition-colors shadow-sm ${timerStatus === 'idle' ? 'opacity-30 cursor-not-allowed' : ''}`}
                     ><Trash2Icon /></button>
                   </div>
-                  <div className="bg-white border border-[#D9D9D9] rounded-lg px-4 py-3 min-w-[126px] text-center text-[#191C1E] text-base font-normal shadow-sm">
+                  <div className="bg-white dark:bg-[#1A1C1E] border border-[#D9D9D9] dark:border-gray-700 rounded-lg px-4 py-3 min-w-[126px] text-center text-[#191C1E] dark:text-white text-base font-normal shadow-sm">
                     {formatTime(elapsedSeconds)}
                   </div>
                 </>
               ) : (
                 <div className="flex items-center gap-3">
                   <div onClick={() => startTimeInputRef.current?.showPicker()}
-                    className="relative bg-white border border-[#D9D9D9] rounded-lg pl-4 pr-3 py-3 min-w-[120px] shadow-sm hover:border-[#2563EB] transition-all cursor-pointer flex items-center justify-between group"
+                    className="relative bg-white dark:bg-[#1A1C1E] border border-[#D9D9D9] dark:border-gray-700 rounded-lg pl-4 pr-3 py-3 min-w-[120px] shadow-sm hover:border-[#2563EB] transition-all cursor-pointer flex items-center justify-between group"
                   >
-                    <span className="text-[#191C1E] text-base font-normal">{manualStartTime}</span>
+                    <span className="text-[#191C1E] dark:text-white text-base font-normal">{manualStartTime}</span>
                     <div className="text-gray-400 group-hover:text-[#2563EB] transition-colors"><ClockIcon /></div>
                     <input ref={startTimeInputRef} type="time" value={manualStartTime} onChange={(e) => setManualStartTime(e.target.value)}
                       className="absolute inset-0 opacity-0 pointer-events-none w-full h-full"
                     />
                   </div>
-                  <span className="text-[#191C1E] text-base font-normal">-</span>
+                  <span className="text-[#191C1E] dark:text-white text-base font-normal">-</span>
                   <div onClick={() => endTimeInputRef.current?.showPicker()}
-                    className="relative bg-white border border-[#D9D9D9] rounded-lg pl-4 pr-3 py-3 min-w-[120px] shadow-sm hover:border-[#2563EB] transition-all cursor-pointer flex items-center justify-between group"
+                    className="relative bg-white dark:bg-[#1A1C1E] border border-[#D9D9D9] dark:border-gray-700 rounded-lg pl-4 pr-3 py-3 min-w-[120px] shadow-sm hover:border-[#2563EB] transition-all cursor-pointer flex items-center justify-between group"
                   >
-                    <span className="text-[#191C1E] text-base font-normal">{manualEndTime}</span>
+                    <span className="text-[#191C1E] dark:text-white text-base font-normal">{manualEndTime}</span>
                     <div className="text-gray-400 group-hover:text-[#2563EB] transition-colors"><ClockIcon /></div>
                     <input ref={endTimeInputRef} type="time" value={manualEndTime} onChange={(e) => setManualEndTime(e.target.value)}
                       className="absolute inset-0 opacity-0 pointer-events-none w-full h-full"
                     />
                   </div>
                   <div className="w-px h-12 bg-[#C3C6D7] mx-1" />
-                  <div className="bg-white border border-[#D9D9D9] rounded-lg px-4 py-3 min-w-[126px] text-center text-[#191C1E] text-base font-normal shadow-sm">
+                  <div className="bg-white dark:bg-[#1A1C1E] border border-[#D9D9D9] dark:border-gray-700 rounded-lg px-4 py-3 min-w-[126px] text-center text-[#191C1E] dark:text-white text-base font-normal shadow-sm">
                     {calcDuration(manualStartTime, manualEndTime)}
                   </div>
                 </div>
@@ -885,7 +937,7 @@ const Activity = () => {
           )}
 
           {!loading && !fetchError && sortedDates.length === 0 && (
-            <div className="text-center py-12 bg-white rounded-xl border border-dashed border-gray-200">
+            <div className="text-center py-12 bg-white dark:bg-[#1A1C1E] rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
               <p className="text-gray-400 font-medium">No activities found matching your filters.</p>
             </div>
           )}
@@ -905,15 +957,17 @@ const Activity = () => {
         </div>
       </div>
 
-      <div className="flex justify-center items-center gap-2 py-8 mt-auto border-t border-gray-100 w-full">
-        {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-          <button key={page} onClick={() => setActivePage(page)}
-            className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center text-sm font-bold transition-all ${
-              activePage === page ? 'bg-[#004AC6] text-white shadow-lg shadow-blue-100' : 'text-[#004AC6] hover:bg-blue-50'
-            }`}
-          >{page}</button>
-        ))}
-      </div>
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center gap-2 py-8 mt-auto border-t border-gray-100 w-full">
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+            <button key={page} onClick={() => setActivePage(page)}
+              className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center text-sm font-bold transition-all ${
+                activePage === page ? 'bg-[#004AC6] text-white shadow-lg shadow-blue-100' : 'text-[#004AC6] hover:bg-blue-50'
+              }`}
+            >{page}</button>
+          ))}
+        </div>
+      )}
 
       <EditActivityModal
         isOpen={isEditModalOpen}
@@ -938,6 +992,34 @@ const Activity = () => {
         title="Delete Activity"
         message="Are you sure you want to delete this activity? This action cannot be undone."
       />
+
+      <ValidationModal
+        isOpen={isValidationModalOpen}
+        onClose={() => setIsValidationModalOpen(false)}
+        message={validationMessage}
+      />
+
+      {isResetConfirmModalOpen && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-[#1A1C1E] rounded-2xl p-6 max-w-sm w-full shadow-2xl animate-in zoom-in duration-200 text-center">
+            <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/>
+              </svg>
+            </div>
+            <h3 className="text-lg font-bold text-gray-900 mb-2">Reset Timer?</h3>
+            <p className="text-gray-500 text-sm mb-6">You will lose your current timer progress. Are you sure you want to reset?</p>
+            <div className="flex gap-3">
+              <button onClick={() => setIsResetConfirmModalOpen(false)} className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-sm font-bold text-gray-700 hover:bg-gray-50 transition-all">
+                Cancel
+              </button>
+              <button onClick={() => handleResetTimer(true)} className="flex-1 px-4 py-2.5 rounded-xl bg-red-600 text-white text-sm font-bold hover:bg-red-700 transition-all shadow-lg shadow-red-100">
+                Reset
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
