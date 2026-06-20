@@ -79,7 +79,7 @@ const ChatHistorySidebar = ({
 
   return (
     <aside 
-      className={`fixed right-0 top-0 bottom-0 bg-[#F8F9FB] dark:bg-[#121212] border-l border-[#C3C6D7] dark:border-gray-800 transition-all duration-500 ease-in-out z-50 ${
+      className={`fixed right-0 top-16 bottom-0 bg-[#F8F9FB] dark:bg-[#121212] border-l border-[#C3C6D7] dark:border-gray-800 transition-all duration-500 ease-in-out z-50 ${
         isOpen 
           ? 'w-64 translate-x-0' 
           : 'translate-x-full md:translate-x-0 md:w-[64px]'
