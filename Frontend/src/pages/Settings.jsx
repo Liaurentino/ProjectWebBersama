@@ -2,6 +2,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useTheme } from '../context/ThemeContext';
 import { userService } from '../services/userService';
 import { useNavigate } from 'react-router-dom';
+import Apperance from '../assets/SettingsPage/Apperance.png';
+import Account from '../assets/SettingsPage/Account.png';
+import AiAssist from '../assets/SettingsPage/AiAssist.png';
+import Danger from '../assets/SettingsPage/Dangerous.png';
+import Notif from '../assets/SettingsPage/Notification.png';
+import Changeps from '../assets/SettingsPage/ChangePass.png';
+import Google from '../assets/SettingsPage/SyncGoogle.png';
+import Save from '../assets/SettingsPage/Save.png';
 
 const Settings = () => {
   const { isDarkMode, toggleDarkMode, saveTheme, revertTheme } = useTheme();
@@ -28,15 +36,15 @@ const Settings = () => {
   }, [revertTheme]);
 
   const icons = {
-    appearance: "https://www.figma.com/api/mcp/asset/40b1c435-cec3-484c-9aad-2a3395022024",
-    notifications: "https://www.figma.com/api/mcp/asset/b5c51d08-f282-48f9-8579-33e5255aa577",
-    ai: "https://www.figma.com/api/mcp/asset/d05ec8e7-97c1-4cc5-9c9c-3cad296e885c",
-    account: "https://www.figma.com/api/mcp/asset/a1688c7b-00ea-4655-add4-3442a2acbbb9",
-    danger: "https://www.figma.com/api/mcp/asset/10bd3bde-e500-476e-a798-39831c6e4c11",
-    save: "https://www.figma.com/api/mcp/asset/5a30183a-d44d-48e4-93a0-9157c063ab7b",
-    password: "https://www.figma.com/api/mcp/asset/38f26a27-1c95-49c8-9fbc-d2df83a965d1",
+    appearance: Apperance,
+    notifications: Notif,
+    ai: AiAssist,
+    account: Account,
+    danger: Danger,
+    save: Save,
+    password: Changeps,
     chevronRight: "https://www.figma.com/api/mcp/asset/613c6b9d-717a-4415-8dbb-05f441b1fe71",
-    google: "https://www.figma.com/api/mcp/asset/0c77fa25-673c-403f-9103-4a45e0fd996c",
+    google: Google,
   };
   
   const handleLogout = () => {

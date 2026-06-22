@@ -1,17 +1,26 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import LegalModal from '../components/modals/LegalModal';
+import Image from '../assets/RegisterPage/Image.png';
+import NameIcon from '../assets/RegisterPage/NameIcon.png';
+import MailIcon from '../assets/RegisterPage/MailIcon.png';
+import PassIcon from '../assets/RegisterPage/PassIcon.png';
+import EyeIcon from '../assets/RegisterPage/EyeIconSee.png';
+import Question from '../assets/RegisterPage/QuestionIcon.png';
+import BackArrow from '../assets/RegisterPage/BackArrow.png';
+import ErrorIcon from '../assets/RegisterPage/Error.png';
+import Foward from '../assets/RegisterPage/FowardSmallArrow.png';
 
-// Asset dari Figma ... (rest of assets)
-const imgImage = "https://www.figma.com/api/mcp/asset/2c54dee7-aa88-4954-b462-b7b9d4a7e4af";
-const imgIcon = "https://www.figma.com/api/mcp/asset/8b843771-e3f6-4d6b-a01c-2b06d5541b40";
-const imgContainer = "https://www.figma.com/api/mcp/asset/4d5fdd60-907d-4eb9-ab74-dd8da9ca6b23";
-const imgIcon1 = "https://www.figma.com/api/mcp/asset/d02f47c1-1934-4af2-b756-5b81ad6b9643";
-const imgContainer1 = "https://www.figma.com/api/mcp/asset/c710f133-22be-48a5-9b49-190e6caf6e1b";
-const imgContainer2 = "https://www.figma.com/api/mcp/asset/08b8fd94-b1a7-4a38-aa4f-5484b4625981";
-const imgContainer3 = "https://www.figma.com/api/mcp/asset/818bc0b9-d28d-4c03-9e86-8916fa8b0d8d";
-const imgContainer4 = "https://www.figma.com/api/mcp/asset/de8689f7-7dac-4795-b189-96bec7df7a11";
-const imgErrorIcon = "https://www.figma.com/api/mcp/asset/15e7957b-a688-4e3d-97ed-bc8f505fdb3c";
+// Assets and Picture
+const imgImage = Image;
+const imgIcon = NameIcon;
+const imgContainer = MailIcon;
+const imgIcon1 = PassIcon;
+const imgContainer1 = EyeIcon;
+const imgContainer2 = Foward;
+const imgContainer3 = BackArrow;
+const imgContainer4 = Question;
+const imgErrorIcon = ErrorIcon;
 
 const Register = () => {
   const [fullName, setFullName] = useState('');
@@ -141,7 +150,7 @@ const Register = () => {
           <span className="text-[#004ac6] text-2xl font-bold tracking-tight">ProdActivity</span>
         </div>
         <button 
-          onClick={() => navigate('/profile')}
+          onClick={() => navigate('')}
           className="p-2 hover:bg-slate-200/50 rounded-full transition-colors cursor-pointer"
         >
           <img src={imgContainer4} alt="User" className="w-5 h-5" />

@@ -2,6 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useUser } from '../hooks/useUser';
 import { userService } from '../services/userService';
+import TotalAct from '../assets/DashboardPage/TotalActivity.png';
+import Prodtime from '../assets/DashboardPage/Productive.png';
+import Streak from '../assets/DashboardPage/Streak.png';
+import Image from '../assets/DashboardPage/ImageMotive.png';
+
+
+const imgAct = TotalAct;
+const imgProd = Prodtime;
+const imgStreak = Streak;
+const imgImage = Image;
 
 // --- Sub Components ---
 
@@ -90,12 +100,6 @@ const Dashboard = () => {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
   });
 
-  const icons = {
-    activity: 'https://www.figma.com/api/mcp/asset/11b16d83-839f-452b-b464-ed7dd364b1e0',
-    time:     'https://www.figma.com/api/mcp/asset/61aa2e40-9072-450b-b03f-fa9edb2154b5',
-    streak:   'https://www.figma.com/api/mcp/asset/dec936b9-2d2a-438c-b544-497070c27137',
-  };
-
   if (loading) {
     return (
       <div className="p-8 flex items-center justify-center min-h-screen">
@@ -152,18 +156,18 @@ const Dashboard = () => {
           <StatCard
             title="Total activities for today"
             value={String(summary.totalToday)}
-            icon={icons.activity}
+            icon={imgAct}
           />
           <StatCard
             title="Productive time"
             value={summary.productiveTime}
-            icon={icons.time}
+            icon={imgProd}
           />
           <StatCard
             title="Streak productive days"
             value={`${summary.streak} days`}
             subtext={summary.streak > 0 ? 'Keep it up!' : 'Start today!'}
-            icon={icons.streak}
+            icon={imgStreak}
           />
           {/* Target Completion */}
           <div className="bg-white dark:bg-[#1A1C1E] border border-[#E7E8EA] dark:border-gray-800 p-[21px] rounded-[12px] shadow-[0px_4px_6px_rgba(17,24,39,0.05)] flex items-center gap-4 transition-colors">
@@ -284,8 +288,8 @@ const Dashboard = () => {
 
             {/* Motivation Card */}
             <div className="bg-[#004AC6] p-8 rounded-2xl relative overflow-hidden shadow-lg group">
-              <div className="absolute inset-0 opacity-20 pointer-events-none mix-blend-overlay">
-                <img src="https://www.figma.com/api/mcp/asset/f2df82b5-712d-45ba-be8a-681f8710fc66" alt="" className="w-full h-full object-cover scale-150 group-hover:scale-125 transition-transform duration-1000" />
+              <div className="absolute inset-0 opacity-100 pointer-events-none mix-blend-overlay">
+                <img src={imgImage} alt="" className="w-full h-full object-cover scale-150 group-hover:scale-125 transition-transform duration-1000" />
               </div>
               <div className="relative z-10 space-y-4">
                 <svg className="w-6 h-6 text-white opacity-80" fill="currentColor" viewBox="0 0 24 24"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.154c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>

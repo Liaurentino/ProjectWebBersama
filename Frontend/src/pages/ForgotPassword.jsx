@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Key from '../assets/ForgotPasswordPage/Key.png'
+import FrontArrow from '../assets/ForgotPasswordPage/FrontArrow.png';
+import BackArrow from '../assets/ForgotPasswordPage/BackArrow.png';
 
 // Asset dari Figma
-const imgSvg = "https://www.figma.com/api/mcp/asset/56ca618c-f567-4140-8578-8b9bce6b589e";
-const imgContainer = "https://www.figma.com/api/mcp/asset/148461bc-561d-4ba0-96f1-182f253e5897";
-const imgSvgBackArrowIcon = "https://www.figma.com/api/mcp/asset/90db3796-4b27-40aa-ab41-08ab0c6a6619";
+const imgSvg = Key;
+const imgContainer = FrontArrow;
+const imgSvgBackArrowIcon = BackArrow;
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');

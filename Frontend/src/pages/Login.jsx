@@ -2,14 +2,20 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useUser } from '../hooks/useUser';
 import LegalModal from '../components/modals/LegalModal';
+import IconLogo from '../assets/LoginPage/icon.png';
+import LeftSide from '../assets/LoginPage/LeftSideImg.png';
+import IconMail from '../assets/LoginPage/IconMail.png';
+import IconPass from '../assets/LoginPage/IconPass.png';
+import IconEyePass from '../assets/LoginPage/IconEyePass.png';
+import FowardIcon from '../assets/LoginPage/FowardIcon.png';
 
-// Asset dari Figma
-const imgImage = "https://www.figma.com/api/mcp/asset/652ddd11-ffc5-4842-a14d-57f13f730a3f";
-const imgContainer = "https://www.figma.com/api/mcp/asset/e7ca7bc4-3a55-4a96-81ab-c6a2c9f85f56";
-const imgIcon = "https://www.figma.com/api/mcp/asset/6743aa87-14a1-4c14-afb7-52e1fae84ab4";
-const imgIcon1 = "https://www.figma.com/api/mcp/asset/63341217-9b81-41ae-bafa-34c8829a7b75";
-const imgEyeIcon = "https://www.figma.com/api/mcp/asset/c710f133-22be-48a5-9b49-190e6caf6e1b";
-const imgContainer2 = "https://www.figma.com/api/mcp/asset/67f5a7cc-4c3f-4a2f-a33d-8b72415d454f";
+// Asset Icon and Picture
+const imgImage = LeftSide;
+const imgContainer = IconLogo;
+const imgIcon = IconMail;
+const imgIcon1 = IconPass;
+const imgEyeIcon = IconEyePass;
+const imgContainer2 = FowardIcon;
 
 const Login = () => {
   const [email, setEmail] = useState('');
