@@ -4,7 +4,7 @@ import Key from '../assets/ForgotPasswordPage/Key.png'
 import FrontArrow from '../assets/ForgotPasswordPage/FrontArrow.png';
 import BackArrow from '../assets/ForgotPasswordPage/BackArrow.png';
 
-// Asset dari Figma
+// Asset and Picture
 const imgSvg = Key;
 const imgContainer = FrontArrow;
 const imgSvgBackArrowIcon = BackArrow;

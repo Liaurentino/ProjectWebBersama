@@ -2,6 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../hooks/useUser';
 import { useTheme } from '../context/ThemeContext';
+import addPicture from '../assets/ProfilePage/addPicture.png';
+import Study from '../assets/ProfilePage/Study.png';
+import More from '../assets/ProfilePage/More.png';
+
 
 const EditProfile = () => {
   const navigate = useNavigate();
@@ -24,9 +28,9 @@ const EditProfile = () => {
   const [photoError, setPhotoError] = useState('');
 
   const icons = {
-    camera:   "https://www.figma.com/api/mcp/asset/0a672744-04db-447f-bb91-2db80c9ba9b2",
-    dropdown: "https://www.figma.com/api/mcp/asset/c67f450f-d872-454d-a1eb-32bb6066ccd3",
-    photo:    "https://www.figma.com/api/mcp/asset/b05361a9-2239-4c0c-a6e3-f73cc396b7a3",
+    camera:   addPicture,
+    dropdown: More,
+    photo:    Study,
   };
 
   useEffect(() => {
@@ -90,7 +94,7 @@ const EditProfile = () => {
   if (loading && !user) return <div className="p-8 text-center text-[#434655] dark:text-gray-400">Loading...</div>;
   if (error) return <div className="p-8 text-center text-red-500">Error: {error}</div>;
 
-  const currentPhoto = photoPreview || user?.photoUrl || icons.photo;
+  const currentPhoto = photoPreview || user?.photoUrl ;
   const isSaving = loading || photoUploading;
 
   return (
@@ -181,7 +185,7 @@ const EditProfile = () => {
                     className="w-full bg-white dark:bg-[#2A2D31] border border-[#737686] dark:border-gray-700 rounded-lg px-4 py-3 text-[#191C1E] dark:text-white focus:ring-2 focus:ring-[#2563EB] outline-none transition-colors"
                   />
                   <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
-                    <img src={icons.dropdown} alt="" className="w-5 h-4 dark:invert opacity-70" />
+                    <img src={icons.photo} alt="" className="w-5 h-4 dark:invert opacity-70" />
                   </div>
                 </div>
               </div>

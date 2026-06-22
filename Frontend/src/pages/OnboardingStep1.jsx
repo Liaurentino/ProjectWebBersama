@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../hooks/useUser';
+import Study from "../assets/ProfilePage/Study.png"
+import Back from "../assets/ForgotPasswordPage/BackArrow.png"
+import Front from "../assets/ForgotPasswordPage/FrontArrow.png"
+import Question from "../assets/RegisterPage/QuestionIcon.png"
 
-const imgIconArrow = "https://www.figma.com/api/mcp/asset/1834b2fc-52c7-4076-b8a4-8a3a8d02abcc";
-const imgContainerContinue = "https://www.figma.com/api/mcp/asset/04af9491-623c-4eab-b0f2-ff172bcdb173";
-const imgIconBack = "https://www.figma.com/api/mcp/asset/018f9d84-6bda-428c-bfad-35bd5be4a09a";
-const imgIconUser = "https://www.figma.com/api/mcp/asset/4977bd31-0995-4109-8ba8-49e6016e915b";
+const imgIconArrow = Study;
+const imgContainerContinue = Front;
+const imgIconBack = Back;
+const imgIconUser = Question;
 
 // Konversi angka semester dari database (1-8) ke label tampilan ('1'-'7', '8+')
 const semesterNumberToLabel = (num) => {

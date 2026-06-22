@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import Key from '../assets/ForgotPasswordPage/Key.png'
+import FrontArrow from '../assets/ForgotPasswordPage/FrontArrow.png';
+import BackArrow from '../assets/ForgotPasswordPage/BackArrow.png';
 
-// Asset dari Figma (reuse dari ForgotPassword)
-const imgSvg = "https://www.figma.com/api/mcp/asset/56ca618c-f567-4140-8578-8b9bce6b589e";
-const imgContainer = "https://www.figma.com/api/mcp/asset/148461bc-561d-4ba0-96f1-182f253e5897";
-const imgSvgBackArrowIcon = "https://www.figma.com/api/mcp/asset/90db3796-4b27-40aa-ab41-08ab0c6a6619";
+// Asset and Picture
+const imgSvg = Key;
+const imgContainer = FrontArrow;
+const imgSvgBackArrowIcon = BackArrow;
 
 const EyeIcon = ({ open }) => (
   <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

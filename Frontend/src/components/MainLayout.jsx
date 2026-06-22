@@ -343,7 +343,7 @@ const MainLayout = () => {
                 <p className={`text-[10px] ${isDarkMode ? 'text-gray-400' : 'text-[#434655]'}`}>{user?.semester ? `${user.semester}th Semester` : ''}</p>
               </div>
               <div className="w-10 h-10 rounded-full border-2 border-[#2563EB] overflow-hidden shrink-0">
-                <img src={user?.photoUrl || "https://www.figma.com/api/mcp/asset/1f26d65b-90c0-4d50-b219-80350290b7e9"} alt="User Avatar" className="w-full h-full object-cover" />
+                <img src={user?.photoUrl} alt="User Avatar" className="w-full h-full object-cover" />
               </div>
             </Link>
           </div>

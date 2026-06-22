@@ -4,21 +4,34 @@ import {
   getAllNotes, createNote, updateNote, deleteNote,
   toDbStatus, calcProgress,
 } from '../services/NotesService';
+import Plus from "../assets/NotesPage/Plus.png";
+import Calender from "../assets/NotesPage/Calender.png";
+import Message from "../assets/NotesPage/Message.png";
+import More from "../assets/NotesPage/More.png";
+import ChevronDown from "../assets/NotesPage/ChevronDown.png"
+import Edit from "../assets/NotesPage/Edit.png";
+import Trash from "../assets/NotesPage/Trash.png";
+import CornerDownRight from "../assets/NotesPage/Corner-down-right.png"
+import EmptyBox from "../assets/NotesPage/EmptyBox.png"
+import bluecheck from '../assets/NotesPage/Bluecheck.png'
+import dragdown from "../assets/NotesPage/Dragdown.png"
+import BlueCal from "../assets/NotesPage/BlueCalender.png"
 
 const icons = {
-  plus: "https://www.figma.com/api/mcp/asset/b1efd5df-d476-45af-8e48-42522d0ef383",
-  emptyBox: "https://www.figma.com/api/mcp/asset/ab729d40-70e4-47da-af6a-687243eacc72",
-  calendar: "https://www.figma.com/api/mcp/asset/a3d76563-8a3f-4819-9783-5ad33027993c",
-  message: "https://www.figma.com/api/mcp/asset/82cef896-560b-4b1d-8b04-643abd333754",
-  more: "https://www.figma.com/api/mcp/asset/b15d0cc5-17d0-4256-9ae3-d15479ce921b",
-  chevron: "https://www.figma.com/api/mcp/asset/d70d710a-142c-4678-9821-20a62c394af6",
-  check: "https://www.figma.com/api/mcp/asset/aad065a6-b31b-4ce4-afd1-a213bd5240cd",
-  edit: "https://www.figma.com/api/mcp/asset/8c838b9a-00f4-489e-8e12-89038183da9c",
-  delete: "https://www.figma.com/api/mcp/asset/9f3d5c46-f567-460c-81d6-fc877c9ec92e",
-  dropdown: "https://www.figma.com/api/mcp/asset/b3fb9490-d2af-451b-a885-bf912b4ae418",
-  trash: "https://www.figma.com/api/mcp/asset/8ecceef4-18af-47d1-ac0d-848a94647dad",
-  dragHandle: "https://www.figma.com/api/mcp/asset/32a142d4-6811-4c54-b4e8-d5236e275593",
-  cornerDownRight: "https://www.figma.com/api/mcp/asset/b91078d4-f538-4835-a99d-63b61d9d09a3"
+  plus: Plus,
+  emptyBox: EmptyBox,
+  calendar: Calender,
+  message: Message,
+  more: More,
+  chevron: ChevronDown,
+  check: bluecheck,
+  edit: Edit,
+  delete: Trash,
+  dropdown: ChevronDown,
+  trash: Trash,
+  dragHandle: dragdown,
+  cornerDownRight: CornerDownRight,
+  BlueCal : BlueCal
 };
 
 const ActivityCard = (props) => {
@@ -200,11 +213,11 @@ const ActivityDetailModal = ({ isOpen, closeModal, activity, setDeleteConfirmId,
             </div>
             <div className="flex gap-[12px] items-center">
               <button onClick={() => { handleEditClick(activity); closeModal(); }} className="border border-[#c3c6d7] dark:border-gray-800 flex gap-[8px] items-center px-[17px] py-[9px] rounded-[16px] hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-                <img src="https://www.figma.com/api/mcp/asset/7887d460-2841-4d1c-bc48-b4f20e705448" alt="" className="w-[10.5px] h-[10.5px] dark:invert" />
+                <img src={icons.edit} alt="" className="w-[10.5px] h-[10.5px] dark:invert" />
                 <span className="text-[16px] font-medium text-[#191c1e] dark:text-white">Edit Note</span>
               </button>
               <button onClick={() => setDeleteConfirmId(activity.id)} className="flex gap-[8px] items-center px-[16px] py-[8px] rounded-[16px] hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors">
-                <img src="https://www.figma.com/api/mcp/asset/0b38b8ef-a060-4818-9de8-467a58dbbec7" alt="" className="w-[9.3px] h-[10.5px]" />
+                <img src={icons.delete} alt="" className="w-[9.3px] h-[10.5px]" />
                 <span className="text-[16px] font-medium text-[#ba1a1a]">Hapus</span>
               </button>
               <button onClick={closeModal} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors">
@@ -218,7 +231,7 @@ const ActivityDetailModal = ({ isOpen, closeModal, activity, setDeleteConfirmId,
           <div className="flex gap-[24px] items-start">
             <div className="flex gap-[16px] items-center">
               <div className="bg-[#edeef0] dark:bg-gray-800 w-[40px] h-[40px] rounded-[8px] flex items-center justify-center">
-                <img src="https://www.figma.com/api/mcp/asset/7b17d65e-53e0-4746-bcbd-21524c76936b" alt="" className="w-[18px] h-[20px] dark:invert" />
+                <img src={icons.BlueCal} alt="" className="w-[18px] h-[20px] dark:invert" />
               </div>
               <div className="flex flex-col">
                 <span className="text-[16px] text-[#434655] dark:text-gray-400">Tanggal</span>
@@ -415,7 +428,7 @@ const ActivityModal = ({ isOpen, closeModal, editingActivityId, newActivity, set
           <div className="space-y-4">
             <div className="flex items-start gap-3 cursor-pointer select-none py-2" onClick={() => setNewActivity(prev => ({ ...prev, hasTodoList: !prev.hasTodoList }))}>
               <div className={`w-[20px] h-[20px] mt-1 rounded-[4px] border flex items-center justify-center transition-colors ${newActivity.hasTodoList ? 'bg-[#2563eb] border-transparent' : 'bg-white dark:bg-gray-900 border-[#c3c6d7] dark:border-gray-800'}`}>
-                {newActivity.hasTodoList && <img src={icons.check} alt="" className="w-5 h-5 object-contain invert" />}
+                {newActivity.hasTodoList && <img src={icons.check} alt="" className="w-5 h-5 object-contain" />}
               </div>
               <div className="space-y-0.5">
                 <p className="text-base text-[#434655] dark:text-gray-300 leading-[24px]">Activate a small Todo list</p>
