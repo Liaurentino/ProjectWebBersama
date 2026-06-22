@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTheme } from '../context/ThemeContext';
 import { userService } from '../services/userService';
+import { useUser } from '../hooks/useUser';
 import { useNavigate } from 'react-router-dom';
 import Apperance from '../assets/SettingsPage/Apperance.png';
 import Account from '../assets/SettingsPage/Account.png';
@@ -10,9 +11,44 @@ import Notif from '../assets/SettingsPage/Notification.png';
 import Changeps from '../assets/SettingsPage/ChangePass.png';
 import Google from '../assets/SettingsPage/SyncGoogle.png';
 import Save from '../assets/SettingsPage/Save.png';
+import Chevron from '../assets/SettingsPage/Chevron.png'
+
+const DeleteAccountModal = ({ isOpen, closeModal, onConfirm, isDeleting }) => {
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" onClick={!isDeleting ? closeModal : undefined} />
+      <div className="relative w-full max-w-[400px] bg-white dark:bg-[#1A1C1E] border border-[#edeef0] dark:border-gray-800 rounded-[12px] shadow-2xl p-[25px] flex flex-col gap-[24px] animate-in fade-in zoom-in-95 duration-200">
+        <div className="flex flex-col gap-[8px]">
+          <h3 className="text-[18px] font-bold text-[#191c1e] dark:text-white leading-[24px]">Delete your account?</h3>
+          <p className="text-[14px] text-[#434655] dark:text-gray-400 leading-[20px]">
+            All your activities, notes, and analysis history will be permanently deleted. This action cannot be undone.
+          </p>
+        </div>
+        <div className="flex flex-col gap-[8px]">
+          <button
+            onClick={onConfirm}
+            disabled={isDeleting}
+            className="w-full bg-[#ba1a1a] hover:bg-[#9d1717] disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold py-[10px] rounded-[8px] transition-colors"
+          >
+            {isDeleting ? 'Deleting...' : 'Yes, Delete My Account'}
+          </button>
+          <button
+            onClick={closeModal}
+            disabled={isDeleting}
+            className="w-full bg-white dark:bg-[#1A1C1E] border border-[#c3c6d7] dark:border-gray-800 text-[#191C1E] dark:text-white font-bold py-[10px] rounded-[8px] transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-60"
+          >
+            Cancelled
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const Settings = () => {
   const { isDarkMode, toggleDarkMode, saveTheme, revertTheme } = useTheme();
+  const { user, clearUser } = useUser();
   const navigate = useNavigate();
 
   const hasSavedRef = useRef(false);
@@ -25,10 +61,12 @@ const Settings = () => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [resetStatus, setResetStatus] = useState('idle'); // 'idle' | 'sending' | 'sent'
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     return () => {
-      // Revert if leaving without saving
       if (!hasSavedRef.current) {
         revertTheme();
       }
@@ -43,14 +81,46 @@ const Settings = () => {
     danger: Danger,
     save: Save,
     password: Changeps,
-    chevronRight: "https://www.figma.com/api/mcp/asset/613c6b9d-717a-4415-8dbb-05f441b1fe71",
+    chevronRight: Chevron,
     google: Google,
   };
   
   const handleLogout = () => {
-  localStorage.removeItem('token');
-  localStorage.removeItem('user');
-  navigate('/login', { replace: true });
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    navigate('/login', { replace: true });
+  };
+
+  const handleChangePassword = async () => {
+    if (resetStatus === 'sending' || resetStatus === 'sent' || !user?.email) return;
+    setResetStatus('sending');
+    try {
+      await fetch(`${import.meta.env.VITE_API_URL}/api/auth/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: user.email }),
+      });
+      setResetStatus('sent');
+      setTimeout(() => setResetStatus('idle'), 30000);
+    } catch {
+      setResetStatus('idle');
+      alert('Gagal mengirim email reset password. Silakan coba lagi.');
+    }
+  };
+
+  const handleConfirmDeleteAccount = async () => {
+    setIsDeleting(true);
+    try {
+      await userService.deleteAccount();
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      clearUser();
+      navigate('/login', { replace: true });
+    } catch (err) {
+      setIsDeleting(false);
+      setIsDeleteModalOpen(false);
+      alert(err.message || 'Gagal menghapus akun. Silakan coba lagi.');
+    }
   };
 
   useEffect(() => {
@@ -77,7 +147,6 @@ const Settings = () => {
     setSaveSuccess(false);
     try {
       await userService.updateSettings(settings);
-      // Persist the current isDarkMode to localStorage
       saveTheme(isDarkMode);
       hasSavedRef.current = true;
       setSaveSuccess(true);
@@ -217,12 +286,26 @@ const Settings = () => {
             <h2 className="text-base font-semibold text-[#191C1E] dark:text-white">Account Settings</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <button className="flex items-center justify-between p-4 border border-[#C3C6D7] dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group">
+            <button
+              onClick={handleChangePassword}
+              disabled={resetStatus !== 'idle'}
+              className={`flex items-center justify-between p-4 border rounded-lg transition-colors group ${
+                resetStatus === 'sent'
+                  ? 'border-green-300 bg-green-50 dark:bg-green-900/10 cursor-not-allowed'
+                  : resetStatus === 'sending'
+                  ? 'border-[#C3C6D7] dark:border-gray-700 opacity-60 cursor-wait'
+                  : 'border-[#C3C6D7] dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800'
+              }`}
+            >
               <div className="flex items-center gap-3">
                 <img src={icons.password} alt="" className="w-4 h-5 dark:invert opacity-70" />
-                <span className="font-semibold text-[#191C1E] dark:text-white">Change Password</span>
+                <span className="font-semibold text-[#191C1E] dark:text-white">
+                  {resetStatus === 'sent' ? 'Email Terkirim' : resetStatus === 'sending' ? 'Mengirim...' : 'Change Password'}
+                </span>
               </div>
-              <img src={icons.chevronRight} alt="" className="w-2 h-3 opacity-50 group-hover:opacity-100 dark:invert" />
+              {resetStatus === 'idle' && (
+                <img src={icons.chevronRight} alt="" className="w-2 h-3 opacity-50 group-hover:opacity-100 dark:invert" />
+              )}
             </button>
             <button className="flex items-center justify-between p-4 border border-[#C3C6D7] dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group">
               <div className="flex items-center gap-3">
@@ -244,11 +327,14 @@ const Settings = () => {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <button 
-             onClick={handleLogout}
-             className="border-2 border-[#BA1A1A] text-[#BA1A1A] py-3 rounded-lg font-bold hover:bg-[#BA1A1A]/10 transition-colors">
+              onClick={handleLogout}
+              className="border-2 border-[#BA1A1A] text-[#BA1A1A] py-3 rounded-lg font-bold hover:bg-[#BA1A1A]/10 transition-colors">
               Log Out of This Session
             </button>
-            <button className="bg-[#BA1A1A] text-white py-3 rounded-lg font-bold hover:bg-red-700 transition-colors">
+            <button
+              onClick={() => setIsDeleteModalOpen(true)}
+              className="bg-[#BA1A1A] text-white py-3 rounded-lg font-bold hover:bg-red-700 transition-colors"
+            >
               Permanently Delete Account
             </button>
           </div>
@@ -261,6 +347,13 @@ const Settings = () => {
           Produktif v2.4.1 — Precision Tech System
         </p>
       </div>
+
+      <DeleteAccountModal
+        isOpen={isDeleteModalOpen}
+        closeModal={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleConfirmDeleteAccount}
+        isDeleting={isDeleting}
+      />
     </div>
   );
 };

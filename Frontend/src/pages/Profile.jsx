@@ -3,6 +3,16 @@ import { useNavigate } from 'react-router-dom';
 import { useUser } from '../hooks/useUser';
 import { useTheme } from '../context/ThemeContext';
 import { userService } from '../services/userService';
+import Streak from '../assets/ProfilePage/Streak.png';
+import AddPicture from '../assets/ProfilePage/AddPicture.png';
+import Danger from '../assets/ProfilePage/Danger.png';
+import Focus from '../assets/ProfilePage/FocusHour.png';
+import Account from '../assets/ProfilePage/Account.png';
+import Tasks from '../assets/ProfilePage/TaskCompleted.png';
+import ChangePass from '../assets/ProfilePage/ChangePass.png';
+import Edit from '../assets/ProfilePage/Edit.png';
+import Sync from '../assets/ProfilePage/SyncGoogle.png';
+import Chevron from '../assets/SettingsPage/Chevron.png';
 
 const DeleteAccountModal = ({ isOpen, closeModal, onConfirm, isDeleting }) => {
   if (!isOpen) return null;
@@ -43,7 +53,7 @@ const Profile = () => {
   const { isDarkMode } = useTheme();
 
   const [stats, setStats] = useState({ streak: 0, tasksCompleted: 0, focusHours: 0 });
-  const [resetStatus, setResetStatus] = useState('idle'); // 'idle' | 'sending' | 'sent'
+  const [resetStatus, setResetStatus] = useState('idle');
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -60,12 +70,12 @@ const Profile = () => {
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    clearUser();
     navigate('/login', { replace: true });
   };
 
   const handleChangePassword = async () => {
     if (resetStatus === 'sending' || resetStatus === 'sent' || !user?.email) return;
-
     setResetStatus('sending');
     try {
       await fetch(`${import.meta.env.VITE_API_URL}/api/auth/forgot-password`, {
@@ -75,7 +85,7 @@ const Profile = () => {
       });
       setResetStatus('sent');
       setTimeout(() => setResetStatus('idle'), 30000);
-    } catch (err) {
+    } catch {
       setResetStatus('idle');
       alert('Gagal mengirim email reset password. Silakan coba lagi.');
     }
@@ -97,15 +107,16 @@ const Profile = () => {
   };
 
   const icons = {
-    streak:        "https://www.figma.com/api/mcp/asset/dd62831e-2200-4340-aafa-e6309d26cef6",
-    tasks:         "https://www.figma.com/api/mcp/asset/d1a00075-6b0a-46c9-92f5-d5205afa60a6",
-    hours:         "https://www.figma.com/api/mcp/asset/b0d8438e-f843-4898-91c0-dec95204fcfd",
-    settingsHeader:"https://www.figma.com/api/mcp/asset/7c4ba02d-3b5d-4f89-a525-77c7c03fca1c",
-    password:      "https://www.figma.com/api/mcp/asset/98130817-9ad0-4702-ad94-c41f870c5096",
-    chevronRight:  "https://www.figma.com/api/mcp/asset/96827b54-1850-4406-9ea5-c154fc1bb9e4",
-    google:        "https://www.figma.com/api/mcp/asset/b1e40658-1765-4000-b315-9e24d608457d",
-    dangerHeader:  "https://www.figma.com/api/mcp/asset/e5e85d3f-1e08-4d2a-ab37-bc61117f7e27",
-    editIcon:      "https://www.figma.com/api/mcp/asset/85970a89-78ec-44e1-88d3-51deb49e33b8",
+    streak:        Streak,
+    tasks:         Tasks,
+    hours:         Focus,
+    settingsHeader: AddPicture,
+    Account:       Account,
+    password:      ChangePass,
+    chevronRight:  Chevron,
+    google:        Sync,
+    dangerHeader:  Danger,
+    editIcon:      Edit,
   };
 
   if (loading) return <div className="p-8 text-center text-[#434655] dark:text-gray-400">Loading profile...</div>;
@@ -133,7 +144,7 @@ const Profile = () => {
               onClick={() => navigate('/profile/edit-profile')}
               className="absolute -bottom-2 -right-2 bg-[#004AC6] p-2 rounded-xl text-white shadow-lg hover:bg-[#003da3] transition flex items-center justify-center"
             >
-              <img src={icons.editIcon} alt="Edit" className="w-3 h-3" />
+              <img src={icons.settingsHeader} alt="Edit" className="w-3 h-3 brightness-0 invert" />
             </button>
           </div>
           <div className="flex-1 pt-2 space-y-6">
@@ -146,7 +157,7 @@ const Profile = () => {
                 onClick={() => navigate('/profile/edit-profile')}
                 className="bg-[#004AC6] text-white px-6 py-2.5 rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-[#003da3] transition shadow-md"
               >
-                <img src={icons.editIcon} alt="" className="w-3 h-3 invert"/>
+                <img src={icons.editIcon} alt="" className="w-3 h-3 brightness-0 invert"/>
                 Edit Profile
               </button>
             </div>
@@ -220,7 +231,7 @@ const Profile = () => {
       <div className="bg-white dark:bg-[#1A1C1E] border border-[#C3C6D7]/30 dark:border-gray-800 p-6 rounded-xl shadow-sm space-y-6 transition-colors">
         <div className="flex items-center gap-3">
           <div className="w-9 h-8 relative">
-            <img src={icons.settingsHeader} alt="" className="w-full h-full object-contain dark:invert" />
+            <img src={icons.Account} alt="" className="w-full h-full object-contain dark:invert" />
           </div>
           <h3 className="text-lg font-semibold text-[#191C1E] dark:text-white">Account Settings</h3>
         </div>
@@ -269,9 +280,10 @@ const Profile = () => {
           <h3 className="text-lg font-semibold">Dangerous</h3>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <button 
-           onClick={handleLogout}
-            className="border-2 border-[#BA1A1A] text-[#BA1A1A] py-3 rounded-lg font-bold hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+          <button
+            onClick={handleLogout}
+            className="border-2 border-[#BA1A1A] text-[#BA1A1A] py-3 rounded-lg font-bold hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+          >
             Log Out of This Session
           </button>
           <button
