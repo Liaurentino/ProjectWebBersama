@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useUser } from '../hooks/useUser';
 import LegalModal from '../components/modals/LegalModal';
-import IconLogo from '../assets/LoginPage/icon.png';
+import IconLogo from '../assets/LoginPage/Icon.png';
 import LeftSide from '../assets/LoginPage/LeftSideImg.png';
 import IconMail from '../assets/LoginPage/IconMail.png';
 import IconPass from '../assets/LoginPage/IconPass.png';
