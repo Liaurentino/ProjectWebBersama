@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../hooks/useUser';
-import addPicture from '../assets/ProfilePage/addPicture.png';
+import addPicture from '../assets/ProfilePage/AddPicture.png';
 import Study from '../assets/ProfilePage/Study.png';
 import More from '../assets/ProfilePage/More.png';
 
