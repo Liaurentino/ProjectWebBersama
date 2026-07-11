@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../hooks/useUser';
-import { useTheme } from '../context/ThemeContext';
 import { userService } from '../services/userService';
 import Streak from '../assets/ProfilePage/Streak.png';
 import AddPicture from '../assets/ProfilePage/AddPicture.png';
@@ -50,7 +49,6 @@ const DeleteAccountModal = ({ isOpen, closeModal, onConfirm, isDeleting }) => {
 const Profile = () => {
   const navigate = useNavigate();
   const { user, loading, error, clearUser } = useUser();
-  const { isDarkMode } = useTheme();
 
   const [stats, setStats] = useState({ streak: 0, tasksCompleted: 0, focusHours: 0 });
   const [resetStatus, setResetStatus] = useState('idle');

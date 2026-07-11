@@ -1,4 +1,3 @@
-import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
 import Login from './pages/Login';
@@ -22,7 +21,6 @@ import ResetPassword from './pages/ResetPassword';
 import ProtectedRoute from './components/ProtectedRoute';
 import OnboardingRoute from './components/OnboardingRoute';
 import MainLayout from './components/MainLayout';
-import AIchat from './pages/AIChat';
 
 function App() {
   return (

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Aperture } from 'lucide-react';
 
 const TypingIndicator = () => {

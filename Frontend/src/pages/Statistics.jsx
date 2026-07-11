@@ -9,12 +9,10 @@ import CategoryDonutChart from '../components/statistics/CategoryDonutChart';
 import WeeklyBarChart from '../components/statistics/WeeklyBarChart';
 import MonthlyTrendChart from '../components/statistics/MonthlyTrendChart';
 import CareerAnalysisModal from '../components/modals/CareerAnalysisModal';
-import AnalysisLoadingModal from '../components/modals/AnalysisLoadingModal';
 
 const Statistics = () => {
   const { isDarkMode } = useTheme();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isLoadingAnalysis, setIsLoadingAnalysis] = useState(false);
 
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -68,11 +66,7 @@ const Statistics = () => {
   ] : [];
 
   const handleStartAnalysis = () => {
-    setIsLoadingAnalysis(true);
-    setTimeout(() => {
-      setIsLoadingAnalysis(false);
-      setIsModalOpen(true);
-    }, 3000);
+    setIsModalOpen(true);
   };
 
   if (loading) {
@@ -128,11 +122,6 @@ const Statistics = () => {
         />
 
       </div>
-
-      <AnalysisLoadingModal
-        isOpen={isLoadingAnalysis}
-        onClose={() => setIsLoadingAnalysis(false)}
-      />
 
       <CareerAnalysisModal
         isOpen={isModalOpen}

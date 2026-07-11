@@ -1,4 +1,3 @@
-import React from 'react';
 
 const SuccessPopup = ({ isOpen, onClose, activity, onAddMore }) => {
   if (!isOpen || !activity) return null;

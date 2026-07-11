@@ -1,8 +1,8 @@
-import React from 'react';
-import { MessageSquarePlus, History, PanelRightClose, ChevronRight, EllipsisVertical, Trash2 } from 'lucide-react';
+import { useState } from 'react';
+import { MessageSquarePlus, History, PanelRightClose, EllipsisVertical, Trash2 } from 'lucide-react';
 
 const ChatHistoryItem = ({ title, time, isActive, onSelect, onDelete }) => {
-  const [showMenu, setShowMenu] = React.useState(false);
+  const [showMenu, setShowMenu] = useState(false);
 
   return (
     <div className="relative group">

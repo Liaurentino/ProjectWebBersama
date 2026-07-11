@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../hooks/useUser';
-import { useTheme } from '../context/ThemeContext';
 import addPicture from '../assets/ProfilePage/addPicture.png';
 import Study from '../assets/ProfilePage/Study.png';
 import More from '../assets/ProfilePage/More.png';
@@ -10,7 +9,6 @@ import More from '../assets/ProfilePage/More.png';
 const EditProfile = () => {
   const navigate = useNavigate();
   const { user, loading, error, updateProfile, uploadPhoto } = useUser();
-  const { isDarkMode } = useTheme();
   const fileInputRef = useRef(null);
 
   const [formData, setFormData] = useState({
@@ -34,7 +32,9 @@ const EditProfile = () => {
   };
 
   useEffect(() => {
-    if (user) {
+    if (!user) return;
+
+    const timer = window.setTimeout(() => {
       setFormData({
         name:      user.name      || '',
         email:     user.email     || '',
@@ -43,7 +43,9 @@ const EditProfile = () => {
         interests: Array.isArray(user.interests) ? user.interests[0] || '' : user.interests || '',
         bio:       user.bio       || '',
       });
-    }
+    }, 0);
+
+    return () => window.clearTimeout(timer);
   }, [user]);
 
   const handleChange = (e) => {
