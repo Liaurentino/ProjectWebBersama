@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { searchAll } from '../services/searchService';
+import { searchAll } from '../services/Searchservice.js';
 
 const STATUS_STYLE = {
   DONE:        'bg-[#DCFCE7] text-[#15803D]',

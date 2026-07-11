@@ -3,7 +3,7 @@ import { useTheme } from '../context/ThemeContext';
 import {
   getAllNotes, createNote, updateNote, deleteNote,
   toDbStatus, calcProgress,
-} from '../services/NotesService';
+} from '../services/Notesservice.js';
 import Plus from "../assets/NotesPage/Plus.png";
 import Calender from "../assets/NotesPage/Calender.png";
 import Message from "../assets/NotesPage/Message.png";

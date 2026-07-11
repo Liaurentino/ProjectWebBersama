@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SuccessPopup from '../components/SuccessPopup';
-import { getAllActivities, createActivity, updateActivity, deleteActivity, getProjects } from '../services/activityService';
+import { getAllActivities, createActivity, updateActivity, deleteActivity, getProjects } from '../services/Activityservice.js';
 
 // --- Icons (SVG) ---
 const ChevronDownIcon = () => (
