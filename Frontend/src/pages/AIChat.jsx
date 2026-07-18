@@ -84,6 +84,9 @@ const normalizeChatMessage = (message) => ({
   sender: message.role === 'assistant' ? 'ai' : 'user',
   time: getTimeLabel(message.createdAt),
   status: 'Sent',
+  fileUrl:  message.fileUrl  || null,
+  fileName: message.fileName || null,
+  fileType: message.fileType || null,
 });
 
 const normalizeChatSession = (session) => ({
@@ -112,6 +115,7 @@ const AIChat = () => {
   const [activeSessionId, setActiveSessionId] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [loadingSessions, setLoadingSessions] = useState(true);
+  const [selectedFile, setSelectedFile] = useState(null);
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -174,6 +178,7 @@ const AIChat = () => {
     setMessages([]);
     setInputValue('');
     setSelectedContextItems([]);
+    setSelectedFile(null);
     setIsTyping(false);
   };
 
@@ -185,6 +190,7 @@ const AIChat = () => {
     setMessages(session.messages || []);
     setInputValue('');
     setSelectedContextItems([]);
+    setSelectedFile(null);
     setIsTyping(false);
   };
 
@@ -209,7 +215,7 @@ const AIChat = () => {
 
   const sendTextMessage = async (text) => {
     const trimmed = text.trim();
-    if (!trimmed) return;
+    if (!trimmed && !selectedFile) return;
 
     const userMessage = {
       id: makeId(),
@@ -217,14 +223,22 @@ const AIChat = () => {
       sender: 'user',
       time: getTimeLabel(),
       status: 'Load',
+      // Tampilkan preview lokal sebelum upload
+      fileUrl:  selectedFile ? URL.createObjectURL(selectedFile) : null,
+      fileName: selectedFile?.name || null,
+      fileType: selectedFile
+        ? (selectedFile.type === 'application/pdf' ? 'pdf' : 'image')
+        : null,
     };
 
-    const nextMessages = [...messages, userMessage];
-    const contextItems = selectedContextItems;
+    const nextMessages    = [...messages, userMessage];
+    const contextItems    = selectedContextItems;
+    const fileToUpload    = selectedFile;
 
     setMessages(nextMessages);
     setInputValue('');
     setSelectedContextItems([]);
+    setSelectedFile(null);
     setIsTyping(true);
 
     try {
@@ -232,6 +246,7 @@ const AIChat = () => {
         chat_session_id: activeSessionId || undefined,
         messages: toApiMessages(nextMessages),
         selected_context_items: contextItems,
+        file: fileToUpload || undefined,
       });
 
       const savedSession = response.chat_session ? normalizeChatSession(response.chat_session) : null;
@@ -348,6 +363,9 @@ const AIChat = () => {
           onIncludeClick={() => setIsIncludeModalOpen(true)}
           selectedItems={selectedContextItems}
           onRemoveItem={clearSelection}
+          onFileSelect={(file) => setSelectedFile(file)}
+          selectedFile={selectedFile}
+          onRemoveFile={() => setSelectedFile(null)}
         />
 
         <IncludeToAIModal

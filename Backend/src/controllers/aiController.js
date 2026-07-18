@@ -1,11 +1,20 @@
 const prisma = require('../config/prisma')
+const cloudinary = require('../config/cloudinary')
+const { PDFParse } = require('pdf-parse')
+const { Readable } = require('stream')
 
+// ─── Groq (career insight) ────────────────────────────────────
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions'
-const GROQ_MODEL = process.env.GROQ_MODEL || 'llama-3.1-8b-instant'
+const GROQ_MODEL = 'llama-3.1-70b-versatile'
 const GROQ_TIMEOUT_MS = (() => {
   const parsed = Number(process.env.GROQ_TIMEOUT_MS)
   return Number.isFinite(parsed) && parsed > 0 ? parsed : 15000
 })()
+
+// ─── OpenRouter (chat + vision) ──────────────────────────────
+const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions'
+const OPENROUTER_MODEL   = process.env.OPENROUTER_MODEL || 'openrouter/free'
+const OPENROUTER_TIMEOUT_MS = 30000
 
 const toISOString = (value) => {
   if (!value) return null
@@ -327,28 +336,94 @@ const buildChatMessages = ({ primaryInterest, activities, notes, selectedContext
   return messages.slice(-13)
 }
 
-const requestGroqChatCompletion = async (messages) => {
-  const apiKey = process.env.GROQ_API_KEY
-  if (!apiKey) {
-    const error = new Error('GROQ_API_KEY is not configured')
+/**
+ * Upload buffer ke Cloudinary.
+ * @param {Buffer} buffer - file buffer
+ * @param {string} mimetype - e.g. 'image/png' | 'application/pdf'
+ * @param {string} originalName - nama file asli
+ * @returns {Promise<{url: string, publicId: string}>}
+ */
+const uploadFileToCloudinary = (buffer, mimetype, originalName) => {
+  const isPdf = mimetype === 'application/pdf'
+  const resourceType = isPdf ? 'raw' : 'image'
+  const folder = isPdf ? 'chat_pdfs' : 'chat_images'
+
+  return new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      {
+        resource_type: resourceType,
+        folder,
+        public_id: `${Date.now()}_${originalName.replace(/[^a-z0-9._-]/gi, '_')}`,
+        use_filename: false,
+        unique_filename: true,
+      },
+      (error, result) => {
+        if (error) return reject(error)
+        resolve({ url: result.secure_url, publicId: result.public_id })
+      }
+    )
+
+    const readable = new Readable()
+    readable.push(buffer)
+    readable.push(null)
+    readable.pipe(uploadStream)
+  })
+}
+
+/**
+ * Ekstrak teks dari PDF buffer menggunakan pdf-parse.
+ * Return teks yang terpotong max 8000 karakter agar tidak overflow token.
+ */
+const extractPdfText = async (buffer) => {
+  try {
+    const parser = new PDFParse({ data: buffer })
+    await parser.load()
+    const result = await parser.getText()
+    const text = (result.text || '').trim()
+    console.log('[PDF Extract Debug] Success. Characters extracted:', text.length)
+    return text.slice(0, 8000)
+  } catch (err) {
+    console.error('[PDF Extract Debug] Failed to parse PDF:', err)
+    return ''
+  }
+}
+
+/**
+ * Kirim request ke OpenRouter (mendukung vision untuk gambar).
+ * messages bisa berisi content berupa string atau array (multimodal).
+ */
+const requestOpenRouterChatCompletion = async (messages) => {
+  const apiKey = process.env.OPENROUTER_API_KEY
+  
+  // Debug log untuk memeriksa status API key
+  console.log('[OpenRouter Auth Debug]:', {
+    hasKey: !!apiKey,
+    keyLength: apiKey ? apiKey.length : 0,
+    keyPrefix: apiKey ? apiKey.slice(0, 10) + '...' : 'none'
+  })
+
+  if (!apiKey || apiKey === 'isi_api_key_openrouter_disini' || apiKey.trim() === '') {
+    const error = new Error('OPENROUTER_API_KEY is not configured')
     error.code = 'GROQ_NOT_CONFIGURED'
     throw error
   }
 
   const controller = new AbortController()
-  const timeoutId = setTimeout(() => controller.abort(), GROQ_TIMEOUT_MS)
+  const timeoutId = setTimeout(() => controller.abort(), OPENROUTER_TIMEOUT_MS)
 
   try {
-    const response = await fetch(GROQ_API_URL, {
+    const response = await fetch(OPENROUTER_API_URL, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
+        'HTTP-Referer': process.env.FRONTEND_URL || 'http://localhost:5173',
+        'X-Title': 'AI Mentor Chat',
       },
       body: JSON.stringify({
-        model: GROQ_MODEL,
+        model: OPENROUTER_MODEL,
         temperature: 0.5,
-        max_tokens: 700,
+        max_tokens: 1024,
         messages,
       }),
       signal: controller.signal,
@@ -356,7 +431,7 @@ const requestGroqChatCompletion = async (messages) => {
 
     if (!response.ok) {
       const errorBody = await response.text().catch(() => '')
-      const error = new Error(`Groq request failed with status ${response.status}`)
+      const error = new Error(`OpenRouter request failed with status ${response.status}`)
       error.code = 'GROQ_REQUEST_FAILED'
       error.status = response.status
       error.details = errorBody
@@ -418,12 +493,18 @@ const buildChatSessionTitle = (messages, fallback = 'Chat') => {
 const mapChatMessageToDb = (message) => ({
   role: message.role === 'assistant' ? 'ASSISTANT' : 'USER',
   content: message.content,
+  fileUrl:  message.fileUrl  || null,
+  fileName: message.fileName || null,
+  fileType: message.fileType || null,
 })
 
 const serializeChatMessage = (message) => ({
-  id: message.id,
-  role: message.role === 'ASSISTANT' ? 'assistant' : 'user',
-  content: message.content,
+  id:        message.id,
+  role:      message.role === 'ASSISTANT' ? 'assistant' : 'user',
+  content:   message.content,
+  fileUrl:   message.fileUrl  || null,
+  fileName:  message.fileName || null,
+  fileType:  message.fileType || null,
   createdAt: toISOString(message.createdAt),
 })
 
@@ -547,69 +628,145 @@ const deleteChatSession = async (req, res) => {
 const getChatResponse = async (req, res) => {
   try {
     const userId = req.user.id
-    const rawMessages = Array.isArray(req.body?.messages) ? req.body.messages : []
-    const selectedContextItems = normalizeSelectedContextItems(req.body?.selected_context_items)
-    const conversationMessages = normalizeChatMessages(rawMessages)
+
+    // ── Parse body (JSON atau multipart/form-data) ──────────────
+    // Multer mengubah semua field FormData menjadi string,
+    // jadi kita perlu coba JSON.parse jika bukan array.
+    const rawMessagesField = req.body?.messages
+    let parsedMessages
+    if (Array.isArray(rawMessagesField)) {
+      parsedMessages = rawMessagesField
+    } else if (typeof rawMessagesField === 'string') {
+      try { parsedMessages = JSON.parse(rawMessagesField) } catch { parsedMessages = [] }
+    } else {
+      parsedMessages = []
+    }
+
+    const selectedContextItems = normalizeSelectedContextItems(
+      req.body?.selected_context_items
+        ? (typeof req.body.selected_context_items === 'string'
+            ? JSON.parse(req.body.selected_context_items)
+            : req.body.selected_context_items)
+        : []
+    )
+
+    // normalizeChatMessages memfilter pesan dengan content kosong.
+    // Kalau ada file tapi teks kosong, inject placeholder agar tidak error.
+    const hasPendingFile = !!req.file
+    if (hasPendingFile && Array.isArray(parsedMessages) && parsedMessages.length > 0) {
+      const last = parsedMessages[parsedMessages.length - 1]
+      if (last && (last.role === 'user' || !last.role) && (!last.content || !last.content.trim())) {
+        parsedMessages[parsedMessages.length - 1] = { ...last, content: 'Analisis file ini.' }
+      }
+    }
+
+    const conversationMessages = normalizeChatMessages(parsedMessages)
 
     if (conversationMessages.length === 0) {
       return res.status(400).json({ message: 'Messages are required' })
     }
 
+    // ── Handle file upload (jika ada) ────────────────────────
+    let uploadedFileUrl  = null
+    let uploadedFileName = null
+    let uploadedFileType = null
+    let pdfTextContext   = ''
+
+    if (req.file) {
+      const { buffer, mimetype, originalname } = req.file
+      const isPdf   = mimetype === 'application/pdf'
+      const isImage = ['image/jpeg', 'image/jpg', 'image/png'].includes(mimetype)
+
+      // Upload ke Cloudinary
+      const uploaded = await uploadFileToCloudinary(buffer, mimetype, originalname)
+      uploadedFileUrl  = uploaded.url
+      uploadedFileName = originalname
+      uploadedFileType = isPdf ? 'pdf' : 'image'
+
+      // Untuk PDF: ekstrak teks sebagai konteks
+      if (isPdf) {
+        pdfTextContext = await extractPdfText(buffer)
+      }
+    }
+
+    // ── Fetch user data ───────────────────────────────────────
     const [userProfile, activities, notes] = await Promise.all([
       prisma.user.findUnique({
         where: { id: userId },
         select: { interests: true },
       }),
       prisma.activity.findMany({
-        where: {
-          userId,
-          status: 'DONE',
-        },
+        where: { userId, status: 'DONE' },
         select: {
-          id: true,
-          title: true,
-          category: true,
-          description: true,
-          project: true,
-          status: true,
-          startedAt: true,
-          endedAt: true,
+          id: true, title: true, category: true, description: true,
+          project: true, status: true, startedAt: true, endedAt: true,
         },
-        orderBy: {
-          startedAt: 'desc',
-        },
+        orderBy: { startedAt: 'desc' },
       }),
       prisma.notes.findMany({
         where: { userId },
         select: {
-          id: true,
-          title: true,
-          category: true,
-          status: true,
-          todoList: true,
-          dueDate: true,
-          description: true,
-          createdAt: true,
-          updatedAt: true,
+          id: true, title: true, category: true, status: true,
+          todoList: true, dueDate: true, description: true,
+          createdAt: true, updatedAt: true,
         },
-        orderBy: {
-          createdAt: 'desc',
-        },
+        orderBy: { createdAt: 'desc' },
       }),
     ])
 
     const primaryInterest = normalizePrimaryInterest(userProfile?.interests)
-    const messages = buildChatMessages({
+
+    // ── Build messages untuk OpenRouter ──────────────────────
+    // Ambil pesan terakhir user (yang sudah termasuk teks prompt)
+    const lastUserMessage = conversationMessages[conversationMessages.length - 1]
+    const contextMessages = conversationMessages.slice(0, -1)
+
+    // Bangun context messages (tanpa pesan terakhir)
+    const baseMessages = buildChatMessages({
       primaryInterest,
       activities: activities.map(serializeActivity),
       notes: notes.map(serializeNote),
       selectedContextItems,
-      conversationMessages,
+      conversationMessages: contextMessages,
     })
 
-    const reply = await requestGroqChatCompletion(messages)
-    const assistantMessages = [
-      ...conversationMessages,
+    // Buat user message terakhir (mungkin multimodal)
+    let lastMessageContent
+
+    if (uploadedFileType === 'image' && uploadedFileUrl) {
+      // Multimodal: teks + gambar
+      lastMessageContent = [
+        { type: 'text', text: lastUserMessage.content || 'Analisis gambar ini.' },
+        { type: 'image_url', image_url: { url: uploadedFileUrl } },
+      ]
+    } else if (uploadedFileType === 'pdf' && pdfTextContext) {
+      // PDF: sertakan teks ekstrak sebagai konteks tambahan
+      lastMessageContent =
+        `${lastUserMessage.content}\n\n[Konten PDF: ${uploadedFileName}]\n${pdfTextContext}`
+    } else {
+      lastMessageContent = lastUserMessage.content
+    }
+
+    const finalMessages = [
+      ...baseMessages,
+      { role: 'user', content: lastMessageContent },
+    ]
+
+    // ── Request ke OpenRouter ─────────────────────────────────
+    const reply = await requestOpenRouterChatCompletion(finalMessages)
+
+    // ── Persist session ───────────────────────────────────────
+    // Tambahkan metadata file ke pesan user terakhir
+    const userMessageWithFile = {
+      ...lastUserMessage,
+      fileUrl:  uploadedFileUrl,
+      fileName: uploadedFileName,
+      fileType: uploadedFileType,
+    }
+
+    const allMessagesForDb = [
+      ...contextMessages,
+      userMessageWithFile,
       { role: 'assistant', content: reply },
     ]
 
@@ -617,7 +774,7 @@ const getChatResponse = async (req, res) => {
       userId,
       chatSessionId: req.body?.chat_session_id,
       title: buildChatSessionTitle(conversationMessages),
-      messages: assistantMessages,
+      messages: allMessagesForDb,
     })
 
     return res.status(200).json({
@@ -625,24 +782,27 @@ const getChatResponse = async (req, res) => {
       chat_session: serializeChatSession(savedSession),
     })
   } catch (error) {
+    console.error('[getChatResponse Error Details]:', {
+      message: error.message,
+      code: error.code,
+      status: error.status,
+      details: error.details,
+      stack: error.stack
+    })
+
     if (error.code === 'GROQ_TIMEOUT') {
       return res.status(503).json({ message: 'AI Engine is currently busy.' })
     }
-
     if (error.code === 'GROQ_REQUEST_FAILED') {
       return res.status(503).json({ message: 'AI Engine is currently busy.' })
     }
-
     if (error.code === 'INVALID_GROQ_RESPONSE') {
       return res.status(503).json({ message: 'AI Engine is currently busy.' })
     }
-
     if (error.code === 'GROQ_NOT_CONFIGURED') {
-      console.error('[getChatResponse]', error)
-      return res.status(500).json({ message: 'GROQ_API_KEY is not configured' })
+      return res.status(500).json({ message: 'OpenRouter API key belum dikonfigurasi.' })
     }
 
-    console.error('[getChatResponse]', error)
     return res.status(500).json({ message: 'Internal server error' })
   }
 }

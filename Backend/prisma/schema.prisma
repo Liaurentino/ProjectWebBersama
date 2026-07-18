@@ -117,6 +117,10 @@
     content       String      @db.Text
     tokensUsed    Int?
 
+    fileUrl       String?     // URL Cloudinary (gambar atau PDF)
+    fileName      String?     // Nama file asli
+    fileType      String?     // "image" | "pdf"
+
     createdAt     DateTime    @default(now())
 
     chatSession   ChatSession @relation(fields: [chatSessionId], references: [id], onDelete: Cascade)

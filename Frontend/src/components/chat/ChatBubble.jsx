@@ -2,6 +2,7 @@ import {
   Copy,
   RotateCcw,
   MoreHorizontal,
+  FileText,
 } from 'lucide-react';
 import {
   Bar,
@@ -143,7 +144,45 @@ const renderChartBlocks = (message) => {
   return nodes.length > 0 ? nodes : renderRichText(message);
 };
 
-const ChatBubble = ({ message, sender, time, status }) => {
+/** Render attachment (gambar atau PDF) di dalam bubble */
+const AttachmentPreview = ({ fileUrl, fileName, fileType }) => {
+  if (!fileUrl) return null;
+
+  if (fileType === 'image') {
+    return (
+      <a href={fileUrl} target="_blank" rel="noopener noreferrer" className="block mb-2">
+        <img
+          src={fileUrl}
+          alt={fileName || 'Gambar'}
+          className="max-w-[240px] max-h-[180px] rounded-xl object-cover border border-white/20 hover:opacity-90 transition-opacity"
+        />
+      </a>
+    );
+  }
+
+  if (fileType === 'pdf') {
+    return (
+      <a
+        href={fileUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex items-center gap-2 mb-2 bg-white/10 hover:bg-white/20 rounded-xl px-3 py-2 transition-colors max-w-[240px]"
+      >
+        <div className="w-8 h-8 bg-orange-400/30 rounded-lg flex items-center justify-center shrink-0">
+          <FileText size={16} className="text-orange-200" />
+        </div>
+        <div className="flex flex-col min-w-0">
+          <span className="text-white text-xs font-semibold truncate">{fileName || 'Dokumen PDF'}</span>
+          <span className="text-white/60 text-[10px]">Klik untuk buka PDF</span>
+        </div>
+      </a>
+    );
+  }
+
+  return null;
+};
+
+const ChatBubble = ({ message, sender, time, status, fileUrl, fileName, fileType }) => {
   const isUser = sender === 'user';
 
   if (isUser) {
@@ -151,9 +190,13 @@ const ChatBubble = ({ message, sender, time, status }) => {
       <div className="flex justify-end w-full mb-6">
         <div className="flex flex-col gap-1 items-end max-w-[80%] sm:max-w-[70%] md:max-w-[60%] animate-in slide-in-from-right-4 fade-in duration-300">
           <div className="bg-[#2563EB] text-[#EEEFFF] p-4 rounded-l-2xl rounded-br-2xl shadow-sm">
-            <div className="text-sm sm:text-base leading-relaxed whitespace-pre-wrap">
-              {renderRichText(message)}
-            </div>
+            {/* Attachment di atas teks */}
+            <AttachmentPreview fileUrl={fileUrl} fileName={fileName} fileType={fileType} />
+            {message && (
+              <div className="text-sm sm:text-base leading-relaxed whitespace-pre-wrap">
+                {renderRichText(message)}
+              </div>
+            )}
           </div>
           <div className="flex items-center gap-1 text-[11px] text-[#434655] dark:text-gray-400 px-1 font-medium">
             <span>{time}</span>

@@ -33,10 +33,31 @@ export const getCareerInsight = async (payload = {}, options = {}) => {
 
 
 export const sendChatMessage = async (payload = {}, options = {}) => {
+  const { file, ...rest } = payload
+
+  let body
+  let headers = { Authorization: `Bearer ${localStorage.getItem('token')}` }
+
+  if (file) {
+    // Kirim sebagai multipart/form-data jika ada file
+    const formData = new FormData()
+    formData.append('file', file)
+    // messages dan selected_context_items perlu di-stringify karena FormData hanya string
+    if (rest.messages) formData.append('messages', JSON.stringify(rest.messages))
+    if (rest.selected_context_items) formData.append('selected_context_items', JSON.stringify(rest.selected_context_items))
+    if (rest.chat_session_id) formData.append('chat_session_id', rest.chat_session_id)
+    body = formData
+    // Jangan set Content-Type — browser akan otomatis set dengan boundary yang benar
+  } else {
+    // Kirim sebagai JSON jika tidak ada file
+    headers['Content-Type'] = 'application/json'
+    body = JSON.stringify(rest)
+  }
+
   const res = await fetch(buildUrl('/api/ai/chat'), {
     method: 'POST',
-    headers: getAuthHeaders(),
-    body: JSON.stringify(payload),
+    headers,
+    body,
     signal: options.signal,
   })
 
