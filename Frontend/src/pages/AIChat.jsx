@@ -9,6 +9,8 @@ import ChatBubble from '../components/chat/ChatBubble';
 import TypingIndicator from '../components/chat/TypingIndicator';
 import IncludeToAIModal from '../components/modals/IncludeToAIModal';
 import { deleteChatSession, getChatSessions, sendChatMessage } from '../services/AIservice';
+import { getAllActivities } from '../services/Activityservice';
+import { getAllNotes } from '../services/Notesservice';
 
 const makeId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
@@ -116,6 +118,7 @@ const AIChat = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [loadingSessions, setLoadingSessions] = useState(true);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [contextData, setContextData] = useState({ activities: [], notes: [] });
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -360,7 +363,16 @@ const AIChat = () => {
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onSend={handleSend}
-          onIncludeClick={() => setIsIncludeModalOpen(true)}
+          onIncludeClick={async () => {
+            try {
+              const [actRes, noteRes] = await Promise.all([getAllActivities(), getAllNotes()]);
+              setContextData({
+                activities: (actRes.data || []).map(a => ({ id: a.id, title: a.title, type: a.category, description: a.description || '' })),
+                notes: noteRes.map(n => ({ id: n.id, title: n.title, type: n.category || 'NOTE', description: n.description || '' })),
+              });
+            } catch {}
+            setIsIncludeModalOpen(true);
+          }}
           selectedItems={selectedContextItems}
           onRemoveItem={clearSelection}
           onFileSelect={(file) => setSelectedFile(file)}
@@ -370,6 +382,8 @@ const AIChat = () => {
 
         <IncludeToAIModal
           isOpen={isIncludeModalOpen}
+          activities={contextData.activities}
+          notes={contextData.notes}
           onClose={() => setIsIncludeModalOpen(false)}
           onInclude={(selected) => {
             setSelectedContextItems(selected);

@@ -41,33 +41,120 @@ const parseChartSpec = (raw) => {
 };
 
 const renderInlineMarkdown = (text) => {
-  const segments = text.split(/(\*\*[^*]+\*\*)/g);
-
-  return segments.map((segment, index) => {
-    if (segment.startsWith('**') && segment.endsWith('**') && segment.length > 4) {
-      return <strong key={`${segment}-${index}`} className="font-bold text-inherit">{segment.slice(2, -2)}</strong>;
-    }
-
-    return <span key={`${segment}-${index}`}>{segment}</span>;
+  // Support **bold** dan `inline code`
+  const segments = text.split(/(\*\*[^*]+\*\*|`[^`]+`)/g);
+  return segments.map((seg, i) => {
+    if (seg.startsWith('**') && seg.endsWith('**') && seg.length > 4)
+      return <strong key={i} className="font-semibold text-inherit">{seg.slice(2, -2)}</strong>;
+    if (seg.startsWith('`') && seg.endsWith('`') && seg.length > 2)
+      return <code key={i} className="bg-black/10 dark:bg-white/10 rounded px-1 py-0.5 text-[0.85em] font-mono">{seg.slice(1, -1)}</code>;
+    return <span key={i}>{seg}</span>;
   });
 };
 
+const renderTableBlock = (lines) => {
+  const rows = lines.map(l => l.split('|').map(c => c.trim()).filter((_, i, a) => i > 0 && i < a.length - 1));
+  const header = rows[0];
+  const body = rows.slice(2); // skip separator line
+  return (
+    <div className="overflow-x-auto my-3 rounded-xl border border-[#C3C6D7]/40 dark:border-gray-700/50">
+      <table className="w-full text-sm border-collapse">
+        <thead>
+          <tr className="bg-[#F0F2FF] dark:bg-[#1E2230]">
+            {header.map((cell, i) => (
+              <th key={i} className="px-3 py-2 text-left font-bold text-[#191C1E] dark:text-gray-200 border-b border-[#C3C6D7]/40 dark:border-gray-700/50 whitespace-nowrap">
+                {renderInlineMarkdown(cell)}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {body.map((row, ri) => (
+            <tr key={ri} className={ri % 2 === 0 ? 'bg-white dark:bg-transparent' : 'bg-[#F8F9FB] dark:bg-[#1A1C1E]/40'}>
+              {row.map((cell, ci) => (
+                <td key={ci} className="px-3 py-2 text-[#434655] dark:text-gray-300 border-b border-[#C3C6D7]/20 dark:border-gray-700/30">
+                  {renderInlineMarkdown(cell)}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
 const renderRichText = (text) => {
-  const paragraphs = text.split(/\n+/);
+  const lines = text.split('\n');
+  const result = [];
+  let i = 0;
 
-  return paragraphs.map((paragraph, index) => {
-    const trimmed = paragraph.trim();
+  while (i < lines.length) {
+    const line = lines[i];
+    const trimmed = line.trim();
 
-    if (!trimmed) {
-      return <br key={`break-${index}`} />;
+    // Heading ## / ###
+    const headingMatch = trimmed.match(/^(#{1,3})\s+(.+)/);
+    if (headingMatch) {
+      const level = headingMatch[1].length;
+      const content = headingMatch[2];
+      const cls = level === 1
+        ? 'text-base font-bold text-[#191C1E] dark:text-white mt-4 mb-1'
+        : level === 2
+          ? 'text-sm font-bold text-[#191C1E] dark:text-gray-100 mt-3 mb-1 flex items-center gap-2'
+          : 'text-sm font-semibold text-[#434655] dark:text-gray-300 mt-2 mb-0.5';
+      result.push(<p key={i} className={cls}>{renderInlineMarkdown(content)}</p>);
+      i++; continue;
     }
 
-    return (
-      <p key={`${trimmed}-${index}`} className="whitespace-pre-wrap leading-relaxed">
+    // Markdown table — kumpulkan baris-baris tabel
+    if (trimmed.startsWith('|')) {
+      const tableLines = [];
+      while (i < lines.length && lines[i].trim().startsWith('|')) {
+        tableLines.push(lines[i].trim());
+        i++;
+      }
+      if (tableLines.length >= 2) {
+        result.push(<div key={`tbl-${i}`}>{renderTableBlock(tableLines)}</div>);
+      }
+      continue;
+    }
+
+    // Bullet list
+    const bulletMatch = trimmed.match(/^[-*]\s+(.+)/);
+    if (bulletMatch) {
+      result.push(
+        <li key={i} className="ml-4 list-disc text-[#434655] dark:text-gray-300 leading-relaxed">
+          {renderInlineMarkdown(bulletMatch[1])}
+        </li>
+      );
+      i++; continue;
+    }
+
+    // Numbered list
+    const numMatch = trimmed.match(/^(\d+)\.\s+(.+)/);
+    if (numMatch) {
+      result.push(
+        <li key={i} className="ml-4 list-decimal text-[#434655] dark:text-gray-300 leading-relaxed">
+          {renderInlineMarkdown(numMatch[2])}
+        </li>
+      );
+      i++; continue;
+    }
+
+    // Empty line
+    if (!trimmed) { result.push(<br key={i} />); i++; continue; }
+
+    // Normal paragraph
+    result.push(
+      <p key={i} className="leading-relaxed text-[#434655] dark:text-gray-300">
         {renderInlineMarkdown(trimmed)}
       </p>
     );
-  });
+    i++;
+  }
+
+  return result;
 };
 
 const renderChartBlocks = (message) => {

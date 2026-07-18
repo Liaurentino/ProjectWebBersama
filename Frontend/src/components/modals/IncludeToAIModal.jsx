@@ -1,27 +1,14 @@
 import { useState, useEffect } from 'react';
 import { X, Search, Calendar, Check } from 'lucide-react';
 
-const IncludeToAIModal = ({ isOpen, onClose, onInclude }) => {
+const IncludeToAIModal = ({ isOpen, onClose, onInclude, activities = [], notes = [] }) => {
   const [activeTab, setActiveTab] = useState('Activity');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedItems, setSelectedItems] = useState([]);
 
-  // Mock data - In real app, this would come from your backend/context
-  const activities = [
-    { id: 1, title: 'Algorithms & Structures Practice', type: 'SKILL', date: '12 Oct 2023' },
-    { id: 2, title: 'Webinar: Future of AI in universes', type: 'ACADEMIC', date: '14 Oct 2023' },
-    { id: 3, title: 'Final Project: UI Design', type: 'CAREER', date: '18 Oct 2023' },
-    { id: 4, title: 'Kudos React Native: advanced', type: 'SKILL', date: '20 Oct 2023' },
-  ];
-
-  const notes = [
-    { id: 5, title: 'Meeting Notes: Frontend Team', type: 'WORK', date: '15 Oct 2023' },
-    { id: 6, title: 'Personal Goal: Learn Figma', type: 'LEARNING', date: '16 Oct 2023' },
-  ];
-
-  const currentItems = (activeTab === 'Activity' ? activities : notes).filter(item => 
-    item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.type.toLowerCase().includes(searchQuery.toLowerCase())
+  const currentItems = (activeTab === 'Activity' ? activities : notes).filter(item =>
+    item.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.type?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const getSelectedCount = (tabName) => {
