@@ -56,6 +56,7 @@ const Settings = () => {
     emailNotification: true,
     activityReminders: true,
     allowAiAnalyze: true,
+    aiTone: 'casual',
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -263,17 +264,47 @@ const Settings = () => {
             </div>
             <h2 className="text-base font-semibold text-[#191C1E] dark:text-white">AI personalization</h2>
           </div>
-          <div className="bg-[#2563EB]/5 dark:bg-[#2563EB]/10 border border-[#004AC6]/20 p-4 rounded-xl flex items-center justify-between">
-            <div>
-              <p className="text-base font-medium text-[#191C1E] dark:text-white">Allow AI to Analyze</p>
-              <p className="text-sm text-[#434655] dark:text-gray-400">AI will analyze your activity patterns to provide more accurate productivity suggestions.</p>
+          <div className="space-y-4">
+            <div className="bg-[#2563EB]/5 dark:bg-[#2563EB]/10 border border-[#004AC6]/20 p-4 rounded-xl flex items-center justify-between">
+              <div>
+                <p className="text-base font-medium text-[#191C1E] dark:text-white">Allow AI to Analyze</p>
+                <p className="text-sm text-[#434655] dark:text-gray-400">AI will analyze your activity patterns to provide more accurate productivity suggestions.</p>
+              </div>
+              <button
+                onClick={() => toggleSetting('allowAiAnalyze')}
+                className={`w-11 h-6 rounded-full transition-colors relative ${settings.allowAiAnalyze ? 'bg-[#004AC6]' : 'bg-[#C3C6D7]'}`}
+              >
+                <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${settings.allowAiAnalyze ? 'left-6' : 'left-1'}`} />
+              </button>
             </div>
-            <button
-              onClick={() => toggleSetting('allowAiAnalyze')}
-              className={`w-11 h-6 rounded-full transition-colors relative ${settings.allowAiAnalyze ? 'bg-[#004AC6]' : 'bg-[#C3C6D7]'}`}
-            >
-              <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${settings.allowAiAnalyze ? 'left-6' : 'left-1'}`} />
-            </button>
+
+            <div className="border border-[#C3C6D7]/30 dark:border-gray-800 p-4 rounded-xl space-y-3">
+              <div>
+                <p className="text-base font-medium text-[#191C1E] dark:text-white">AI Communication Tone</p>
+                <p className="text-sm text-[#434655] dark:text-gray-400">Choose the style in which your AI Mentor speaks with you.</p>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+                {[
+                  { id: 'casual', label: 'Casual & Friendly', desc: 'Santai & Ramah' },
+                  { id: 'professional', label: 'Professional', desc: 'Ringkas & Lugas' },
+                  { id: 'academic', label: 'Academic', desc: 'Mendalam & Terstruktur' },
+                ].map((tone) => (
+                  <button
+                    key={tone.id}
+                    type="button"
+                    onClick={() => setSettings((prev) => ({ ...prev, aiTone: tone.id }))}
+                    className={`p-3 rounded-lg border text-left transition-all ${
+                      (settings.aiTone || 'casual') === tone.id
+                        ? 'border-[#004AC6] bg-[#004AC6]/5 dark:bg-[#004AC6]/15 font-semibold text-[#004AC6] dark:text-blue-400 shadow-sm'
+                        : 'border-[#C3C6D7]/40 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 text-[#434655] dark:text-gray-300'
+                    }`}
+                  >
+                    <p className="text-sm font-semibold">{tone.label}</p>
+                    <p className="text-xs opacity-75">{tone.desc}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </section>
 
@@ -306,13 +337,6 @@ const Settings = () => {
               {resetStatus === 'idle' && (
                 <img src={icons.chevronRight} alt="" className="w-2 h-3 opacity-50 group-hover:opacity-100 dark:invert" />
               )}
-            </button>
-            <button className="flex items-center justify-between p-4 border border-[#C3C6D7] dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group">
-              <div className="flex items-center gap-3">
-                <img src={icons.google} alt="" className="w-5 h-2.5" />
-                <span className="font-semibold text-[#191C1E] dark:text-white">Connected Account: Google</span>
-              </div>
-              <img src={icons.chevronRight} alt="" className="w-2 h-3 opacity-50 group-hover:opacity-100 dark:invert" />
             </button>
           </div>
         </section>

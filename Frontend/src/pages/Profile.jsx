@@ -257,15 +257,6 @@ const Profile = () => {
               <img src={icons.chevronRight} alt="" className="w-2 h-3 dark:invert opacity-50 group-hover:opacity-100" />
             )}
           </button>
-          <button className="flex items-center justify-between p-4 border border-[#C3C6D7] dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group">
-            <div className="flex items-center gap-3">
-              <div className="w-5 h-2.5 relative">
-                <img src={icons.google} alt="" className="w-full h-full object-contain" />
-              </div>
-              <span className="font-semibold text-[#191C1E] dark:text-white">Connected Account: Google</span>
-            </div>
-            <img src={icons.chevronRight} alt="" className="w-2 h-3 dark:invert opacity-50 group-hover:opacity-100" />
-          </button>
         </div>
       </div>
 

@@ -6,14 +6,12 @@ import TotalAct from '../assets/DashboardPage/TotalActivity.png';
 import Prodtime from '../assets/DashboardPage/Productive.png';
 import Streak from '../assets/DashboardPage/Streak.png';
 import Image from '../assets/DashboardPage/ImageMotive.png';
-
+import WeeklyBarChart from '../components/statistics/WeeklyBarChart';
 
 const imgAct = TotalAct;
 const imgProd = Prodtime;
 const imgStreak = Streak;
 const imgImage = Image;
-
-// --- Sub Components ---
 
 const StatCard = ({ title, value, subtext, icon, trend }) => (
   <div className="bg-white dark:bg-[#1A1C1E] border border-[#E7E8EA] dark:border-gray-800 p-[21px] rounded-[12px] shadow-[0px_4px_6px_rgba(17,24,39,0.05)] flex flex-col gap-1 transition-colors">
@@ -73,8 +71,6 @@ const TimelineItem = ({ time, title, location, status }) => {
   );
 };
 
-// --- Main Dashboard ---
-
 const Dashboard = () => {
   const { user } = useUser();
 
@@ -118,7 +114,6 @@ const Dashboard = () => {
 
   const { summary, timeline, weeklyData, categoryData } = data;
 
-  // Hitung strokeDasharray untuk donut SVG dari categoryData
   const circumference = 251.2;
   let offset = 0;
   const donutSegments = categoryData.map(cat => {
@@ -169,7 +164,6 @@ const Dashboard = () => {
             subtext={summary.streak > 0 ? 'Keep it up!' : 'Start today!'}
             icon={imgStreak}
           />
-          {/* Target Completion */}
           <div className="bg-white dark:bg-[#1A1C1E] border border-[#E7E8EA] dark:border-gray-800 p-[21px] rounded-[12px] shadow-[0px_4px_6px_rgba(17,24,39,0.05)] flex items-center gap-4 transition-colors">
             <div className="relative w-16 h-16">
               <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
@@ -202,7 +196,6 @@ const Dashboard = () => {
                 </div>
                 <Link to="/activity" className="text-[#004AC6] text-sm font-semibold hover:underline">See all</Link>
               </div>
-
               {timeline.length === 0 ? (
                 <p className="text-center text-[#434655] dark:text-gray-400 py-8">No activities today. Start by adding one!</p>
               ) : (
@@ -216,75 +209,60 @@ const Dashboard = () => {
           </div>
 
           {/* Right Column */}
-          <div className="space-y-8">
-            {/* Mini Statistics */}
-            <div className="bg-white dark:bg-[#1A1C1E] border border-[#E7E8EA] dark:border-gray-800 p-6 rounded-2xl shadow-[0px_4px_6px_rgba(17,24,39,0.05)] transition-colors">
-              <div className="flex items-center gap-2 mb-6">
-                <svg className="w-4 h-4 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20v-6M6 20V10M18 20V4"/></svg>
-                <h2 className="text-lg font-bold text-[#191C1E] dark:text-white">Mini Statistics</h2>
-              </div>
+<div className="space-y-8">
+  {/* Mini Statistics */}
+  <div className="bg-white dark:bg-[#1A1C1E] border border-[#E7E8EA] dark:border-gray-800 p-6 rounded-2xl shadow-[0px_4px_6px_rgba(17,24,39,0.05)] transition-colors overflow-hidden">
+    <div className="flex items-center gap-2 mb-4">
+      <svg className="w-4 h-4 text-blue-600" viewBox="0 0 0 0" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20v-6M6 20V10M18 20V4"/></svg>
+      <h2 className="text-lg font-bold text-[#191C1E] dark:text-white">Mini Statistics</h2>
+    </div>
 
-              <div className="space-y-6">
-                {/* Weekly Bar */}
-                <div>
-                  <p className="text-sm font-semibold text-black dark:text-white mb-4">Today's Progress</p>
-                  <div className="h-40 flex items-end justify-between gap-2 px-2">
-                    {weeklyData.map((d, i) => (
-                      <div key={i} className="flex-1 flex flex-col items-center gap-2">
-                        <div className="w-full bg-[#F5F5F5] dark:bg-[#2A2D31] rounded-t-lg relative group transition-colors" style={{ height: '100%' }}>
-                          <div
-                            className="w-full rounded-t-lg transition-all duration-500"
-                            style={{ height: `${d.value}%`, backgroundColor: d.color }}
-                          >
-                            <span className="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] text-gray-500 dark:text-gray-400 font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-                              {d.value}%
-                            </span>
-                          </div>
-                        </div>
-                        <span className={`text-[8px] whitespace-nowrap ${d.isToday ? 'font-bold text-black dark:text-white' : 'text-gray-400'}`}>
-                          {d.label}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+    <div className="space-y-6">
+      {/* Weekly Bar */}
+      <div className="h-[450px]">
+        <WeeklyBarChart
+          title="Today's Progress"
+          subtitle=""
+          data={weeklyData}
+        />
+      </div>
 
-                {/* Category Donut */}
-                <div className="pt-6 border-t border-[#EDEEF0] dark:border-gray-800">
-                  <p className="text-sm font-semibold text-[#434655] dark:text-gray-400 mb-4">Category Distribution</p>
-                  {categoryData.length === 0 ? (
-                    <p className="text-xs text-gray-400 text-center py-4">No data yet</p>
-                  ) : (
-                    <div className="flex items-center gap-6">
-                      <div className="w-20 h-20 relative shrink-0">
-                        <svg viewBox="0 0 100 100" className="w-full h-full transform -rotate-90">
-                          {donutSegments.map((seg, i) => (
-                            <circle key={i}
-                              cx="50" cy="50" r="40"
-                              fill="transparent"
-                              stroke={seg.color}
-                              strokeWidth="20"
-                              strokeDasharray={`${seg.dash} ${circumference}`}
-                              strokeDashoffset={-seg.offset}
-                            />
-                          ))}
-                        </svg>
-                      </div>
-                      <div className="space-y-1.5">
-                        {categoryData.map((cat, i) => (
-                          <div key={i} className="flex items-center gap-2">
-                            <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: cat.color }} />
-                            <span className="text-[12px] font-medium text-[#191C1E] dark:text-white">
-                              {cat.name} ({cat.value}%)
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
+      {/* Category Donut */}
+      <div className="pt-4 border-t border-[#EDEEF0] dark:border-gray-800">
+        <p className="text-sm font-semibold text-[#434655] dark:text-gray-400 mb-4">Category Distribution</p>
+        {categoryData.length === 0 ? (
+          <p className="text-xs text-gray-400 text-center py-4">No data yet</p>
+        ) : (
+          <div className="flex items-center gap-6">
+            <div className="w-20 h-20 relative shrink-0">
+              <svg viewBox="0 0 100 100" className="w-full h-full transform -rotate-90">
+                {donutSegments.map((seg, i) => (
+                  <circle key={i}
+                    cx="50" cy="50" r="40"
+                    fill="transparent"
+                    stroke={seg.color}
+                    strokeWidth="20"
+                    strokeDasharray={`${seg.dash} ${circumference}`}
+                    strokeDashoffset={-seg.offset}
+                  />
+                ))}
+              </svg>
             </div>
+            <div className="space-y-1.5">
+              {categoryData.map((cat, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: cat.color }} />
+                  <span className="text-[12px] font-medium text-[#191C1E] dark:text-white">
+                    {cat.name} ({cat.value}%)
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
 
             {/* Motivation Card */}
             <div className="bg-[#004AC6] p-8 rounded-2xl relative overflow-hidden shadow-lg group">

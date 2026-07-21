@@ -134,7 +134,10 @@ const forgotPassword = async (req, res) => {
       { expiresIn: '15m' }
     )
 
-    const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`
+    const rawFrontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173'
+    const frontendUrl = rawFrontendUrl.split('||')[0].trim()
+
+    const resetUrl = `${frontendUrl}/reset-password?token=${resetToken}`
     await sendResetEmail(email, resetUrl)
 
     return res.status(200).json({ message: 'Password reset link sent to email' })

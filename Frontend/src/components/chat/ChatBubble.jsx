@@ -1,8 +1,11 @@
+import { useState, useRef, useEffect } from 'react';
 import {
   Copy,
   RotateCcw,
   MoreHorizontal,
   FileText,
+  Check,
+  Trash2,
 } from 'lucide-react';
 import {
   Bar,
@@ -19,7 +22,11 @@ const CHART_BLOCK_REGEX = /```chart\s*([\s\S]*?)```/gi;
 
 const parseChartSpec = (raw) => {
   try {
-    const parsed = JSON.parse(raw);
+    let cleanRaw = (raw || '').trim();
+    cleanRaw = cleanRaw.replace(/^```(json)?\s*/i, '').replace(/\s*```$/, '');
+    cleanRaw = cleanRaw.replace(/,\s*([}\]])/g, '$1');
+
+    const parsed = JSON.parse(cleanRaw);
     const labels = Array.isArray(parsed.labels) ? parsed.labels.map((label) => String(label)) : [];
     const values = Array.isArray(parsed.values) ? parsed.values.map((value) => Number(value) || 0) : [];
     const length = Math.min(labels.length, values.length);
@@ -269,8 +276,37 @@ const AttachmentPreview = ({ fileUrl, fileName, fileType }) => {
   return null;
 };
 
-const ChatBubble = ({ message, sender, time, status, fileUrl, fileName, fileType }) => {
+const ChatBubble = ({ id, message, sender, time, status, fileUrl, fileName, fileType, onRegenerate, onDelete }) => {
   const isUser = sender === 'user';
+  const [copied, setCopied] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setIsMenuOpen(false);
+      }
+    };
+    if (isMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isMenuOpen]);
+
+  const handleCopy = async () => {
+    try {
+      if (message) {
+        await navigator.clipboard.writeText(message);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      }
+    } catch {
+      // fallback
+    }
+  };
 
   if (isUser) {
     return (
@@ -303,16 +339,68 @@ const ChatBubble = ({ message, sender, time, status, fileUrl, fileName, fileType
         </div>
       </div>
 
-      <div className="flex items-center gap-2">
-        <button className="p-1.5 text-[#434655] dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#2A2D31] rounded-md transition-colors" title="Copy">
-          <Copy className="w-4 h-4" />
+      <div className="flex items-center gap-2 relative">
+        <button
+          onClick={handleCopy}
+          className="p-1.5 text-[#434655] dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#2A2D31] rounded-md transition-colors flex items-center gap-1 text-xs"
+          title="Salin Teks"
+        >
+          {copied ? (
+            <>
+              <Check className="w-4 h-4 text-green-500" />
+              <span className="text-green-500 font-medium">Tersalin!</span>
+            </>
+          ) : (
+            <Copy className="w-4 h-4" />
+          )}
         </button>
-        <button className="p-1.5 text-[#434655] dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#2A2D31] rounded-md transition-colors" title="Regenerate">
-          <RotateCcw className="w-4 h-4" />
-        </button>
-        <button className="p-1.5 text-[#434655] dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#2A2D31] rounded-md transition-colors" title="More">
-          <MoreHorizontal className="w-4 h-4" />
-        </button>
+
+        {onRegenerate && (
+          <button
+            onClick={() => onRegenerate(id)}
+            className="p-1.5 text-[#434655] dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#2A2D31] rounded-md transition-colors"
+            title="Generate Ulang Respon"
+          >
+            <RotateCcw className="w-4 h-4" />
+          </button>
+        )}
+
+        <div className="relative" ref={menuRef}>
+          <button
+            onClick={() => setIsMenuOpen((prev) => !prev)}
+            className="p-1.5 text-[#434655] dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#2A2D31] rounded-md transition-colors"
+            title="Opsi Lainnya"
+          >
+            <MoreHorizontal className="w-4 h-4" />
+          </button>
+
+          {isMenuOpen && (
+            <div className="absolute left-0 bottom-full mb-2 w-36 bg-white dark:bg-[#1A1C1E] border border-[#C3C6D7]/40 dark:border-gray-800 rounded-xl shadow-lg py-1 z-20 animate-in fade-in zoom-in-95 duration-150">
+              <button
+                onClick={() => {
+                  handleCopy();
+                  setIsMenuOpen(false);
+                }}
+                className="w-full text-left px-3 py-2 text-xs text-[#191C1E] dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center gap-2"
+              >
+                <Copy className="w-3.5 h-3.5" />
+                Salin Teks
+              </button>
+              {onDelete && (
+                <button
+                  onClick={() => {
+                    onDelete(id);
+                    setIsMenuOpen(false);
+                  }}
+                  className="w-full text-left px-3 py-2 text-xs text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 flex items-center gap-2"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  Hapus Pesan
+                </button>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

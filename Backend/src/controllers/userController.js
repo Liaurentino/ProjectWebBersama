@@ -156,6 +156,7 @@ const getSettings = async (req, res) => {
       emailNotification: true,
       activityReminders: true,
       allowAiAnalyze: true,
+      aiTone: 'casual',
     }
 
     return res.status(200).json({
@@ -171,14 +172,18 @@ const getSettings = async (req, res) => {
 const updateSettings = async (req, res) => {
   try {
     const userId = req.user.id
-    const { emailNotification, activityReminders, allowAiAnalyze } = req.body
+    const { emailNotification, activityReminders, allowAiAnalyze, aiTone } = req.body
 
     // Validasi tipe boolean
-    const fields = { emailNotification, activityReminders, allowAiAnalyze }
-    for (const [key, val] of Object.entries(fields)) {
+    const boolFields = { emailNotification, activityReminders, allowAiAnalyze }
+    for (const [key, val] of Object.entries(boolFields)) {
       if (val !== undefined && typeof val !== 'boolean') {
         return res.status(400).json({ message: `${key} must be a boolean` })
       }
+    }
+
+    if (aiTone !== undefined && typeof aiTone !== 'string') {
+      return res.status(400).json({ message: 'aiTone must be a string' })
     }
 
     // Ambil settings lama dulu, lalu merge — supaya partial update aman
@@ -189,7 +194,8 @@ const updateSettings = async (req, res) => {
 
     const merged = {
       ...(existing?.settings || {}),
-      ...fields,
+      ...boolFields,
+      ...(aiTone ? { aiTone } : {}),
     }
 
     const updated = await prisma.user.update({

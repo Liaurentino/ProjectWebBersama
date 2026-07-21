@@ -308,19 +308,26 @@ const buildContextSummary = ({ primaryInterest, activities, notes, selectedConte
   return sections.join("\n\n")
 }
 
-const buildChatMessages = ({ primaryInterest, activities, notes, selectedContextItems, conversationMessages }) => {
+const buildChatMessages = ({ primaryInterest, activities, notes, selectedContextItems, conversationMessages, aiTone = 'casual' }) => {
   const contextSummary = buildContextSummary({ primaryInterest, activities, notes, selectedContextItems })
 
+  let toneInstruction = "Kamu adalah AI mentor yang ngobrol santai, ramah, dan membantu mahasiswa."
+  if (aiTone === 'professional') {
+    toneInstruction = "Kamu adalah AI mentor profesional yang memberikan jawaban lugas, ringkas, dan langsung pada poin utama."
+  } else if (aiTone === 'academic') {
+    toneInstruction = "Kamu adalah AI mentor akademis yang memberikan penjelasan mendalam, metodis, dan terstruktur berbasis logika."
+  }
+
   const systemInstructions = [
-    "Kamu adalah AI mentor yang ngobrol santai, jelas, dan membantu mahasiswa.",
+    toneInstruction,
     "Balas dalam Bahasa Indonesia.",
     "Jawaban harus relevan dengan konteks percakapan dan data pengguna.",
     "Kalau user minta saran karir, prioritaskan primary interest dan aktivitas yang tersedia.",
     "Kalau user minta bantuan belajar, berikan langkah praktis, contoh singkat, dan struktur yang mudah diikuti.",
     "Jangan mengarang data pribadi yang tidak ada di konteks.",
     "Gunakan markdown ringan seperti **bold** untuk penekanan jika membantu.",
-    "Jika jawaban akan lebih jelas dengan grafik, sertakan satu blok ```chart``` di akhir jawaban. Isi blok harus JSON valid dengan key: title, type, labels, values, seriesLabel.",
-    "Untuk chart, pakai type bar kecuali line benar-benar lebih cocok.",
+    "Jika jawaban akan lebih jelas dengan grafik atau jika user meminta grafik/chart, sertakan satu blok ```chart``` di akhir jawaban. Isi blok HARUS berupa JSON valid persis seperti format ini:\n```chart\n{\n  \"title\": \"Judul Chart\",\n  \"type\": \"bar\",\n  \"labels\": [\"Kategori A\", \"Kategori B\"],\n  \"values\": [10, 20],\n  \"seriesLabel\": \"Nilai\"\n}\n```",
+    "Untuk chart, pakai type 'bar' atau 'line'. Pastikan tidak ada trailing comma dalam JSON chart."
   ].join(" ")
 
   const messages = [
@@ -395,13 +402,6 @@ const extractPdfText = async (buffer) => {
 const requestOpenRouterChatCompletion = async (messages) => {
   const apiKey = process.env.OPENROUTER_API_KEY
   
-  // Debug log untuk memeriksa status API key
-  console.log('[OpenRouter Auth Debug]:', {
-    hasKey: !!apiKey,
-    keyLength: apiKey ? apiKey.length : 0,
-    keyPrefix: apiKey ? apiKey.slice(0, 10) + '...' : 'none'
-  })
-
   if (!apiKey || apiKey === 'isi_api_key_openrouter_disini' || apiKey.trim() === '') {
     const error = new Error('OPENROUTER_API_KEY is not configured')
     error.code = 'GROQ_NOT_CONFIGURED'
@@ -690,10 +690,10 @@ const getChatResponse = async (req, res) => {
     }
 
     // ── Fetch user data ───────────────────────────────────────
-    const [userProfile, activities, notes] = await Promise.all([
+    const [userProfile, rawActivities, rawNotes] = await Promise.all([
       prisma.user.findUnique({
         where: { id: userId },
-        select: { interests: true },
+        select: { interests: true, settings: true },
       }),
       prisma.activity.findMany({
         where: { userId, status: 'DONE' },
@@ -714,6 +714,13 @@ const getChatResponse = async (req, res) => {
       }),
     ])
 
+    const userSettings = userProfile?.settings || {}
+    const allowAiAnalyze = userSettings.allowAiAnalyze ?? true
+    const aiTone = userSettings.aiTone || 'casual'
+
+    const activities = allowAiAnalyze ? rawActivities.map(serializeActivity) : []
+    const notes = allowAiAnalyze ? rawNotes.map(serializeNote) : []
+
     const primaryInterest = normalizePrimaryInterest(userProfile?.interests)
 
     // ── Build messages untuk OpenRouter ──────────────────────
@@ -724,10 +731,11 @@ const getChatResponse = async (req, res) => {
     // Bangun context messages (tanpa pesan terakhir)
     const baseMessages = buildChatMessages({
       primaryInterest,
-      activities: activities.map(serializeActivity),
-      notes: notes.map(serializeNote),
+      activities,
+      notes,
       selectedContextItems,
       conversationMessages: contextMessages,
+      aiTone,
     })
 
     // Buat user message terakhir (mungkin multimodal)

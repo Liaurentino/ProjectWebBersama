@@ -115,11 +115,16 @@ const AIChat = () => {
   const [messages, setMessages] = useState([]);
   const [sessions, setSessions] = useState([]);
   const [activeSessionId, setActiveSessionId] = useState('');
+  const activeSessionIdRef = useRef('');
   const [isTyping, setIsTyping] = useState(false);
   const [loadingSessions, setLoadingSessions] = useState(true);
   const [selectedFile, setSelectedFile] = useState(null);
   const [contextData, setContextData] = useState({ activities: [], notes: [] });
   const messagesEndRef = useRef(null);
+
+  useEffect(() => {
+    activeSessionIdRef.current = activeSessionId;
+  }, [activeSessionId]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -131,7 +136,6 @@ const AIChat = () => {
 
   useEffect(() => {
     if (userLoading) return;
-
     if (!user?.id) return;
 
     const controller = new AbortController();
@@ -148,13 +152,16 @@ const AIChat = () => {
         setSessions(nextSessions);
 
         const initialSession = nextSessions[0] || null;
-        setActiveSessionId(initialSession?.id || '');
+        const initialId = initialSession?.id || '';
+        setActiveSessionId(initialId);
+        activeSessionIdRef.current = initialId;
         setMessages(initialSession?.messages || []);
       } catch (error) {
         if (error?.name === 'AbortError') return;
         setSessions([]);
         setMessages([]);
         setActiveSessionId('');
+        activeSessionIdRef.current = '';
       } finally {
         setLoadingSessions(false);
       }
@@ -178,6 +185,7 @@ const AIChat = () => {
 
   const handleNewChat = () => {
     setActiveSessionId('');
+    activeSessionIdRef.current = '';
     setMessages([]);
     setInputValue('');
     setSelectedContextItems([]);
@@ -190,6 +198,7 @@ const AIChat = () => {
     if (!session) return;
 
     setActiveSessionId(session.id);
+    activeSessionIdRef.current = session.id;
     setMessages(session.messages || []);
     setInputValue('');
     setSelectedContextItems([]);
@@ -203,9 +212,11 @@ const AIChat = () => {
       setSessions((prev) => {
         const next = prev.filter((session) => session.id !== item.id);
 
-        if (item.id === activeSessionId) {
+        if (item.id === activeSessionIdRef.current) {
           const fallback = next[0] || null;
-          setActiveSessionId(fallback?.id || '');
+          const fallbackId = fallback?.id || '';
+          setActiveSessionId(fallbackId);
+          activeSessionIdRef.current = fallbackId;
           setMessages(fallback?.messages || []);
         }
 
@@ -216,37 +227,70 @@ const AIChat = () => {
     }
   };
 
-  const sendTextMessage = async (text) => {
+  const sendTextMessage = async (text, overrideSessionId = null) => {
     const trimmed = text.trim();
     if (!trimmed && !selectedFile) return;
+
+    // Tentukan session ID target untuk request ini
+    let targetSessionId = overrideSessionId ?? activeSessionIdRef.current;
+    const isNewSession = !targetSessionId;
+
+    if (isNewSession) {
+      targetSessionId = `temp-${makeId()}`;
+      setActiveSessionId(targetSessionId);
+      activeSessionIdRef.current = targetSessionId;
+    }
 
     const userMessage = {
       id: makeId(),
       message: trimmed,
       sender: 'user',
       time: getTimeLabel(),
-      status: 'Load',
-      // Tampilkan preview lokal sebelum upload
-      fileUrl:  selectedFile ? URL.createObjectURL(selectedFile) : null,
+      status: 'Sent',
+      fileUrl: selectedFile ? URL.createObjectURL(selectedFile) : null,
       fileName: selectedFile?.name || null,
       fileType: selectedFile
         ? (selectedFile.type === 'application/pdf' ? 'pdf' : 'image')
         : null,
     };
 
-    const nextMessages    = [...messages, userMessage];
-    const contextItems    = selectedContextItems;
-    const fileToUpload    = selectedFile;
+    // Cari pesan-pesan sebelumnya dari session target jika ada
+    const currentTargetSession = sessions.find((s) => s.id === targetSessionId);
+    const baseMessages = currentTargetSession
+      ? currentTargetSession.messages
+      : isNewSession
+      ? []
+      : messages;
 
-    setMessages(nextMessages);
+    const nextMessages = [...baseMessages, userMessage];
+    const contextItems = selectedContextItems;
+    const fileToUpload = selectedFile;
+
+    // Jika user masih berada di session yang sama, update messages & isTyping
+    if (activeSessionIdRef.current === targetSessionId) {
+      setMessages(nextMessages);
+      setIsTyping(true);
+    }
+
     setInputValue('');
     setSelectedContextItems([]);
     setSelectedFile(null);
-    setIsTyping(true);
+
+    // Temp session object di sidebar
+    const tempSessionObj = {
+      id: targetSessionId,
+      title: truncateChatTitle(trimmed || 'Chat Baru'),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      messages: nextMessages,
+    };
+    upsertSession(tempSessionObj);
 
     try {
+      const payloadSessionId = targetSessionId.startsWith('temp-') ? undefined : targetSessionId;
+
       const response = await sendChatMessage({
-        chat_session_id: activeSessionId || undefined,
+        chat_session_id: payloadSessionId,
         messages: toApiMessages(nextMessages),
         selected_context_items: contextItems,
         file: fileToUpload || undefined,
@@ -254,9 +298,21 @@ const AIChat = () => {
 
       const savedSession = response.chat_session ? normalizeChatSession(response.chat_session) : null;
       if (savedSession) {
+        // Hapus temp session jika id-nya berubah
+        if (targetSessionId.startsWith('temp-')) {
+          setSessions((prev) => prev.filter((s) => s.id !== targetSessionId));
+        }
+
         upsertSession(savedSession);
-        setActiveSessionId(savedSession.id);
-        setMessages(savedSession.messages || []);
+
+        if (
+          activeSessionIdRef.current === targetSessionId ||
+          activeSessionIdRef.current === savedSession.id
+        ) {
+          setActiveSessionId(savedSession.id);
+          activeSessionIdRef.current = savedSession.id;
+          setMessages(savedSession.messages || []);
+        }
       } else {
         const aiMessage = {
           id: makeId(),
@@ -266,12 +322,17 @@ const AIChat = () => {
           status: 'Sent',
         };
 
-        const updatedMessages = [
-          ...nextMessages.map((message) => (message.id === userMessage.id ? { ...message, status: 'Sent' } : message)),
-          aiMessage,
-        ];
+        const updatedMessages = [...nextMessages, aiMessage];
+        const fallbackSession = {
+          ...tempSessionObj,
+          updatedAt: new Date().toISOString(),
+          messages: updatedMessages,
+        };
+        upsertSession(fallbackSession);
 
-        setMessages(updatedMessages);
+        if (activeSessionIdRef.current === targetSessionId) {
+          setMessages(updatedMessages);
+        }
       }
     } catch (error) {
       const fallbackMessage = {
@@ -282,12 +343,49 @@ const AIChat = () => {
         status: 'Sent',
       };
 
-      setMessages([
-        ...nextMessages.map((message) => (message.id === userMessage.id ? { ...message, status: 'Sent' } : message)),
-        fallbackMessage,
-      ]);
+      const updatedMessages = [...nextMessages, fallbackMessage];
+      const errorSession = {
+        ...tempSessionObj,
+        updatedAt: new Date().toISOString(),
+        messages: updatedMessages,
+      };
+      upsertSession(errorSession);
+
+      if (activeSessionIdRef.current === targetSessionId) {
+        setMessages(updatedMessages);
+      }
     } finally {
-      setIsTyping(false);
+      if (activeSessionIdRef.current === targetSessionId) {
+        setIsTyping(false);
+      }
+    }
+  };
+
+  const truncateChatTitle = (text, maxLength = 30) => {
+    if (!text) return 'Chat Baru';
+    return text.length > maxLength ? text.slice(0, maxLength) + '...' : text;
+  };
+
+  const handleRegenerateMessage = (aiMessageId) => {
+    const aiIndex = messages.findIndex((m) => m.id === aiMessageId);
+    if (aiIndex > 0 && messages[aiIndex - 1]?.sender === 'user') {
+      const lastUserPrompt = messages[aiIndex - 1].message;
+      sendTextMessage(lastUserPrompt);
+    } else {
+      const lastUserMsg = [...messages].reverse().find((m) => m.sender === 'user');
+      if (lastUserMsg?.message) {
+        sendTextMessage(lastUserMsg.message);
+      }
+    }
+  };
+
+  const handleDeleteMessage = (messageId) => {
+    const nextMessages = messages.filter((m) => m.id !== messageId);
+    setMessages(nextMessages);
+    if (activeSessionId) {
+      setSessions((prev) =>
+        prev.map((s) => (s.id === activeSessionId ? { ...s, messages: nextMessages } : s))
+      );
     }
   };
 
@@ -350,7 +448,12 @@ const AIChat = () => {
             ) : (
               <div className="flex flex-col w-full py-4">
                 {messages.map((msg) => (
-                  <ChatBubble key={msg.id} {...msg} />
+                  <ChatBubble
+                    key={msg.id}
+                    {...msg}
+                    onRegenerate={handleRegenerateMessage}
+                    onDelete={handleDeleteMessage}
+                  />
                 ))}
                 {isTyping && <TypingIndicator />}
                 <div ref={messagesEndRef} />
