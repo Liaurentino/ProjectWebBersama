@@ -91,10 +91,11 @@ const renderTableBlock = (lines) => {
   );
 };
 
-const renderRichText = (text) => {
+const renderRichText = (text, isUser = false) => {
   const lines = text.split('\n');
   const result = [];
   let i = 0;
+  const textColor = isUser ? 'text-white' : 'text-[#434655] dark:text-gray-300';
 
   while (i < lines.length) {
     const line = lines[i];
@@ -105,11 +106,13 @@ const renderRichText = (text) => {
     if (headingMatch) {
       const level = headingMatch[1].length;
       const content = headingMatch[2];
-      const cls = level === 1
-        ? 'text-base font-bold text-[#191C1E] dark:text-white mt-4 mb-1'
-        : level === 2
-          ? 'text-sm font-bold text-[#191C1E] dark:text-gray-100 mt-3 mb-1 flex items-center gap-2'
-          : 'text-sm font-semibold text-[#434655] dark:text-gray-300 mt-2 mb-0.5';
+      const cls = isUser
+        ? 'text-base font-bold text-white mt-4 mb-1'
+        : level === 1
+          ? 'text-base font-bold text-[#191C1E] dark:text-white mt-4 mb-1'
+          : level === 2
+            ? 'text-sm font-bold text-[#191C1E] dark:text-gray-100 mt-3 mb-1 flex items-center gap-2'
+            : 'text-sm font-semibold text-[#434655] dark:text-gray-300 mt-2 mb-0.5';
       result.push(<p key={i} className={cls}>{renderInlineMarkdown(content)}</p>);
       i++; continue;
     }
@@ -131,7 +134,7 @@ const renderRichText = (text) => {
     const bulletMatch = trimmed.match(/^[-*]\s+(.+)/);
     if (bulletMatch) {
       result.push(
-        <li key={i} className="ml-4 list-disc text-[#434655] dark:text-gray-300 leading-relaxed">
+        <li key={i} className={`ml-4 list-disc ${textColor} leading-relaxed`}>
           {renderInlineMarkdown(bulletMatch[1])}
         </li>
       );
@@ -142,7 +145,7 @@ const renderRichText = (text) => {
     const numMatch = trimmed.match(/^(\d+)\.\s+(.+)/);
     if (numMatch) {
       result.push(
-        <li key={i} className="ml-4 list-decimal text-[#434655] dark:text-gray-300 leading-relaxed">
+        <li key={i} className={`ml-4 list-decimal ${textColor} leading-relaxed`}>
           {renderInlineMarkdown(numMatch[2])}
         </li>
       );
@@ -154,7 +157,7 @@ const renderRichText = (text) => {
 
     // Normal paragraph
     result.push(
-      <p key={i} className="leading-relaxed text-[#434655] dark:text-gray-300">
+      <p key={i} className={`leading-relaxed ${textColor}`}>
         {renderInlineMarkdown(trimmed)}
       </p>
     );
@@ -312,12 +315,12 @@ const ChatBubble = ({ id, message, sender, time, status, fileUrl, fileName, file
     return (
       <div className="flex justify-end w-full mb-6">
         <div className="flex flex-col gap-1 items-end max-w-[80%] sm:max-w-[70%] md:max-w-[60%] animate-in slide-in-from-right-4 fade-in duration-300">
-          <div className="bg-[#2563EB] text-[#EEEFFF] p-4 rounded-l-2xl rounded-br-2xl shadow-sm">
+          <div className="bg-[#2563EB] text-white p-4 rounded-l-2xl rounded-br-2xl shadow-sm">
             {/* Attachment di atas teks */}
             <AttachmentPreview fileUrl={fileUrl} fileName={fileName} fileType={fileType} />
             {message && (
-              <div className="text-sm sm:text-base leading-relaxed whitespace-pre-wrap">
-                {renderRichText(message)}
+              <div className="text-sm sm:text-base leading-relaxed whitespace-pre-wrap text-white">
+                {renderRichText(message, true)}
               </div>
             )}
           </div>

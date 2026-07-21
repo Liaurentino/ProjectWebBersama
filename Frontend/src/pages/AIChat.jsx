@@ -422,14 +422,14 @@ const AIChat = () => {
 
   if (userLoading || loadingSessions) {
     return (
-      <div className="flex h-screen items-center justify-center bg-[#F8F9FB] dark:bg-[#121212] text-[#434655] dark:text-gray-300">
+      <div className="flex h-full min-h-[400px] items-center justify-center bg-[#F8F9FB] dark:bg-[#121212] text-[#434655] dark:text-gray-300">
         Loading chat...
       </div>
     );
   }
 
   return (
-    <div className="relative flex h-screen overflow-hidden bg-[#F8F9FB] dark:bg-[#121212] transition-colors duration-300">
+    <div className="relative flex h-[calc(100vh-64px)] overflow-hidden bg-[#F8F9FB] dark:bg-[#121212] transition-colors duration-300">
       {isHistoryOpen && (
         <div
           className="fixed inset-0 bg-black/20 dark:bg-black/40 z-[45] md:hidden transition-opacity duration-500"
@@ -438,7 +438,7 @@ const AIChat = () => {
       )}
 
       <div className={`flex-1 flex flex-col relative transition-all duration-500 ease-in-out ${isHistoryOpen ? 'md:mr-64 mr-0' : 'md:mr-[64px] mr-0'}`}>
-        <div className="flex-1 overflow-y-auto pt-6 pb-6 px-4 sm:px-6 flex flex-col items-center [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+        <div className="flex-1 overflow-y-auto pt-8 sm:pt-12 pb-6 px-4 sm:px-6 flex flex-col items-center [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
           <div className="w-full max-w-4xl">
             {messages.length === 0 && !isTyping ? (
               <div className="animate-in fade-in zoom-in duration-500">

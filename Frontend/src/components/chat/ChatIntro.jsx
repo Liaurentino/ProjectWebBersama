@@ -2,7 +2,7 @@ import { Brain } from 'lucide-react';
 
 const ChatIntro = () => {
   return (
-    <div className="flex flex-col items-center mb-8">
+    <div className="flex flex-col items-center pt-4 sm:pt-8 mb-8">
       <div className="bg-[#2563EB]/10 w-16 h-16 rounded-[20px] flex items-center justify-center mb-2">
         <Brain className="w-9 h-9 text-[#2563EB]" strokeWidth={1.5} />
       </div>

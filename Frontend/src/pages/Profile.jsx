@@ -12,6 +12,8 @@ import ChangePass from '../assets/ProfilePage/ChangePass.png';
 import Edit from '../assets/ProfilePage/Edit.png';
 import Sync from '../assets/ProfilePage/SyncGoogle.png';
 import Chevron from '../assets/SettingsPage/Chevron.png';
+import defaultProfilePic from '../assets/ProfilePage/profile_default.jpg';
+
 
 const DeleteAccountModal = ({ isOpen, closeModal, onConfirm, isDeleting }) => {
   if (!isOpen) return null;
@@ -136,7 +138,7 @@ const Profile = () => {
         <div className="flex items-start gap-6">
           <div className="relative">
             <div className="w-40 h-40 rounded-3xl overflow-hidden shadow-lg border-4 border-[#F3F4F6] dark:border-gray-800">
-              <img src={user.photoUrl} alt="Profile" className="w-full h-full object-cover" />
+              <img src={user.photoUrl || defaultProfilePic} alt="Profile" className="w-full h-full object-cover" />
             </div>
             <button
               onClick={() => navigate('/profile/edit-profile')}

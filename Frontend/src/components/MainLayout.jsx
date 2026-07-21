@@ -2,6 +2,13 @@ import { Link, useNavigate, Outlet, useLocation } from 'react-router-dom';
 import React, { useState, useRef, useEffect } from 'react';
 import { useUser } from '../hooks/useUser';
 import { useTheme } from '../context/ThemeContext';
+import defaultProfilePic from '../assets/ProfilePage/profile_default.jpg';
+import { DocumentationModal, ContactSupportModal, SubmitFeedbackModal } from './modals/HelpModals';
+import { getAllActivities } from '../services/Activityservice';
+import { getAllNotes } from '../services/Notesservice';
+
+
+
 
 const HISTORY_KEY = 'search_history';
 const MAX_HISTORY = 5;
@@ -26,11 +33,70 @@ const MainLayout = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchHistory, setSearchHistory] = useState(getHistory);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [loadingNotifications, setLoadingNotifications] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
+  const [activeHelpModal, setActiveHelpModal] = useState(null);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const searchRef = useRef(null);
   const notificationRef = useRef(null);
   const helpRef = useRef(null);
+
+  const fetchNotifications = async () => {
+    try {
+      setLoadingNotifications(true);
+      const [actRes, notesRes] = await Promise.allSettled([
+        getAllActivities(),
+        getAllNotes()
+      ]);
+
+      const items = [];
+
+      if (actRes.status === 'fulfilled' && Array.isArray(actRes.value?.data)) {
+        actRes.value.data
+          .filter(a => a.status !== 'DONE')
+          .forEach(a => {
+            items.push({
+              id: `act-${a.id}`,
+              type: 'activity',
+              title: a.title,
+              subtitle: a.category || 'Upcoming Event',
+              date: a.startedAt ? new Date(a.startedAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'Upcoming',
+              link: '/activity',
+              status: a.status
+            });
+          });
+      }
+
+      if (notesRes.status === 'fulfilled' && Array.isArray(notesRes.value)) {
+        notesRes.value
+          .filter(n => n.status !== 'done' && n.dueDate && n.dueDate !== 'No date')
+          .forEach(n => {
+            items.push({
+              id: `note-${n.id}`,
+              type: 'note',
+              title: n.title,
+              subtitle: 'Deadline Notes',
+              date: n.dueDate,
+              link: '/notes',
+              status: n.status
+            });
+          });
+      }
+
+      setNotifications(items);
+    } catch (err) {
+      console.error('Failed to load notifications:', err);
+    } finally {
+      setLoadingNotifications(false);
+    }
+  };
+
+  useEffect(() => {
+    if (user) {
+      fetchNotifications();
+    }
+  }, [user]);
 
   const handleLogout = () => {
     setIsLogoutModalOpen(true);
@@ -280,10 +346,13 @@ const MainLayout = () => {
               <div className="relative" ref={notificationRef}>
                 <button 
                   onClick={() => setShowNotifications(!showNotifications)}
-                  className={`p-2 rounded-full transition-colors ${isDarkMode ? 'text-gray-400 hover:bg-gray-800' : 'text-gray-500 hover:bg-gray-100'} ${showNotifications ? (isDarkMode ? 'bg-gray-800' : 'bg-gray-100') : ''}`} 
+                  className={`p-2 rounded-full transition-colors relative ${isDarkMode ? 'text-gray-400 hover:bg-gray-800' : 'text-gray-500 hover:bg-gray-100'} ${showNotifications ? (isDarkMode ? 'bg-gray-800' : 'bg-gray-100') : ''}`} 
                   title="Notifications"
                 >
                   <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+                  {notifications.length > 0 && (
+                    <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full ring-2 ring-white dark:ring-[#1A1C1E] animate-pulse" />
+                  )}
                 </button>
 
                 {showNotifications && (
@@ -292,12 +361,61 @@ const MainLayout = () => {
                       <h3 className={`text-[10px] font-bold tracking-widest uppercase ${isDarkMode ? 'text-gray-400' : 'text-[#434655]'}`}>Notifications</h3>
                       <span className="text-[10px] text-blue-500 font-bold uppercase tracking-widest">Recent</span>
                     </div>
-                    <div className="p-8 text-center">
-                      <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3 ${isDarkMode ? 'bg-gray-800' : 'bg-gray-100'}`}>
-                        <svg className="w-6 h-6 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
-                      </div>
-                      <p className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-[#191C1E]'}`}>All caught up!</p>
-                      <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>No new notifications to show.</p>
+
+                    <div className="max-h-80 overflow-y-auto divide-y divide-gray-100 dark:divide-gray-800">
+                      {loadingNotifications ? (
+                        <div className="p-6 text-center text-xs text-gray-400">Loading notifications...</div>
+                      ) : notifications.length === 0 ? (
+                        <div className="p-8 text-center">
+                          <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3 ${isDarkMode ? 'bg-gray-800' : 'bg-gray-100'}`}>
+                            <svg className="w-6 h-6 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+                          </div>
+                          <p className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-[#191C1E]'}`}>All caught up!</p>
+                          <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>No upcoming events or deadlines.</p>
+                        </div>
+                      ) : (
+                        notifications.map((item) => (
+                          <div
+                            key={item.id}
+                            onClick={() => {
+                              setShowNotifications(false);
+                              navigate(item.link);
+                            }}
+                            className={`p-3.5 flex items-start gap-3 cursor-pointer transition-colors ${
+                              isDarkMode ? 'hover:bg-gray-800/60' : 'hover:bg-gray-50'
+                            }`}
+                          >
+                            <div className={`w-8 h-8 rounded-lg shrink-0 flex items-center justify-center mt-0.5 ${
+                              item.type === 'activity' 
+                                ? 'bg-blue-500/10 text-blue-500' 
+                                : 'bg-purple-500/10 text-purple-500'
+                            }`}>
+                              {item.type === 'activity' ? (
+                                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M12 8v8"/><path d="M8 12h8"/></svg>
+                              ) : (
+                                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14.5 2H6a2 2 0 0 1-2 2v16a2 2 0 0 2 2 2h12a2 2 0 0 2 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+                              )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between gap-2">
+                                <p className={`text-xs font-bold truncate ${isDarkMode ? 'text-white' : 'text-[#191C1E]'}`}>{item.title}</p>
+                                <span className={`text-[9px] px-1.5 py-0.5 rounded font-bold uppercase ${
+                                  item.status === 'IN_PROGRESS' || item.status === 'in-progress'
+                                    ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
+                                    : 'bg-blue-500/10 text-blue-600 dark:text-blue-400'
+                                }`}>
+                                  {item.status?.replace('_', ' ')}
+                                </span>
+                              </div>
+                              <p className="text-[11px] text-gray-500 dark:text-gray-400 truncate mt-0.5">{item.subtitle}</p>
+                              <div className="flex items-center gap-1 mt-1 text-[10px] font-semibold text-blue-600 dark:text-blue-400">
+                                <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                <span>{item.date}</span>
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      )}
                     </div>
                   </div>
                 )}
@@ -319,12 +437,16 @@ const MainLayout = () => {
                     </div>
                     <div className="p-2 space-y-1">
                       {[
-                        { label: 'Documentation', icon: <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg> },
-                        { label: 'Contact Support', icon: <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg> },
-                        { label: 'Submit Feedback', icon: <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> },
+                        { id: 'docs', label: 'Documentation', icon: <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg> },
+                        { id: 'support', label: 'Contact Support', icon: <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg> },
+                        { id: 'feedback', label: 'Submit Feedback', icon: <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> },
                       ].map((item, idx) => (
                         <button
                           key={idx}
+                          onClick={() => {
+                            setShowHelp(false);
+                            setActiveHelpModal(item.id);
+                          }}
                           className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition text-left ${isDarkMode ? 'hover:bg-gray-800 text-white' : 'hover:bg-gray-100 text-[#191C1E]'}`}
                         >
                           <span className="text-gray-400">{item.icon}</span>
@@ -343,7 +465,7 @@ const MainLayout = () => {
                 <p className={`text-[10px] ${isDarkMode ? 'text-gray-400' : 'text-[#434655]'}`}>{user?.semester ? `${user.semester}th Semester` : ''}</p>
               </div>
               <div className="w-10 h-10 rounded-full border-2 border-[#2563EB] overflow-hidden shrink-0">
-                <img src={user?.photoUrl} alt="User Avatar" className="w-full h-full object-cover" />
+                <img src={user?.photoUrl || defaultProfilePic} alt="User Avatar" className="w-full h-full object-cover" />
               </div>
             </Link>
           </div>
@@ -386,6 +508,23 @@ const MainLayout = () => {
           </div>
         </div>
       )}
+
+      {/* Help & Support Modals */}
+      <DocumentationModal
+        isOpen={activeHelpModal === 'docs'}
+        onClose={() => setActiveHelpModal(null)}
+        isDarkMode={isDarkMode}
+      />
+      <ContactSupportModal
+        isOpen={activeHelpModal === 'support'}
+        onClose={() => setActiveHelpModal(null)}
+        isDarkMode={isDarkMode}
+      />
+      <SubmitFeedbackModal
+        isOpen={activeHelpModal === 'feedback'}
+        onClose={() => setActiveHelpModal(null)}
+        isDarkMode={isDarkMode}
+      />
     </div>
   );
 };

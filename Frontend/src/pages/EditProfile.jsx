@@ -4,6 +4,8 @@ import { useUser } from '../hooks/useUser';
 import addPicture from '../assets/ProfilePage/AddPicture.png';
 import Study from '../assets/ProfilePage/Study.png';
 import More from '../assets/ProfilePage/More.png';
+import defaultProfilePic from '../assets/ProfilePage/profile_default.jpg';
+
 
 
 const EditProfile = () => {
@@ -96,7 +98,7 @@ const EditProfile = () => {
   if (loading && !user) return <div className="p-8 text-center text-[#434655] dark:text-gray-400">Loading...</div>;
   if (error) return <div className="p-8 text-center text-red-500">Error: {error}</div>;
 
-  const currentPhoto = photoPreview || user?.photoUrl ;
+  const currentPhoto = photoPreview || user?.photoUrl || defaultProfilePic;
   const isSaving = loading || photoUploading;
 
   return (
